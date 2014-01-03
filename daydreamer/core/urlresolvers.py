@@ -43,7 +43,7 @@ def resolve(url, scheme=None, request=None, **kwargs):
             if request is not None \
             else Site.objects.get_current().domain)):
         raise ValueError(
-            "The fully qualified URL's scheme and host are invalid for "
+            "The fully qualified URL's scheme or hostname are invalid for "
             "this host.")
     return urlresolvers.resolve(parts.path)
 
