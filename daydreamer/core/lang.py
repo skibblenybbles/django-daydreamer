@@ -17,7 +17,7 @@ def extended(destination, source, copy=False):
     """
     if copy:
         destination = copying.copy(destination)
-    if callable(getattr(destination, 'extend', None)):
+    if callable(getattr(destination, "extend", None)):
         destination.extend(source)
     else:
         for value in source:
@@ -33,11 +33,11 @@ def updated(destination, source, copy=False):
     
     """
     if copy:
-        if callable(getattr(destination, 'copy', None)):
+        if callable(getattr(destination, "copy", None)):
             destination = destination.copy()
         else:
             destination = copying.copy(destination)
-    if callable(getattr(destination, 'update', None)):
+    if callable(getattr(destination, "update", None)):
         destination.update(source)
     else:
         for key, value in six.iteritems(source):
