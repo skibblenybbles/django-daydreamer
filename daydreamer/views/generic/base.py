@@ -17,8 +17,7 @@ class View(generic.View):
     are also provided.
     
     The not modified (304), not allowed (405) and server error (500) responses
-    are not provided, as they are handled automatically and more elegantly
-    by other Django mechanisms.
+    are not provided, as they are handled automatically by other Django mechanisms.
     
     Even though the not_found(), permission_denied() and suspicious_operation()
     methods raise exceptions, it is recommended to return the responses from
@@ -53,8 +52,8 @@ class View(generic.View):
     
     def attachment(self, data, content_type, filename):
         """
-        Returns a file attachment response containing the given data with
-        the given content type (MIME type) and filename.
+        Returns a file attachment response with the data as its payload
+        and the specified content type (MIME type) and filename.
         
         """
         return lang.updated(
@@ -75,13 +74,12 @@ class View(generic.View):
             if permanent else http.HttpResponseRedirect)(
                 self.reverse(viewname, **kwargs))
     
-    def gone(self, 
-            content=_("The requested resource is no longer available.")):
+    def gone(self):
         """
-        Returns a 410 gone response with the given content.
+        Returns a 410 gone response.
         
         """
-        return http.HttpResponseGone(content)
+        return http.HttpResponseGone()
     
     def not_found(self):
         """
