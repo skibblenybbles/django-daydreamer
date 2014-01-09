@@ -45,7 +45,7 @@ class View(generic.View):
         
         """
         return urlresolvers.reverse(viewname, **lang.updated(kwargs, {
-            'qualified': True, 'scheme': scheme, 'request': self.request} \
+            "qualified": True, "scheme": scheme, "request": self.request} \
                 if qualified \
                 else {},
             copy=True))
