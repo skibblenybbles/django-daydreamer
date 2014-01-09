@@ -1,16 +1,20 @@
 from __future__ import unicode_literals
 
+import logging
+
 from django import http
 from django.core import exceptions
-from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 
 from daydreamer.core import lang, urlresolvers
 
 
+__all__ = ("View", "TemplateView", "RedirectView",)
+
+
 class View(generic.View):
     """
-    Extends Django's base view class with helpful features for reversing URLs
+    Extends Django's base View class with helpful features for reversing URLs
     and returning common responses, including file attachments, redirects
     (301 and 302) and gone (410). Helpers that raise appropriate exceptions
     for not found (404), permission denied (403) and suspicious operation (400)
@@ -36,6 +40,8 @@ class View(generic.View):
     exception handling machinery will be neutralized.
     
     """
+    logger = logging.getLogger("django.request")
+    
     def reverse(self, viewname, qualified=False, scheme=None, **kwargs):
         """
         Reverse a URL from the given viewname and other optional arguments to
@@ -74,33 +80,55 @@ class View(generic.View):
             if permanent else http.HttpResponseRedirect)(
                 self.reverse(viewname, **kwargs))
     
-    def gone(self):
+    def gone(self, debug_message=""):
         """
-        Returns a 410 gone response.
+        Logs and returns a 410 gone response.
         
         """
-        return http.HttpResponseGone()
+        self.logger.info(
+            "Gone ({method:s}: {path:s})".format(
+                method=self.request.method, path=self.request.path),
+            extra={"status_code": 410, "request": self.request})
+        return http.HttpResponseGone(debug_message)
     
-    def not_found(self):
+    def not_found(self, debug_message=""):
         """
         Raises an Http404 exception to trigger the 404 not found response
         machinery.
         
         """
-        raise http.Http404
+        raise http.Http404(debug_message)
     
-    def permission_denied(self):
+    def permission_denied(self, debug_message=""):
         """
         Raises a PermissionDenied exception to trigger the 403 forbidden
         response machinery.
         
         """
-        raise exceptions.PermissionDenied
+        raise exceptions.PermissionDenied(debug_message)
     
-    def suspicious_operation(self):
+    def suspicious_operation(self, debug_message=""):
         """
         Raises a SuspiciousOperation exception to trigger the 400 bad request
         response machinery.
         
         """
-        raise exceptions.SuspiciousOperation
+        raise exceptions.SuspiciousOperation(debug_message)
+
+
+class TemplateView(generic.TemplateView, View):
+    """
+    Extends Django's TemplateView class with features from
+    daydreamer.views.generic.View.
+    
+    """
+    pass
+
+
+class RedirectView(generic.RedirectView, View):
+    """
+    Extends Django's RedirectView class with features from
+    daydreamer.views.generic.View.
+    
+    """
+    pass
