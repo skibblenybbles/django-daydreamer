@@ -1,5 +1,9 @@
-from .auth import LoginRequired, PermissionsRequired
+from .auth import (LoginRequired, ActiveRequired, StaffRequired,
+    SuperuserRequired, GroupsRequired, PermissionsRequired,
+    ObjectPermissionsRequired, TestRequired, AuthRequired,)
 
 
 __all__ = (
-    "LoginRequired, PermissionsRequired",)
+    "LoginRequired", "ActiveRequired", "StaffRequired", "SuperuserRequired",
+    "GroupsRequired", "PermissionsRequired", "ObjectPermissionsRequired",
+    "TestRequired", "AuthRequired",)
