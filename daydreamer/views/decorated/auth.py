@@ -1,11 +1,7 @@
 from __future__ import unicode_literals
 
-from django.contrib import auth, messages
-from django.contrib.auth import decorators as auth_decorators
-from django.core import exceptions
-from django.utils import encoding, six
-
-from uap.core import urlresolvers
+from django.contrib import auth
+from django.utils import six
 
 from .. import generic
 
@@ -63,7 +59,7 @@ class LoginRequired(generic.View):
             super(LoginRequired, self).not_allowed_handler())
 
 
-class PermissionsRequired(AccessTest):
+class PermissionsRequired(generic.View):
     """
     A view decorator mixin that tests whether the user has a set
     of permissions.
@@ -98,7 +94,7 @@ class PermissionsRequired(AccessTest):
         if isinstance(permissions, six.string_types):
             permissions = (permissions,)
         return (
-            not permissions_required or
+            not permissions or
             self.request.user.has_perms(permissions))
     
     def permissions_required_not_allowed(self, request, *args, **kwargs):

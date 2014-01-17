@@ -250,7 +250,7 @@ class SecuredView(generic.View):
         if message:
             messages.add_message(
                 self.request,
-                self.get_not_allowed_message_level(prefix)
+                self.get_not_allowed_message_level(prefix),
                 message,
                 extra_tags=self.get_not_allowed_message_tags(prefix))
     

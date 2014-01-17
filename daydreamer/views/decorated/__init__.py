@@ -1,5 +1,5 @@
-from .auth import UserPassesTest
+from .auth import LoginRequired, PermissionsRequired
 
 
 __all__ = (
-    "UserPassesTest",)
+    "LoginRequired, PermissionsRequired",)
