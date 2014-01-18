@@ -54,7 +54,7 @@ class LoginRequired(generic.View):
         """
         return (
             not self.get_login_required() or 
-            self.request.user_is_authenticated())
+            self.request.user.is_authenticated())
     
     def login_required_not_allowed(self, request, *args, **kwargs):
         """

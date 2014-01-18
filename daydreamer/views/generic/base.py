@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import collections
 import logging
 
 from django import http
@@ -469,10 +470,10 @@ class View(CommonResponseView, SecuredView):
         Returns True to allow the request and False to deny it.
         
         """
-        method = self.request_method.lower()
+        method = self.request.method.lower()
         return (
             method in self.http_method_names and
-            isinstance(self, method, None), collections.Callable)
+            isinstance(getattr(self, method, None), collections.Callable))
     
     def get_not_allowed_handler(self):
         """
