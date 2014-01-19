@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-import functools
-import operator
 import urlparse
 
 from django.contrib.sites.models import Site
@@ -130,9 +128,9 @@ def update_query(url, data):
     """
     url = encoding.force_str(url)
     parts = urlparse.urlparse(url)
-    return urlparse.urlunparse(reduce(operator.add, (
-        parts[:4],
-        lang.updated(
+    return urlparse.urlunparse(
+        parts[:4] +
+        (lang.updated(
             request.QueryDict(parts.query, mutable=True),
-            data).urlencode(safe="/"),
-        parts[:5]), ()))
+            data or {}).urlencode(safe="/"),) +
+        parts[5:])

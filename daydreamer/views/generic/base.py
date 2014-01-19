@@ -158,7 +158,7 @@ class SecuredView(generic.View):
         redirect_url = self.get_not_allowed_attr(prefix, "redirect_url")
         try:
             redirect_url = (
-                redirect_url or urlresolvers.resolve(settings.LOGIN_URL))
+                redirect_url or urlresolvers.reverse(settings.LOGIN_URL))
         except urlresolvers.NoReverseMatch:
             redirect_url = settings.LOGIN_URL
         return redirect_url
@@ -174,7 +174,7 @@ class SecuredView(generic.View):
         """
         return (
             self.get_not_allowed_attr(prefix, "redirect_next_url") or
-            self.request.build_absolute_url())
+            self.request.build_absolute_uri())
     
     def get_not_allowed_redirect_next_name(self, prefix):
         """
