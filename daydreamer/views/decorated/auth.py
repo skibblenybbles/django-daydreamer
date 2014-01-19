@@ -252,7 +252,7 @@ class SuperuserRequired(generic.View):
         return (
             not self.superuser_required_test() and
             self.superuser_required_not_allowed or
-            super(StaffRequired, self).get_not_allowed_handler())
+            super(SuperuserRequired, self).get_not_allowed_handler())
 
 
 class GroupsRequired(generic.View):

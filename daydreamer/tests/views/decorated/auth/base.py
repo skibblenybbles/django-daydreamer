@@ -10,7 +10,7 @@ from daydreamer.test import messages as test_messages, views as test_views
 
 class TestCase(test_messages.TestCase, test_views.TestCase):
     """
-    Common utilities for testing auth decorated views.
+    Common utilities for testing authentication view decorator mixins.
     
     Specify a view class to use for the test cases and a prefix to use
     for the prefixedattrs passed to self.view().
@@ -63,6 +63,23 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         raise NotImplementedError
     
     # Utilities.
+    def create_authenticated_user(self, **attrs):
+        """
+        Creates a user with a unique username and password, sets the specified
+        attributes on the user and logs in. Returns the new,
+        authenticated user.
+        
+        """
+        username = self.unique()[:30]
+        password = self.unique()
+        user = auth.get_user_model().objects.create_user(username, password=password)
+        if attrs:
+            for name, value in six.iteritems(attrs):
+                setattr(user, name, value)
+            user.save()
+        self.client.login(username=username, password=password)
+        return user
+    
     def prefixed(self, prefix, data):
         """
         Returns a copy of the data dictionary with all its keys prefixed
