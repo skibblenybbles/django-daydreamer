@@ -24,7 +24,7 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         
         """
         return dict(
-            ("_".join((prefix, key)), value)
+            ("_".join((prefix, key)) if key else prefix, value)
             for key, value in six.iteritems(data))
     
     def view(self, prefixedattrs=None, staticattrs=None, **kwargs):
