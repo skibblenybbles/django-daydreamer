@@ -106,8 +106,13 @@ need to read the documentation found in the source code to figure out what's
 possible. More documentation will be published once all planned view decorator
 mixins have been fleshed out.
 
+The project is in alpha, so public interfaces and behaviors may change
+dramatically. If you decide to use this software "as-is", it would be wise
+to use a specific version and read the changelog before attempting to upgrade.
+
 ### Changelog
 
 ##### v0.0.1a
 
-Initial release. Includes base view class enhancements and authentication view decorator mixins. View code has 100% test coverage.
+Initial release. Includes base view class enhancements and authentication view
+decorator mixins. View code has 100% test coverage.
