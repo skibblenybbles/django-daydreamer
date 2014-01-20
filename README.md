@@ -31,7 +31,7 @@ class SpookyProtectedResourceView(decorated.AuthRequired, generic.TemplateView):
     permissions_required_raise = True
     
     def test_required(self):
-        return self.user.is_spooky()
+        return self.requst.user.is_spooky()
     test_required_message = "Join the Spooky program."
     test_required_redirect_url = urlresolvers.reverse_lazy("users:spooky_signup")
     
@@ -63,7 +63,7 @@ For all of the view decorator mixins defined in
 `daydreamer.views.decorated`), you can control the inherited behavior through
 a consistent set of attributes. The attributes are prefixed to match their
 class names, except that they use lowercase-underscore casing instead of 
-capital-camel casing. The values are:
+capital-camel casing. The optional values are:
 
 * `<prefix>_raise` whether an exception should be raised upon test failure
 * `<prefix>_exception` a custom exception to be raised upon test failure,
@@ -82,7 +82,7 @@ capital-camel casing. The values are:
 
 You can also find some cool things in `daydreamer.test`, like
 `daydreamer.test.views.TestCase`, which lets you test a view class using the
-full Django handler stack, without no need for a urls.py configuration.
+full Django handler stack, without any need for a urls.py configuration.
 
 More stuff is on the way.
 
