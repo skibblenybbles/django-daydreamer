@@ -29,4 +29,6 @@ class TestCase(test.TestCase):
         
         """
         return super(TestCase, self).assertRedirects(
-            response, urlresolvers.update_query(expected_url, query), **kwargs)
+            response, urlresolvers.update_query(
+                expected_url, query),
+            *args, **kwargs)

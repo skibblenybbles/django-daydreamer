@@ -22,15 +22,25 @@ class TestCase(base.TestCase):
         # Normalize the space-separated tags to a set of strings.
         tags = set(tag.strip() for tag in (tags or "").split(" ") if tag)
         
+        # There must be a context in the response.
         self.assertTrue(
             hasattr(response, "context") and response.context,
             "The response must have a truthy context attribute.")
         
-        messages = list(response.context.get("messages", []))
+        # Get the messages from the context. This may be a fragile
+        # django.test.utils.ContextList data structure, so we can't
+        # call .get() on it.
+        messages = list(
+            response.context["messages"]
+                if "messages" in response.context
+                else [])
+        
+        # Check for at least one message.
         self.assertTrue(
             bool(messages),
             "The response's context must contain at least one message.")
         
+        # Check for a message limit.
         if limit:
             self.assertGreaterEqual(
                 limit, len(messages),
@@ -38,6 +48,7 @@ class TestCase(base.TestCase):
                 "messages, but it has {actual:d} messages.".format(
                     limit=limit, actual=len(messages)))
         
+        # Check for a matching message.
         self.assertTrue(
             any((
                 message.message == content and
@@ -56,6 +67,12 @@ class TestCase(base.TestCase):
         
         """
         if getattr(response, "context", None):
+            
+            # The context may be a fragile django.test.utils.ContextList data
+            # structure, so we can't call .get() on it.
             self.assertEqual(
-                len(list(response.context.get("messages", []))), 0,
+                len(list(
+                    response.context["messages"]
+                        if "messages" in response.context
+                        else [])), 0,
                 "The response's context must not contain any messages.")

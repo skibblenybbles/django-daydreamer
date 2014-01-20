@@ -176,6 +176,9 @@ class Client(client.Client):
     A test client that uses the customized request handler to directly test 
     a specified view with arguments and keyword arguments.
     
+    To avoid a bug encountered in implementation, all HTTP methods
+    hardcode follow=True.
+    
     """
     # Redirect status codes.
     redirect_status_codes = set((301, 302, 303, 307))
@@ -197,77 +200,84 @@ class Client(client.Client):
             "django.view_kwargs": view_kwargs or {}}
     
     def get(self, view, view_args=None, view_kwargs=None, path="/", data={},
-            follow=False, **extra):
+            **extra):
         """
         Runs the given view with a GET request.
         
         """
-        return super(Client, self).get(path, data=data, follow=follow,
+        extra.pop("follow", None)
+        return super(Client, self).get(path, data=data, follow=True,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def post(self, view, view_args=None, view_kwargs=None, path="/", data={},
-            content_type=client.MULTIPART_CONTENT, follow=False, **extra):
+            content_type=client.MULTIPART_CONTENT, **extra):
         """
         Runs the given view with a POST request.
         
         """
+        extra.pop("follow", None)
         return super(Client, self).post(path, data=data,
-            content_type=content_type, follow=follow,
+            content_type=content_type, follow=True,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def head(self, view, view_args=None, view_kwargs=None, path="/", data={},
-            follow=False, **extra):
+            **extra):
         """
         Runs the given view with a HEAD request.
         
         """
-        return super(Client, self).head(path, data=data, follow=follow,
+        extra.pop("follow", None)
+        return super(Client, self).head(path, data=data, follow=True,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def options(self, view, view_args=None, view_kwargs=None, path="/", data="",
-            content_type="application/octet-stream", follow=False, **extra):
+            content_type="application/octet-stream", **extra):
         """
         Runs the given view with an OPTIONS request.
         
         """
+        extra.pop("follow", None)
         return super(Client, self).options(path, data=data,
-            content_type=content_type, follow=follow,
+            content_type=content_type, follow=True,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def put(self, view, view_args=None, view_kwargs=None, path="/", data="",
-            content_type="application/octet-stream", follow=False, **extra):
+            content_type="application/octet-stream", **extra):
         """
         Runs the given view with a PUT request.
         
         """
+        extra.pop("follow", None)
         return super(Client, self).put(path, data=data,
-            content_type=content_type, follow=follow,
+            content_type=content_type, follow=True,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def patch(self, view, view_args=None, view_kwargs=None, path="/", data="",
-            content_type="application/octet-stream", follow=False, **extra):
+            content_type="application/octet-stream", **extra):
         """
         Runs the given view with a PATCH request.
         
         """
+        extra.pop("follow", None)
         return super(Client, self).patch(path, data=data,
-            content_type=content_type, follow=follow,
+            content_type=content_type, follow=True,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def delete(self, view, view_args=None, view_kwargs=None, path="/", data="",
-            content_type="application/octet-stream", follow=False, **extra):
+            content_type="application/octet-stream", **extra):
         """
         Runs the given view with a DELETE request.
         
         """
+        extra.pop("follow", None)
         return super(Client, self).delete(path, data=data,
-            content_type=content_type, follow=follow,
+            content_type=content_type, follow=True,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
@@ -317,9 +327,9 @@ class TestCase(base.TestCase):
         self.client = self.client_class(
             enforce_csrf_checks=self.enforce_csrf_checks)
     
-    def view(self, view_class, staticattrs=None, dynamicattrs=None,
-            get=True, post=False, head=False,
-            put=False, patch=False, delete=False):
+    def view(self, view_class, attrs=None,
+            get=None, post=None, head=None,
+            put=None, patch=None, delete=None):
         """
         Generate a view from the given view class and attributes.
         
@@ -327,78 +337,74 @@ class TestCase(base.TestCase):
         a class that inherits from django.views.generic.base.View, or a class
         that is duck type equivalent.
         
-        The staticattrs argument should be a dictionary of values that will be
+        The attrs argument should be a dictionary of values that will be
         added to the class at creation time.
         
-        The dynamicattrs argument should be a dictionary of values that will be
-        passed to as_view() when the generated view function is created.
-        
-        If get is True and a get() method is not provided by either
-        the view_class or the staticattrs, a simple get() method that
-        returns an HttpResponse with the content "OK" will be automatically
-        added to the class. If False, it is the caller's responsibility
-        to provide any required HTTP method handlers.
+        If get is truthy and a get() method is not provided by either
+        the view_class or the attrs, a simple get() method that
+        returns an HttpResponse with the content in the get argument will be
+        automatically added to the class. If False, it is the caller's
+        responsibility to provide any required HTTP method handlers.
         
         The other HTTP method name argumnts operate similarly to get, except
-        that the head() method use the empty string for the response's content.
-        An ensure_options argument is not provided, as an options() method is
-        is provided by the django.views.generic.base.View base class.
+        that the head() method hardcodes the empty string for the response's
+        content. An ensure_options argument is not provided, as an options()
+        method is provided by the django.views.generic.base.View base class.
         
         """
         # Normalize the attributes.
-        staticattrs = staticattrs or {}
-        dynamicattrs = dynamicattrs or {}
+        attrs = attrs or {}
         
         # Add a get() method?
         if (get and 
             not hasattr(view_class, "get") and
-            "get" not in staticattrs):
-            def get(self, request, *args, **kwargs):
-                return http.HttpResponse("OK")
-            staticattrs["get"] = get
+            "get" not in attrs):
+            def _get(self, request, *args, **kwargs):
+                return http.HttpResponse(get)
+            attrs["get"] = _get
         
         # Add a post() method?
         if (post and
             not hasattr(view_class, "post") and
-            "post" not in staticattrs):
-            def post(self, request, *args, **kwargs):
-                return http.HttpResopnse("OK")
-            staticattrs["post"] = post
+            "post" not in attrs):
+            def _post(self, request, *args, **kwargs):
+                return http.HttpResopnse(post)
+            attrs["post"] = _post
         
         # Add a head() method?
-        if (post and
+        if (head and
             not hasattr(view_class, "head") and
-            "head" not in staticattrs):
-            def head(self, request, *args, **kwargs):
+            "head" not in attrs):
+            def _head(self, request, *args, **kwargs):
                 return http.HttpResopnse("")
-            staticattrs["head"] = head
+            attrs["head"] = _head
         
         # Add a put() method?
         if (put and
             not hasattr(view_class, "put") and
-            "put" not in staticattrs):
-            def put(self, request, *args, **kwargs):
-                return http.HttpResopnse("OK")
-            staticattrs["put"] = put
+            "put" not in attrs):
+            def _put(self, request, *args, **kwargs):
+                return http.HttpResopnse(put)
+            attrs["put"] = _put
         
         # Add a patch() method?
         if (patch and
             not hasattr(view_class, "patch") and
-            "patch" not in staticattrs):
-            def patch(self, request, *args, **kwargs):
-                return http.HttpResopnse("OK")
-            staticattrs["patch"] = patch
+            "patch" not in attrs):
+            def _patch(self, request, *args, **kwargs):
+                return http.HttpResopnse(patch)
+            attrs["patch"] = _patch
         
         # Add a delete() method?
         if (delete and
             not hasattr(view_class, "delete") and
-            "delete" not in staticattrs):
-            def delete(self, request, *args, **kwargs):
-                return http.HttpResopnse("OK")
-            staticattrs["delete"] = delete
+            "delete" not in attrs):
+            def _delete(self, request, *args, **kwargs):
+                return http.HttpResopnse(delete)
+            attrs["delete"] = _delete
         
         # Create the view.
         return type(
             b"Test{base:s}".format(base=view_class.__name__),
             (view_class,),
-            staticattrs).as_view(**dynamicattrs)
+            attrs).as_view()
