@@ -4,6 +4,8 @@ from django.conf import settings
 from django.utils import six
 
 from django.contrib import auth, messages
+from django.contrib.auth import models as auth_models
+from django.contrib.contenttypes import models as type_models
 from daydreamer.core import lang
 from daydreamer.test import messages as test_messages, views as test_views
 
@@ -63,6 +65,18 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         raise NotImplementedError
     
     # Utilities.
+    def unique_username(self):
+        return self.unique()[:30]
+    
+    def unique_group(self):
+        return self.unique()[:80]
+    
+    def unique_permission(self):
+        return self.unique()[:100]
+    
+    def unique_name(self):
+        return self.unique()[:30]
+    
     def create_authenticated_user(self, **attrs):
         """
         Creates a user with a unique username and password, sets the specified
@@ -70,7 +84,7 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         authenticated user.
         
         """
-        username = self.unique()[:30]
+        username = self.unique_username()
         password = self.unique()
         user = auth.get_user_model().objects.create_user(username, password=password)
         if attrs:
@@ -79,6 +93,24 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
             user.save()
         self.client.login(username=username, password=password)
         return user
+    
+    def create_group(self):
+        """
+        Creates a group with a unique name and returns it.
+        
+        """
+        return auth_models.Group.objects.create(name=self.unique_group())
+    
+    def create_permission(self):
+        """
+        Creates a permission on the User model with a unique codename and
+        returns it.
+        
+        """
+        return auth_models.Permission.objects.create(
+            content_type=type_models.ContentType.objects.get_for_model(
+                auth.get_user_model()),
+            codename=self.unique_permission())
     
     def prefixed(self, prefix, data):
         """

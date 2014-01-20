@@ -23,8 +23,8 @@ class TestCase(base.TestCase):
         tags = set(tag.strip() for tag in (tags or "").split(" ") if tag)
         
         self.assertTrue(
-            hasattr(response, "context"),
-            "The response must have a context attribute.")
+            hasattr(response, "context") and response.context,
+            "The response must have a truthy context attribute.")
         
         messages = list(response.context.get("messages", []))
         self.assertTrue(

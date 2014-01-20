@@ -299,6 +299,11 @@ class GroupsRequired(generic.View):
         groups = self.groups_required or set()
         if isinstance(groups, six.string_types + (auth_models.Group,)):
             groups = (groups,)
+        elif not isinstance(groups, collections.Iterable):
+            raise ValueError(
+                "The value {value:r} specified for groups_required is not a "
+                "group name, nor a Group nor an iterable of groups.".format(
+                    value=groups))
         
         # Resolve the group names and Group objects into existing Groups'
         # primary keys.
@@ -309,11 +314,11 @@ class GroupsRequired(generic.View):
             for group in groups:
                 if isinstance(group, six.string_types):
                     named_groups.add(group)
-                elif isinstance(group. auth_models.Group):
+                elif isinstance(group, auth_models.Group):
                     actual_groups.add(group)
                 else:
                     raise ValueError(
-                        "The value {value:r} specified in groups_required "
+                        "A value {value:r} specified in groups_required "
                         "is not a group name or a Group.".format(value=group))
             
             # Resolve the named groups and perform the sanity check.
@@ -397,9 +402,13 @@ class PermissionsRequired(generic.View):
         
         """
         # Normalize single values to a tuple.
-        permissions = self.permissions_required
+        permissions = self.permissions_required or ()
         if isinstance(permissions, six.string_types):
             permissions = (permissions,)
+        elif not isinstance(permissions, collections.Iterable):
+            raise ValueError(
+                "The permssions_required value is neither a permission name "
+                "nor an iterable of permission names.")
         
         # Sanity check.
         if (permissions and
@@ -408,6 +417,7 @@ class PermissionsRequired(generic.View):
             raise ValueError(
                 "One or more values in permissions_required is not a "
                 "permission name.")
+        
         return permissions
     
     def permissions_required_test(self):
@@ -481,9 +491,13 @@ class ObjectPermissionsRequired(generic.View):
         
         """
         # Normalize single values to a tuple.
-        permissions = self.object_permissions_required
+        permissions = self.object_permissions_required or ()
         if isinstance(permissions, six.string_types):
             permissions = (permissions,)
+        elif not isinstance(permissions, collections.Iterable):
+            raise ValueError(
+                "The object_permssions_required value is neither a "
+                "permission name nor an iterable of permission names.")
         
         # Sanity check.
         if (permissions and
@@ -591,7 +605,7 @@ class TestRequired(generic.View):
         
         """
         return (
-            self.test_required_test() and
+            not self.test_required_test() and
             self.test_required_not_allowed or
             super(TestRequired, self).get_not_allowed_handler())
 
