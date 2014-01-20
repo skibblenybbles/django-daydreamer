@@ -44,24 +44,24 @@ The resulting view will perform a sequence of authentication checks before its
 `get()` method is called:
 
 * checks if the user is logged in, redirecting to the login page upon
-    failure, just like Django's `@login_required` decorator.
+    failure, just like Django's `@login_required` decorator
 * checks if the user's account is active, redirecting to the deactivated
     user information page and messaging the user about the account status
-    upon failure.
+    upon failure
 * checks if the user has one or more permissions, raising a
-    `PermissionDenied` exception on failure.
+    `PermissionDenied` exception on failure
 * checks if the user satisfies a test predirect, redirecting to the
     Spooky signup page and messaging the user about the
-    Spooky program upon failure.
+    Spooky program upon failure
 
 Of course, you won't want to repeat all of these attributes on your view
 classes, so set up a few base classes that provide the common behaviors you
 need and inherit from them throughout your view codebase.
 
-For all of the view decorator mixins defined in
+The behavior of all the authentication view decorator mixins defined in
 `daydreamer.views.decorated.auth` (import accessible at
-`daydreamer.views.decorated`), you can control the inherited behavior through
-a consistent set of attributes. The attributes are prefixed to match their
+`daydreamer.views.decorated`) can be controlled with a consistently-named
+set of inherited attributes. The attributes are prefixed to match their
 class names, except that they use lowercase-underscore casing instead of 
 capital-camel casing. The optional values are:
 
@@ -74,11 +74,23 @@ capital-camel casing. The optional values are:
 * `<prefix>_redirect_url` the URL to redirect to upon test failure,
     defaults to `settings.LOGIN_URL`
 * `<prefix>_redirect_next_url` the return URL value to add to the redirect
-    URL's query string, defaulting to the request's absolute URI.
+    URL's query string, defaulting to the request's fully-qualified URL.
 * `<prefix>_redirect_next_name` the return URL parameter name to add to the
-    redirect URL's query string, defaulting to REDIRECT_FIELD_NAME. If set to
+    redirect URL's query string, defaulting to `"next"`. If set to
     a falsy value, no return URL query parameter will be included in the
     redirect URL.
+
+All the views in `daydreamer.views.generic`, which mirrors Django's
+`django.views.generic` package, provide helpful shortcuts. These are:
+
+* `reverse()` reverses a named URL pattern, taking an optional `qualified`
+    argument, which when truthy, will return a fully-qualified reversed URL
+* `attachment()` returns an attachment response
+* `redirect()` redirects to a named URL pattern
+* `gone()` returns a 410 gone response
+* `not_found()` raises the 404 response exception
+* `permission_denied()` raises the 403 response exception
+* `suspicious_operation()` raises the 400 response exception
 
 You can also find some cool things in `daydreamer.test`, like
 `daydreamer.test.views.TestCase`, which lets you test a view class using the
