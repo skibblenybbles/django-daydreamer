@@ -15,10 +15,12 @@ Do stuff like this:
 
 ```python
 from daydreamer.core import urlresolvers
-from daydreamer.views import decorated
+from daydreamer.views import decorated, generic
 
 
-class SpookyProtectedResourceView(decorated.AuthRequired):
+class SpookyProtectedResourceView(decorated.AuthRequired, generic.TemplateView):
+    template_name = "resources/detail.html"
+    
     login_required = True
     
     active_required = True
@@ -33,7 +35,7 @@ class SpookyProtectedResourceView(decorated.AuthRequired):
     test_required_message = "Join the Spooky program."
     test_required_redirect_url = urlresolvers.reverse_lazy("users:spooky_signup")
     
-    def get(self, request, *args, **kwargs):
+    def get_context_data(self, **context):
         # Retrieve the protected resource.
         # ...
 ```
@@ -60,8 +62,8 @@ For all of the view decorator mixins defined in
 `daydreamer.views.decorated.auth` (import accessible at
 `daydreamer.views.decorated`), you can control the inherited behavior through
 a consistent set of attributes. The attributes are prefixed to match their
-class names, except that they use lowercase underscore casing instead of 
-camel casing. The values are:
+class names, except that they use lowercase-underscore casing instead of 
+capital-camel casing. The values are:
 
 * `<prefix>_raise` whether an exception should be raised upon test failure
 * `<prefix>_exception` a custom exception to be raised upon test failure,
@@ -69,7 +71,7 @@ camel casing. The values are:
 * `<prefix>_message` a message to be enqueued upon test failure
 * `<prefix>_message_level` the message's level, defaults to `WARNING`
 * `<prefix>_message_tags` the message's tags, defaults to `""`
-* `<prefix>_redirect_url` the URL to redirect to upon message failure,
+* `<prefix>_redirect_url` the URL to redirect to upon test failure,
     defaults to `settings.LOGIN_URL`
 * `<prefix>_redirect_next_url` the return URL value to add to the redirect
     URL's query string, defaulting to the request's absolute URI.
@@ -80,8 +82,7 @@ camel casing. The values are:
 
 You can also find some cool things in `daydreamer.test`, like
 `daydreamer.test.views.TestCase`, which lets you test a view class using the
-full Django handler stack, without needing to set up a URLs configuration,
-i.e. no urls.py.
+full Django handler stack, without no need for a urls.py configuration.
 
 More stuff is on the way.
 
