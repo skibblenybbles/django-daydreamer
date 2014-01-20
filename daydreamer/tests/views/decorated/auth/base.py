@@ -66,16 +66,25 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
     
     # Utilities.
     def unique_username(self):
+        """
+        Create a unique string appropriate for a username.
+        
+        """
         return self.unique()[:30]
     
     def unique_group(self):
+        """
+        Create a unique string appropriate for a group.
+        
+        """
         return self.unique()[:80]
     
     def unique_permission(self):
+        """
+        Create a unique string appropriate for a permission.
+        
+        """
         return self.unique()[:100]
-    
-    def unique_name(self):
-        return self.unique()[:30]
     
     def create_authenticated_user(self, **attrs):
         """
@@ -122,17 +131,18 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
             ("_".join((prefix, key)) if key else prefix, value)
             for key, value in six.iteritems(data))
     
-    def view(self, prefixedattrs=None, staticattrs=None, **kwargs):
+    def view(self, prefixedattrs=None, staticattrs=None, *args, **kwargs):
         """
-        Mixes the specified attributes that should be prefixed into the static
-        attributes dictionary and defers to super().
+        Hardcodes self.view_class and mixes the specified attributes that
+        should be prefixed into the static attributes dictionary and defers
+        to super().
         
         """
         return super(TestCase, self).view(
             self.view_class, staticattrs=lang.updated(
                 staticattrs or {},
                 self.prefixed(self.prefix, prefixedattrs or {})),
-            **kwargs)
+            *args, **kwargs)
     
     # Assertions.
     def assertViewResponse(self, path, setup, view_attrs, method="get",

@@ -376,16 +376,16 @@ class TestRequiredTestCase(base.TestCase):
         return test_required
     
     def setup_unauth_fail(self):
-        return {"": self.create_name_test(self.unique_name())}
+        return {"": self.create_name_test(self.unique_username())}
     
     def setup_auth_fail(self):
         self.create_authenticated_user()
-        return {"": self.create_name_test(self.unique_name())}
+        return {"": self.create_name_test(self.unique_username())}
     
     def setup_unauth_pass(self):
         return {}
     
     def setup_auth_pass(self):
-        name = self.unique_name()
+        name = self.unique_username()
         self.create_authenticated_user(first_name=name)
         return {"": self.create_name_test(name)}
