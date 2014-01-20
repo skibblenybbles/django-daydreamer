@@ -13,7 +13,7 @@ def read(filename):
 setup(
     name="django-daydreamer",
     version=daydreamer.__version__,
-    description="A Django utility library",
+    description="A Django class-based view utility library",
     long_description=read("README"),
     author="Mike Kibbel",
     author_email="mkibbel@gmail.com",
@@ -21,7 +21,7 @@ setup(
     license="MIT License",
     platforms=["OS Independent"],
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",
         "Framework :: Django",
         "Intended Audience :: Developers",
