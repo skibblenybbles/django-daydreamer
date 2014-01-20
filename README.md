@@ -112,7 +112,7 @@ to use a specific version and read the changelog before attempting to upgrade.
 
 ### Changelog
 
-##### v0.0.1a
+##### 0.0.1a
 
 Initial release. Includes base view class enhancements and authentication view
 decorator mixins. View code has 100% test coverage.
