@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import collections
+
 from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth import models as auth_models
@@ -13,8 +15,7 @@ class TestCase(base.TestCase):
     """
     Common utilities for testing authentication view decorator mixins.
     
-    Specify a view class to use for the test cases and a prefix to use
-    for the attributes passed to self.view().
+    Specify a prefix to use for the attributes passed to self.view().
     
     You must also provide overrides for the four setup_*() methods.
     
@@ -119,16 +120,18 @@ class TestCase(base.TestCase):
                 auth.get_user_model()),
             codename=self.unique_permission())
     
-    def view(self, attrs=None, *args, **kwargs):
+    def view(self, **attrs):
         """
-        Hardcodes self.view_class and adds self.prefix to all of the attributes.
+        Adds self.prefix to all of the attributes, except for those
+        in self.generate_http_verbs.
         
         """
-        return super(TestCase, self).view(
-            attrs={
-                "_".join((self.prefix, key)) if key else self.prefix: value
-                for key, value in six.iteritems(attrs or {})},
-            *args, **kwargs)
+        return super(TestCase, self).view(**{
+            key if key in self.generate_http_verbs
+                else "_".join((self.prefix, key))
+                    if key
+                    else self.prefix: value
+            for key, value in six.iteritems(attrs)})
     
     # Common tests.
     def test_unauth_fail(self, setup_unauth_fail=None):
@@ -144,10 +147,9 @@ class TestCase(base.TestCase):
         """
         path = self.unique_path()
         self.assertResponseBehavior(
-            path,
-            setup_unauth_fail or self.setup_unauth_fail,
-            {},
             {"get": self.unique()},
+            setup_unauth_fail or self.setup_unauth_fail,
+            path=path,
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -164,12 +166,9 @@ class TestCase(base.TestCase):
         test method.
         
         """
-        path = self.unique_path()
         self.assertResponseBehavior(
-            path,
+            {"raise": True, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"raise": True},
-            {"get": self.unique()},
             status_code=403)
     
     def test_unauth_fail_raise_exception(self, setup_unauth_fail=None):
@@ -187,13 +186,10 @@ class TestCase(base.TestCase):
         """
         class TestException(Exception):
             pass
-        path = self.unique_path()
         exception = TestException(self.unique())
         self.assertResponseBehavior(
-            path,
+            {"raise": True, "exception": exception, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"raise": True, "exception": exception},
-            {"get": self.unique()},
             exception=exception)
     
     def test_unauth_fail_exception(self, setup_unauth_fail=None):
@@ -214,10 +210,9 @@ class TestCase(base.TestCase):
         path = self.unique_path()
         exception = TestException(self.unique())
         self.assertResponseBehavior(
-            path,
+            {"exception": exception, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"exception": exception},
-            {"get": self.unique()},
+            path=path,
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -237,10 +232,9 @@ class TestCase(base.TestCase):
         path = self.unique_path()
         message = self.unique()
         self.assertResponseBehavior(
-            path,
+            {"message": message, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"message": message},
-            {"get": self.unique()},
+            path=path,
             message=message,
             message_level=messages.WARNING,
             message_tags="warning",
@@ -265,10 +259,9 @@ class TestCase(base.TestCase):
         message = self.unique()
         level = messages.SUCCESS
         self.assertResponseBehavior(
-            path,
+            {"message": message, "message_level": level, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"message": message, "message_level": level},
-            {"get": self.unique()},
+            path=path,
             message=message,
             message_level=level,
             message_tags="success",
@@ -293,10 +286,9 @@ class TestCase(base.TestCase):
         message = self.unique()
         tags = " ".join((self.unique(), self.unique()))
         self.assertResponseBehavior(
-            path,
+            {"message": message, "message_tags": tags, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"message": message, "message_tags": tags},
-            {"get": self.unique()},
+            path=path,
             message=message,
             message_level=messages.WARNING,
             message_tags=" ".join(("warning", tags,)),
@@ -319,10 +311,9 @@ class TestCase(base.TestCase):
         """
         path = self.unique_path()
         self.assertResponseBehavior(
-            path,
+            {"message_level": messages.SUCCESS, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"message_level": messages.SUCCESS},
-            {"get": self.unique()},
+            path=path,
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -340,10 +331,9 @@ class TestCase(base.TestCase):
         path = self.unique_path()
         tags = " ".join((self.unique(), self.unique(),))
         self.assertResponseBehavior(
-            path,
+            {"message_tags": tags, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"message_tags": tags},
-            {"get": self.unique()},
+            path=path,
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -363,10 +353,9 @@ class TestCase(base.TestCase):
         path = self.unique_path()
         redirect = self.unique_path()
         self.assertResponseBehavior(
-            path,
+            {"redirect_url": redirect, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"redirect_url": redirect},
-            {"get": self.unique()},
+            path=path,
             redirect_url=redirect,
             redirect_next_url=path,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -383,13 +372,10 @@ class TestCase(base.TestCase):
         test method.
         
         """
-        path = self.unique_path()
         next = self.unique_path()
         self.assertResponseBehavior(
-            path,
+            {"redirect_next_url": next, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"redirect_next_url": next},
-            {"get": self.unique()},
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=next,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -409,10 +395,9 @@ class TestCase(base.TestCase):
         path = self.unique_path()
         name = self.unique()
         self.assertResponseBehavior(
-            path,
+            {"redirect_next_name": name, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"redirect_next_name": name},
-            {"get": self.unique()},
+            path=path,
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
             redirect_next_name=name)
@@ -429,12 +414,9 @@ class TestCase(base.TestCase):
         test method.
         
         """
-        path = self.unique_path()
         self.assertResponseBehavior(
-            path,
+            {"redirect_next_name": None, "get": self.unique()},
             setup_unauth_fail or self.setup_unauth_fail,
-            {"redirect_next_name": None},
-            {"get": self.unique()},
             redirect_url=settings.LOGIN_URL)
     
     def test_unauth_fail_precedence(self, setup_unauth_fail=None):
@@ -452,10 +434,9 @@ class TestCase(base.TestCase):
         """
         path = self.unique_path()
         self.assertResponseBehavior(
-            path, 
-            setup_unauth_fail or self.setup_unauth_fail,
-            {},
             {"get": self.unique()},
+            setup_unauth_fail or self.setup_unauth_fail,
+            path=path,
             method="post",
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
@@ -474,10 +455,9 @@ class TestCase(base.TestCase):
         """
         path = self.unique_path()
         self.assertResponseBehavior(
-            path, 
-            setup_auth_fail or self.setup_auth_fail,
-            {},
             {"get": self.unique()},
+            setup_auth_fail or self.setup_auth_fail,
+            path=path,
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -494,12 +474,9 @@ class TestCase(base.TestCase):
         test method.
         
         """
-        path = self.unique_path()
         self.assertResponseBehavior(
-            path,
+            {"raise": True, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"raise": True},
-            {"get": self.unique()},
             status_code=403)
     
     def test_auth_fail_raise_exception(self, setup_auth_fail=None):
@@ -517,13 +494,10 @@ class TestCase(base.TestCase):
         """
         class TestException(Exception):
             pass
-        path = self.unique_path()
         exception = TestException(self.unique())
         self.assertResponseBehavior(
-            path,
+            {"raise": True, "exception": exception, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"raise": True, "exception": exception},
-            {"get": self.unique()},
             exception=exception)
     
     def test_auth_fail_exception(self, setup_auth_fail=None):
@@ -544,10 +518,9 @@ class TestCase(base.TestCase):
         path = self.unique_path()
         exception = TestException(self.unique())
         self.assertResponseBehavior(
-            path,
+            {"exception": exception, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"exception": exception},
-            {"get": self.unique()},
+            path=path,
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -567,10 +540,9 @@ class TestCase(base.TestCase):
         path = self.unique_path()
         message = self.unique()
         self.assertResponseBehavior(
-            path,
+            {"message": message, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"message": message},
-            {"get": self.unique()},
+            path=path,
             message=message,
             message_level=messages.WARNING,
             message_tags="warning",
@@ -595,10 +567,9 @@ class TestCase(base.TestCase):
         message = self.unique()
         level = messages.SUCCESS
         self.assertResponseBehavior(
-            path,
+            {"message": message, "message_level": level, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"message": message, "message_level": level},
-            {"get": self.unique()},
+            path=path,
             message=message,
             message_level=level,
             message_tags="success",
@@ -621,12 +592,11 @@ class TestCase(base.TestCase):
         """
         path = self.unique_path()
         message = self.unique()
-        tags = " ".join((self.unique(), self.unique()))
+        tags = " ".join((self.unique(), self.unique(),))
         self.assertResponseBehavior(
-            path,
+            {"message": message, "message_tags": tags, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"message": message, "message_tags": tags},
-            {"get": self.unique()},
+            path=path,
             message=message,
             message_level=messages.WARNING,
             message_tags=" ".join(("warning", tags,)),
@@ -649,10 +619,9 @@ class TestCase(base.TestCase):
         """
         path = self.unique_path()
         self.assertResponseBehavior(
-            path,
+            {"message_level": messages.SUCCESS, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"message_level": messages.SUCCESS},
-            {"get": self.unique()},
+            path=path,
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -670,10 +639,9 @@ class TestCase(base.TestCase):
         path = self.unique_path()
         tags = " ".join((self.unique(), self.unique(),))
         self.assertResponseBehavior(
-            path,
+            {"message_tags": tags, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"message_tags": tags},
-            {"get": self.unique()},
+            path=path,
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -693,10 +661,9 @@ class TestCase(base.TestCase):
         path = self.unique_path()
         redirect = self.unique_path()
         self.assertResponseBehavior(
-            path,
+            {"redirect_url": redirect, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"redirect_url": redirect},
-            {"get": self.unique()},
+            path=path,
             redirect_url=redirect,
             redirect_next_url=path,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -713,13 +680,10 @@ class TestCase(base.TestCase):
         test method.
         
         """
-        path = self.unique_path()
         next = self.unique_path()
         self.assertResponseBehavior(
-            path,
+            {"redirect_next_url": next, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"redirect_next_url": next},
-            {"get": self.unique()},
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=next,
             redirect_next_name=auth.REDIRECT_FIELD_NAME)
@@ -739,10 +703,9 @@ class TestCase(base.TestCase):
         path = self.unique_path()
         name = self.unique()
         self.assertResponseBehavior(
-            path,
+            {"redirect_next_name": name, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"redirect_next_name": name},
-            {"get": self.unique()},
+            path=path,
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
             redirect_next_name=name)
@@ -759,12 +722,9 @@ class TestCase(base.TestCase):
         test method.
         
         """
-        path = self.unique_path()
         self.assertResponseBehavior(
-            path,
+            {"redirect_next_name": None, "get": self.unique()},
             setup_auth_fail or self.setup_auth_fail,
-            {"redirect_next_name": None},
-            {"get": self.unique()},
             redirect_url=settings.LOGIN_URL)
     
     def test_auth_fail_precedence(self, setup_auth_fail=None):
@@ -782,10 +742,8 @@ class TestCase(base.TestCase):
         """
         path = self.unique_path()
         self.assertResponseBehavior(
-            path, 
-            setup_auth_fail or self.setup_auth_fail,
-            {},
-            {"get": self.unique()},
+            setup=setup_auth_fail or self.setup_auth_fail,
+            path=path,
             method="post",
             redirect_url=settings.LOGIN_URL,
             redirect_next_url=path,
@@ -804,10 +762,8 @@ class TestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique_path(),
-            setup_unauth_pass or self.setup_unauth_pass,
-            {},
             {"get": content},
+            setup_unauth_pass or self.setup_unauth_pass,
             status_code=200,
             content=content)
     
@@ -825,10 +781,8 @@ class TestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique_path(),
+            {"raise": True, "get": content},
             setup_unauth_pass or self.setup_unauth_pass,
-            {"raise": True},
-            {"get": content},
             status_code=200,
             content=content)
     
@@ -846,10 +800,8 @@ class TestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique_path(),
+            {"message": self.unique(), "get": content},
             setup_unauth_pass or self.setup_unauth_pass,
-            {"message": self.unique()},
-            {"get": content},
             status_code=200,
             content=content)
     
@@ -867,10 +819,8 @@ class TestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique_path(),
+            {"message": self.unique(), "get": content},
             setup_auth_pass or self.setup_auth_pass,
-            {"message": self.unique()},
-            {"get": content},
             status_code=200,
             content=content)
     
@@ -887,10 +837,8 @@ class TestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique_path(),
-            setup_auth_pass or self.setup_auth_pass,
-            {},
             {"get": content},
+            setup_auth_pass or self.setup_auth_pass,
             status_code=200,
             content=content)
     
@@ -906,12 +854,10 @@ class TestCase(base.TestCase):
         test method.
         
         """
-        content=self.unique()
+        content = self.unique()
         self.assertResponseBehavior(
-            self.unique_path(),
+            {"raise": True, "get": content},
             setup_auth_pass or self.setup_auth_pass,
-            {"raise": True},
-            {"get": content},
             status_code=200,
             content=content)
     
@@ -929,8 +875,7 @@ class TestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique_path(),
-            setup_unauth_pass or self.setup_unauth_pass,
+            setup=setup_unauth_pass or self.setup_unauth_pass,
             status_code=405)
     
     def test_auth_pass_precedence(self, setup_auth_pass=None):
@@ -947,6 +892,5 @@ class TestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique_path(),
-            setup_auth_pass or self.setup_auth_pass,
+            setup=setup_auth_pass or self.setup_auth_pass,
             status_code=405)

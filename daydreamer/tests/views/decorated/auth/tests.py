@@ -14,7 +14,7 @@ class LoginRequiredTestCase(base.TestCase):
     Tests for the LoginRequired view decorator mixin.
     
     """
-    view_class = auth_decorated.LoginRequired
+    view_classes = auth_decorated.LoginRequired
     prefix = "login_required"
     
     def setup_unauth_fail(self):
@@ -38,7 +38,7 @@ class ActiveRequiredTestCase(base.TestCase):
     Tests for the ActiveRequired view decorator mixin.
     
     """
-    view_class = auth_decorated.ActiveRequired
+    view_classes = auth_decorated.ActiveRequired
     prefix = "active_required"
     
     def setup_unauth_fail(self):
@@ -61,7 +61,7 @@ class StaffRequiredTestCase(base.TestCase):
     Tests for the StaffRequired view decorator mixin.
     
     """
-    view_class = auth_decorated.StaffRequired
+    view_classes = auth_decorated.StaffRequired
     prefix = "staff_required"
     
     def setup_unauth_fail(self):
@@ -84,7 +84,7 @@ class SuperuserRequiredTestCase(base.TestCase):
     Tests for the SuperuserRequired view decorator mixin.
     
     """
-    view_class = auth_decorated.SuperuserRequired
+    view_classes = auth_decorated.SuperuserRequired
     prefix = "superuser_required"
     
     def setup_unauth_fail(self):
@@ -107,7 +107,7 @@ class GroupsRequiredTestCase(base.TestCase):
     Tests for the GroupsRequired view decorator mixin.
     
     """
-    view_class = auth_decorated.GroupsRequired
+    view_classes = auth_decorated.GroupsRequired
     prefix = "groups_required"
     
     def setup_unauth_fail(self):
@@ -161,19 +161,19 @@ class GroupsRequiredTestCase(base.TestCase):
     # Tests for invalid group values.
     def test_invalid_type(self):
         with self.assertRaises(ValueError):
-            self.client.get(self.view({"": 1}))
+            self.client.get(self.view(**{"": 1}))
     
     def test_invalid_type_multiple(self):
         with self.assertRaises(ValueError):
-            self.client.get(self.view({"": (1, 1)}))
+            self.client.get(self.view(**{"": (1, 1)}))
     
     def test_invalid_group(self):
         with self.assertRaises(exceptions.ImproperlyConfigured):
-            self.client.get(self.view({"": self.unique()}))
+            self.client.get(self.view(**{"": self.unique()}))
     
     def test_invalid_group_multiple(self):
         with self.assertRaises(exceptions.ImproperlyConfigured):
-            self.client.get(self.view({"": (self.unique(), self.unique(),)}))
+            self.client.get(self.view(**{"": (self.unique(), self.unique(),)}))
 
 
 class PermissionsRequiredTestCase(base.TestCase):
@@ -181,7 +181,7 @@ class PermissionsRequiredTestCase(base.TestCase):
     Tests for the PermissionsRequired view decorator mixin.
     
     """
-    view_class = auth_decorated.PermissionsRequired
+    view_classes = auth_decorated.PermissionsRequired
     prefix = "permissions_required"
     
     def setup_unauth_fail(self):
@@ -239,11 +239,11 @@ class PermissionsRequiredTestCase(base.TestCase):
     # Tests for invalid permission values.
     def test_invalid(self):
         with self.assertRaises(ValueError):
-            self.client.get(self.view({"": 1}))
+            self.client.get(self.view(**{"": 1}))
     
     def test_invalid_multiple(self):
         with self.assertRaises(ValueError):
-            self.client.get(self.view({"": (1, 1)}))
+            self.client.get(self.view(**{"": (1, 1)}))
 
 
 class ObjectPermissionsRequiredTestCase(base.TestCase):
@@ -251,7 +251,7 @@ class ObjectPermissionsRequiredTestCase(base.TestCase):
     Tests for the ObjectPermissionsRequired view decorator mixin.
     
     """
-    view_class = auth_decorated.ObjectPermissionsRequired
+    view_classes = auth_decorated.ObjectPermissionsRequired
     prefix = "object_permissions_required"
     
     def setup_unauth_fail(self):
@@ -355,11 +355,11 @@ class ObjectPermissionsRequiredTestCase(base.TestCase):
     # Tests for invalid permission values.
     def test_invalid(self):
         with self.assertRaises(ValueError):
-            self.client.get(self.view({"": 1, "object": object()}))
+            self.client.get(self.view(**{"": 1, "object": object()}))
     
     def test_invalid_multiple(self):
         with self.assertRaises(ValueError):
-            self.client.get(self.view({"": (1, 1), "object": object()}))
+            self.client.get(self.view(**{"": (1, 1), "object": object()}))
 
 
 class TestRequiredTestCase(base.TestCase):
@@ -367,7 +367,7 @@ class TestRequiredTestCase(base.TestCase):
     Tests for the TestRequired view decorator mixin.
     
     """
-    view_class = auth_decorated.TestRequired
+    view_classes = auth_decorated.TestRequired
     prefix = "test_required"
     
     def create_name_test(self, name):

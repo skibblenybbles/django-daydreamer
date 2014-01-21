@@ -310,6 +310,11 @@ class TestCase(base.TestCase):
     client_class = Client
     enforce_csrf_checks = False
     
+    # All HTTP verbs that should be automatically generated when
+    # a string is provided in self.view()'s attrs.
+    generate_http_verbs = (
+        b"get", b"head", b"options", b"post", b"put", b"patch", b"delete",)
+    
     def unique_path(self):
         """
         Returns a unique path for use in testing class-based views.
@@ -327,99 +332,41 @@ class TestCase(base.TestCase):
         self.client = self.client_class(
             enforce_csrf_checks=self.enforce_csrf_checks)
     
-    def view(self, view_classes, attrs=None,
-            get=None, post=None, head=None,
-            put=None, patch=None, delete=None):
+    def view(self, view_classes, **attrs):
         """
-        Generate a view from the given view class(es) and attributes. The
-        view_classes argument may specify a single class or an iterable of
+        Generate a view from the given view class(es) and attributes.
+        
+        The view_classes may specify a single class or an iterable of
         classes to inherit from.
         
-        The generated view will inherit from the view_classes, so it should be
-        a class that inherits from django.views.generic.base.View, or a class
-        that is duck type equivalent.
+        The generated view will inherit from the view classes, so be sure
+        to inherit from django.views.generic.base.View, or a class that is
+        duck type equivalent.
         
         The attrs argument should be a dictionary of values that will be
         added to the class at creation time.
         
-        If get is truthy and a get() method is not provided by either
-        the view_classes or the attrs, a simple get() method that
-        returns an HttpResponse with the content in the get argument will be
-        automatically added to the class. If False, it is the caller's
-        responsibility to provide any required HTTP method handlers.
-        
-        The other HTTP method name argumnts operate similarly to get, except
-        that the head() method hardcodes the empty string for the response's
-        content. An ensure_options argument is not provided, as an options()
-        method is provided by the django.views.generic.base.View base class.
+        For methods that implement HTTP verbs (get, post, put, etc.),
+        if the attrs specify a string, a method that returns a simple
+        response containing the string will be automatically generated.
         
         """
-        # Normalize the view classes and attributes.
+        # Normalize the view classes.
         view_classes = (
             (view_classes,)
                 if isinstance(view_classes, types.TypeType)
-                else view_classes)
-        attrs = attrs or {}
+                else view_classes
+                    if isinstance(view_classes, tuple)
+                    else tuple(view_classes))
         
-        # Add a get() method?
-        if (get and
-            "get" not in attrs and
-            not any(
-                hasattr(view_class, "get")
-                for view_class in view_classes)):
-            def _get(self, request, *args, **kwargs):
-                return http.HttpResponse(get)
-            attrs["get"] = _get
-        
-        # Add a post() method?
-        if (post and
-            "post" not in attrs and
-            not any(
-                hasattr(view_class, "post")
-                for view_class in view_classes)):
-            def _post(self, request, *args, **kwargs):
-                return http.HttpResponse(post)
-            attrs["post"] = _post
-        
-        # Add a head() method?
-        if (head and
-            "head" not in attrs and
-            not any(
-                hasattr(view_class, "head")
-                for view_class in view_classes)):
-            def _head(self, request, *args, **kwargs):
-                return http.HttpResponse("")
-            attrs["head"] = _head
-        
-        # Add a put() method?
-        if (put and
-            "put" not in attrs and
-            not any(
-                hasattr(view_class, "put")
-                for view_class in view_classes)):
-            def _put(self, request, *args, **kwargs):
-                return http.HttpResponse(put)
-            attrs["put"] = _put
-        
-        # Add a patch() method?
-        if (patch and
-            "patch" not in attrs and
-            not any(
-                hasattr(view_class, "patch")
-                for view_class in view_classes)):
-            def _patch(self, request, *args, **kwargs):
-                return http.HttpResponse(patch)
-            attrs["patch"] = _patch
-        
-        # Add a delete() method?
-        if (delete and
-            "delete" not in attrs and
-            not any(
-                hasattr(view_class, "delete")
-                for view_class in view_classes)):
-            def _delete(self, request, *args, **kwargs):
-                return http.HttpResponse(delete)
-            attrs["delete"] = _delete
+        # Generate methods for HTTP verbs?
+        for method in self.generate_http_verbs:
+            if method in attrs and isinstance(attrs[method], six.string_types):
+                content = attrs[method]
+                def verb(self, request, *args, **kwargs):
+                    return http.HttpResponse(content)
+                verb.__name__ = method
+                attrs[method] = verb
         
         # Create the view.
         return type(

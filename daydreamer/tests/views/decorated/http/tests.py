@@ -12,7 +12,7 @@ class RequireGETTestCase(base.TestCase):
     Tests for the RequireGET view decorator mixin.
     
     """
-    view_class = http_decorated.RequireGET
+    view_classes = http_decorated.RequireGET
     
     def test_get_allowed(self):
         """
@@ -21,8 +21,7 @@ class RequireGETTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"get": content},
+            {"get": content},
             status_code=200,
             content=content)
     
@@ -32,8 +31,7 @@ class RequireGETTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"head": self.unique()},
+            {"head": self.unique()},
             method="head",
             status_code=405)
     
@@ -43,7 +41,7 @@ class RequireGETTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
+            {"options": self.unique()},
             method="options",
             status_code=405)
     
@@ -53,8 +51,7 @@ class RequireGETTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"post": self.unique()},
+            {"post": self.unique()},
             method="post",
             status_code=405)
     
@@ -64,8 +61,7 @@ class RequireGETTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"put": self.unique()},
+            {"put": self.unique()},
             method="put",
             status_code=405)
     
@@ -75,8 +71,7 @@ class RequireGETTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"delete": self.unique()},
+            {"delete": self.unique()},
             method="delete",
             status_code=405)
 
@@ -86,7 +81,7 @@ class RequirePOSTTestCase(base.TestCase):
     Tests for the RequirePOST view decorator mixin.
     
     """
-    view_class = http_decorated.RequirePOST
+    view_classes = http_decorated.RequirePOST
     
     def test_post_allowed(self):
         """
@@ -95,8 +90,7 @@ class RequirePOSTTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"post": content},
+            {"post": content},
             method="post",
             status_code=200,
             content=content)
@@ -107,8 +101,7 @@ class RequirePOSTTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"get": self.unique()},
+            {"get": self.unique()},
             status_code=405)
     
     def test_head_not_allowed(self):
@@ -117,8 +110,7 @@ class RequirePOSTTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"head": self.unique()},
+            {"head": self.unique()},
             method="head",
             status_code=405)
     
@@ -128,7 +120,7 @@ class RequirePOSTTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
+            {"options": self.unique()},
             method="options",
             status_code=405)
     
@@ -138,8 +130,7 @@ class RequirePOSTTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"put": self.unique()},
+            {"put": self.unique()},
             method="put",
             status_code=405)
     
@@ -149,8 +140,7 @@ class RequirePOSTTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"delete": self.unique()},
+            {"delete": self.unique()},
             method="delete",
             status_code=405)
 
@@ -160,7 +150,7 @@ class RequireSafeTestCase(base.TestCase):
     Tests for the RequireSafe view decorator mixin.
     
     """
-    view_class = http_decorated.RequireSafe
+    view_classes = http_decorated.RequireSafe
     
     def test_get_allowed(self):
         """
@@ -169,8 +159,7 @@ class RequireSafeTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"get": content},
+            {"get": content},
             status_code=200,
             content=content)
     
@@ -180,8 +169,7 @@ class RequireSafeTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"head": self.unique()},
+            {"head": self.unique()},
             method="head",
             status_code=200,
             content="")
@@ -192,7 +180,7 @@ class RequireSafeTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
+            {"options": self.unique()},
             method="options",
             status_code=405)
     
@@ -202,8 +190,7 @@ class RequireSafeTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"post": self.unique()},
+            {"post": self.unique()},
             method="post",
             status_code=405)
     
@@ -213,8 +200,7 @@ class RequireSafeTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"put": self.unique()},
+            {"put": self.unique()},
             method="put",
             status_code=405)
     
@@ -224,8 +210,7 @@ class RequireSafeTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"delete": self.unique()},
+            {"delete": self.unique()},
             method="delete",
             status_code=405)
 
@@ -238,7 +223,7 @@ class ConditionTestCase(base.TestCase):
     behaviors. It just shows that the decorator is wired in correctly.
     
     """
-    view_class = http_decorated.Condition
+    view_classes = http_decorated.Condition
     
     def test_etag_set(self):
         """
@@ -250,12 +235,10 @@ class ConditionTestCase(base.TestCase):
         def condition_etag(self, request, *args, **kwargs):
             return etag
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_etag": condition_etag},
-            view_kwargs={"get": content},
+            {"condition_etag": condition_etag, "get": content},
             status_code=200,
             content=content,
-            headers={"ETag": self.format_etag(etag)})
+            exact_headers={"ETag": self.format_etag(etag)})
     
     def test_etag_set_precedence(self):
         """
@@ -268,10 +251,9 @@ class ConditionTestCase(base.TestCase):
         def condition_etag(self, request, *args, **kwargs):
             return etag
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_etag": condition_etag},
+            {"condition_etag": condition_etag},
             status_code=405,
-            headers={"ETag": self.format_etag(etag)})
+            exact_headers={"ETag": self.format_etag(etag)})
     
     def test_etag_not_modified(self):
         """
@@ -282,13 +264,11 @@ class ConditionTestCase(base.TestCase):
         def condition_etag(self, request, *args, **kwargs):
             return etag
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_etag": condition_etag},
-            view_kwargs={"get": self.unique()},
-            request_headers={"HTTP_IF_NONE_MATCH": self.format_etag(etag)},
+            {"condition_etag": condition_etag, "get": self.unique()},
+            headers={"HTTP_IF_NONE_MATCH": self.format_etag(etag)},
             status_code=304,
             content="",
-            headers={"ETag": self.format_etag(etag)})
+            exact_headers={"ETag": self.format_etag(etag)})
     
     def test_etag_fail(self):
         """
@@ -299,12 +279,10 @@ class ConditionTestCase(base.TestCase):
         def condition_etag(self, request, *args, **kwargs):
             return etag
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_etag": condition_etag},
-            view_kwargs={"get": self.unique()},
-            request_headers={"HTTP_IF_MATCH": self.format_etag(self.unique())},
+            {"condition_etag": condition_etag, "get": self.unique()},
+            headers={"HTTP_IF_MATCH": self.format_etag(self.unique())},
             status_code=412,
-            headers={"ETag": self.format_etag(etag)})
+            exact_headers={"ETag": self.format_etag(etag)})
     
     def test_etag_miss(self):
         """
@@ -316,14 +294,11 @@ class ConditionTestCase(base.TestCase):
         def condition_etag(self, request, *args, **kwargs):
             return etag
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_etag": condition_etag},
-            view_kwargs={"get": content},
-            request_headers={
-                "HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
+            {"condition_etag": condition_etag, "get": content},
+            headers={"HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
             status_code=200,
             content=content,
-            headers={"ETag": self.format_etag(etag)})
+            exact_headers={"ETag": self.format_etag(etag)})
     
     def test_etag_miss_precedence(self):
         """
@@ -335,12 +310,10 @@ class ConditionTestCase(base.TestCase):
         def condition_etag(self, request, *args, **kwargs):
             return etag
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_etag": condition_etag},
-            request_headers={
-                "HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
+            {"condition_etag": condition_etag},
+            headers={"HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
             status_code=405,
-            headers={"ETag": self.format_etag(etag)})
+            exact_headers={"ETag": self.format_etag(etag)})
     
     def test_last_modified_set(self):
         """
@@ -351,13 +324,13 @@ class ConditionTestCase(base.TestCase):
         content = self.unique()
         def condition_last_modified(self, request, *args, **kwargs):
             return last_modified
-        self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_last_modified": condition_last_modified},
-            view_kwargs={"get": content},
+        self.assertResponseBehavior({
+                "condition_last_modified": condition_last_modified,
+                "get": content},
             status_code=200,
             content=content,
-            headers={"Last-Modified": self.format_datetime(last_modified)})
+            exact_headers={
+                "Last-Modified": self.format_datetime(last_modified)})
     
     def test_last_modified_set_precedence(self):
         """
@@ -370,10 +343,10 @@ class ConditionTestCase(base.TestCase):
         def condition_last_modified(self, request, *args, **kwargs):
             return last_modified
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_last_modified": condition_last_modified},
+            {"condition_last_modified": condition_last_modified},
             status_code=405,
-            headers={"Last-Modified": self.format_datetime(last_modified)})
+            exact_headers={
+                "Last-Modified": self.format_datetime(last_modified)})
     
     def test_last_modified_not_modified(self):
         """
@@ -383,16 +356,16 @@ class ConditionTestCase(base.TestCase):
         last_modified = datetime.datetime.now()
         def condition_last_modified(self, request, *args, **kwargs):
             return last_modified
-        self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_last_modified": condition_last_modified},
-            view_kwargs={"get": self.unique()},
-            request_headers={
+        self.assertResponseBehavior({
+                "condition_last_modified": condition_last_modified,
+                "get": self.unique()},
+            headers={
                 "HTTP_IF_MODIFIED_SINCE":
                     self.format_datetime(
                         last_modified + datetime.timedelta(hours=1))},
             status_code=304,
-            headers={"Last-Modified": self.format_datetime(last_modified)})
+            exact_headers={
+                "Last-Modified": self.format_datetime(last_modified)})
     
     def test_last_modified_miss(self):
         """
@@ -403,15 +376,14 @@ class ConditionTestCase(base.TestCase):
         content = self.unique()
         def condition_last_modified(self, request, *args, **kwargs):
             return last_modified + datetime.timedelta(hours=1)
-        self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_last_modified": condition_last_modified},
-            view_kwargs={"get": content},
-            request_headers={
+        self.assertResponseBehavior({
+                "condition_last_modified": condition_last_modified,
+                "get": content},
+            headers={
                 "HTTP_IF_MODIFIED_SINCE": self.format_datetime(last_modified)},
             status_code=200,
             content=content,
-            headers={
+            exact_headers={
                 "Last-Modified":
                     self.format_datetime(
                         last_modified + datetime.timedelta(hours=1))})
@@ -427,12 +399,11 @@ class ConditionTestCase(base.TestCase):
         def condition_last_modified(self, request, *args, **kwargs):
             return last_modified + datetime.timedelta(hours=1)
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"condition_last_modified": condition_last_modified},
-            request_headers={
+            {"condition_last_modified": condition_last_modified},
+            headers={
                 "HTTP_IF_MODIFIED_SINCE": self.format_datetime(last_modified)},
             status_code=405,
-            headers={
+            exact_headers={
                 "Last-Modified":
                     self.format_datetime(
                         last_modified + datetime.timedelta(hours=1))})

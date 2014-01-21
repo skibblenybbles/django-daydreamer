@@ -12,37 +12,47 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
     """
     Common utilities for testing base views.
     
-    Specify a view class to use for the test cases.
+    Specify view class(es) to inherit from for the test cases.
     
     """
-    view_class = None
+    view_classes = None
     
     # Utilities.
-    def view(self, *args, **kwargs):
+    def view(self, **attrs):
         """
-        Hardcodes self.view_class.
+        Hardcodes self.view_classes.
         
         """
-        return super(TestCase, self).view(self.view_class, *args, **kwargs)
+        return super(TestCase, self).view(self.view_classes, **attrs)
     
     # Assertions.
-    def assertResponseBehavior(self, path,
-            setup=None, view_attrs=None, view_kwargs=None,
-            method="get", request_data=None, request_headers=None,
-            exception=None, status_code=None, follow_status_code=False,
-            content=None, headers=None,
+    def assertResponseBehavior(self,
+            attrs=None, setup=None, view_args=None, view_kwargs=None,
+            method="get", path=None, data=None, headers=None,
+            exception=None,
+            status_code=None, follow_status_code=None, content=None,
+            include_headers=None, exclude_headers=None, exact_headers=None,
+            include_cookies=None, exclude_cookies=None, exact_cookies=None,
+            include_context=None, exclude_context=None, exact_context=None,
             message=None, message_level=None, message_tags=None,
             redirect_url=None, redirect_next_url=None,
             redirect_next_name=None):
         """
-        Sets up the environment with the optional setup callback and generates
-        a view from setup()'s return and the optional attributes. Makes an
-        HTTP request for the specified method and path, with optional request
-        data or headers, and makes a series of assertions about the
-        response behavior.
+        Generates a view from the optional attributes and from the setup()
+        callback's return value. Makes an HTTP request for the specified
+        method and path, with optional request, data or headers, passing the
+        optional view arguments and keyword arguments. Makes a series of
+        assertions about the response behavior.
         
-        If request_data is specified, it should be a dictionary for a "get"
-        "post" or "head" request. Otherwise, it should be a string.
+        If the setup callback is specified, it should set up the test
+        environment and return an optional dictionary of attributes to mix
+        into the creatd view class instance.
+        
+        If path is specified, usees the path for the request. Otherwise
+        generates a unique path to user for the request.
+        
+        If data is specified, it should be a dictionary for a "get", "post"
+        or "head" request. Otherwise, it should be a string.
         
         If exception is specified, the view should raise the exception,
         and no other assertions will be performed.
@@ -55,10 +65,23 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         
         If content is specified, the response's content must match.
         
-        If headers is specified, its names and values must be present in the
-        response's headers.
+        If include_headers is specified, the response must contain the header
+        name or names. If exclude_headers is specified, the response must not
+        contain the header name or names. If exact_headers is specified, its
+        names and exact values must be present in the response's headers.
         
-        If message is specified, checks that no messages are present in the
+        If include_cookies is specified, the response must contain the cookie
+        name or names. If exclude_cookies is specified, the response must not
+        contain the cookie name or names. If exact_cookies is specified, its
+        names and exact values must be present in the response's cookies.
+        
+        If include_context is specified, the response's context must contain
+        the name or names. If exclude_context is specified, the response's
+        context must not contain the name or names. If exact_context is
+        specified, the names and exact values must be present in the response's
+        context.
+        
+        If message is not specified, checks that no messages are present in the
         response's context. Otherwise, checks that exactly one message with the
         given message_level and message_tags is present in the response's
         context.
@@ -69,20 +92,82 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         the latter is specified.
         
         """
-        # Sanity check and normalize the request data.
-        if request_data is not None:
+        # Sanity check and normalize the arguments.
+        attrs = attrs or {}
+        view_args = view_args or ()
+        view_kwargs = view_kwargs or {}
+        
+        path = self.unique_path() if path is None else path
+        
+        if data is not None:
             if method in ("get", "post", "head",):
-                if not isinstance(request_data, collections.Mapping):
+                if not isinstance(data, collections.Mapping):
                     raise ValueError(
-                        'The request_data must be a dictionary for "get", '
-                        '"post" or "head" requests.')
+                        'The data must be a dictionary for "get", "post" or '
+                        '"head" requests.')
             else:
-                if not isinstance(request_data, six.string_types):
+                if not isinstance(data, six.string_types):
                     raise ValueError(
-                        "The request_data must be a string for request "
-                        'methods other than "get", "post" or "head".')
+                        "The data must be a string for request methods other "
+                        'than "get", "post" or "head".')
         else:
-            request_data = {} if method in ("get", "post", "head",) else ""
+            data = {} if method in ("get", "post", "head",) else ""
+        
+        headers = headers or {}
+        
+        include_headers = (
+            (include_headers,)
+                if isinstance(include_headers, six.string_types)
+                else include_headers or ())
+        exclude_headers = (
+            (exclude_headers,)
+                if isinstance(exclude_headers, six.string_types)
+                else exclude_headers or ())
+        exact_headers = (
+            exact_headers
+                if isinstance(exact_headers, collections.Mapping)
+                else dict(exact_headers or {}))
+        
+        include_cookies = (
+            (include_cookies,)
+                if isinstance(include_cookies, six.string_types)
+                else include_cookies or ())
+        exclude_cookies = (
+            (exclude_cookies,)
+                if isinstance(exclude_cookies, six.string_types)
+                else exclude_cookies or ())
+        exact_cookies = (
+            exact_cookies
+                if isinstance(exact_context, collections.Mapping)
+                else dict(exact_cookies or {}))
+        
+        include_context = (
+            (include_context,)
+                if isinstance(include_context, six.string_types)
+                else include_context or ())
+        exclude_context = (
+            (exclude_context,)
+                if isinstance(exclude_context, six.string_types)
+                else exclude_context or ())
+        exact_context = (
+            exact_context
+                if isinstance(exact_context, collections.Mapping)
+                else dict(exact_context or {}))
+        
+        # Set up a closure to coll the view.
+        def view():
+            return getattr(self.client, method)(
+                self.view(
+                    **lang.updated(
+                        attrs,
+                        setup() or {}
+                            if isinstance(setup, collections.Callable)
+                            else {})),
+                view_args=view_args,
+                view_kwargs=view_kwargs,
+                path=path,
+                data=data,
+                **headers)
         
         # Do we expect an exception or a normal response?
         if exception:
@@ -91,48 +176,57 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
                 exception.__class__
                     if isinstance(exception, Exception)
                     else exception):
-                getattr(self.client, method)(
-                    self.view(
-                        lang.updated(
-                            view_attrs or {},
-                            setup() or {}
-                                if isinstance(setup, collections.Callable)
-                                else {}),
-                        **view_kwargs or {}),
-                    path=path,
-                    data=request_data,
-                    **request_headers or {})
-        
+                view()
         else:
             # Expecting a normal response.
-            response = getattr(self.client, method)(
-                self.view(
-                    lang.updated(
-                        view_attrs or {},
-                        setup() or {}
-                            if isinstance(setup, collections.Callable)
-                            else {}),
-                    **view_kwargs or {}),
-                path=path,
-                data=request_data,
-                **request_headers or {})
+            response = view()
             
             # Check status code?
-            if status_code:
+            if status_code is not None:
                 self.assertEqual(response.status_code, status_code)
             
             # Check content?
-            if content:
+            if content is not None:
                 self.assertEqual(response.content, content)
             
-            # Check headers?
-            if headers:
-                for name, value in six.iteritems(
-                    headers
-                        if isinstance(headers, collections.Mapping)
-                        else dict(headers)):
-                    self.assertIn(name, response)
-                    self.assertEqual(response[name], value)
+            # Check headers.
+            for name in include_headers:
+                self.assertIn(name, response)
+            for name in exclude_headers:
+                self.assertNotIn(name, response)
+            for name, value in six.iteritems(exact_headers):
+                self.assertIn(name, response)
+                self.assertEqual(response[name], value)
+            
+            # Check cookies.
+            for name in include_cookies:
+                self.assertIn(name, response.cookies)
+            for name in exclude_cookies:
+                self.assertNotIn(name, response.cookies)
+            for name, value in six.iteritems(exact_cookies):
+                self.assertIn(name, response.cookies)
+                self.assertEqual(response.cookies[name].value, value)
+            
+            # Check context.
+            if include_context:
+                self.assertTrue(
+                    hasattr(response, "context") and response.context,
+                    "The response must have a context attribute that is "
+                    "not None.")
+                for name in include_context:
+                    self.assertIn(name, response.context)
+            if exclude_context:
+                if hasattr(response, "context") and response.context:
+                    for name in exclude_context:
+                        self.assertNotIn(name, response.context)
+            if exact_context:
+                self.assertTrue(
+                    hasattr(response, "context") and response.context,
+                    "The response must have a context attribute that is "
+                    "not None.")
+                for name, value in six.iteritems(exact_context):
+                    self.assertIn(name, response.context)
+                    self.assertEqual(response.context[name], value)
             
             # Contains a message?
             if message:

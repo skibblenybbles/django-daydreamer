@@ -11,7 +11,7 @@ class SecuredViewTestCase(base.TestCase):
     Tests for the SecuredView base class.
     
     """
-    view_class = generic.base.SecuredView
+    view_classes = generic.base.SecuredView
     
     def test_not_implemented(self):
         """
@@ -19,8 +19,7 @@ class SecuredViewTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"get": self.unique()},
+            {"get": self.unique()},
             exception=NotImplementedError)
 
 
@@ -29,7 +28,7 @@ class CommonResponseViewTestCase(base.TestCase):
     Tests for the CommonResponseView base class.
     
     """
-    view_class = generic.base.CommonResponseView
+    view_classes = generic.base.CommonResponseView
     
     def test_attachment(self):
         """
@@ -42,11 +41,10 @@ class CommonResponseViewTestCase(base.TestCase):
         def get(self, request, *args, **kwargs):
             return self.attachment(content, content_type, filename)
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"get": get},
+            {"get": get},
             status_code=200,
             content=content,
-            headers={
+            exact_headers={
                 "Content-Type": content_type,
                 "Content-Disposition":
                     "attachment; filename=\"{filename:s}\"".format(
@@ -60,8 +58,7 @@ class CommonResponseViewTestCase(base.TestCase):
         def get(self, request, *args, **kwargs):
             return self.redirect("admin:index")
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"get": get},
+            {"get": get},
             redirect_url=urlresolvers.reverse("admin:index"))
     
     def test_gone(self):
@@ -72,8 +69,7 @@ class CommonResponseViewTestCase(base.TestCase):
         def get(self, request, *args, **kwargs):
             return self.gone()
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"get": get},
+            {"get": get},
             status_code=410)
     
     def test_not_found(self):
@@ -84,8 +80,7 @@ class CommonResponseViewTestCase(base.TestCase):
         def get(self, request, *args, **kwargs):
             return self.not_found()
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"get": get},
+            {"get": get},
             status_code=404)
     
     def test_permission_denied(self):
@@ -96,8 +91,7 @@ class CommonResponseViewTestCase(base.TestCase):
         def get(self, request, *args, **kwargs):
             return self.permission_denied()
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"get": get},
+            {"get": get},
             status_code=403)
     
     def test_suspicious_operation(self):
@@ -108,8 +102,7 @@ class CommonResponseViewTestCase(base.TestCase):
         def get(self, request, *args, **kwargs):
             return self.suspicious_operation()
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"get": get},
+            {"get": get},
             status_code=400)
 
 
@@ -118,7 +111,7 @@ class ViewTestCase(base.TestCase):
     Tests for the View base class.
     
     """
-    view_class = generic.View
+    view_classes = generic.View
     
     def test_ok(self):
         """
@@ -127,8 +120,7 @@ class ViewTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"get": content},
+            {"get": content},
             status_code=200,
             content=content)
     
@@ -138,7 +130,6 @@ class ViewTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
             status_code=405)
     
     def test_method_not_allowed(self):
@@ -147,6 +138,5 @@ class ViewTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"http_method_names": ()},
-            view_kwargs={"get": self.unique()})
+            {"http_method_names": (), "get": self.unique()},
+            status_code=405)

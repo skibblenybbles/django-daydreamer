@@ -15,7 +15,7 @@ class CSRFProtectTestCase(base.TestCase):
     CSRF middleware is turned off to enable edge case behavior.
     
     """
-    view_class = csrf_decorated.CSRFProtect
+    view_classes = csrf_decorated.CSRFProtect
     
     def test_protect_post_no_cookie(self):
         """
@@ -23,8 +23,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"post": self.unique()},
+            {"post": self.unique()},
             method="post",
             status_code=403)
     
@@ -42,8 +41,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"put": self.unique()},
+            {"put": self.unique()},
             method="put",
             status_code=403)
     
@@ -61,8 +59,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"patch": self.unique()},
+            {"patch": self.unique()},
             method="patch",
             status_code=403)
     
@@ -80,8 +77,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"delete": self.unique()},
+            {"delete": self.unique()},
             method="delete",
             status_code=403)
     
@@ -100,7 +96,6 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
             method="post",
             status_code=403)
     
@@ -121,11 +116,9 @@ class CSRFProtectTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"post": content},
+            {"post": content},
             method="post",
-            request_data={
-                "csrfmiddlewaretoken": self.client.get_csrf_cookie()},
+            data={"csrfmiddlewaretoken": self.client.get_csrf_cookie()},
             status_code=200,
             content=content)
     
@@ -137,11 +130,9 @@ class CSRFProtectTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"post": content},
+            {"post": content},
             method="post",
-            request_headers={
-                "HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
+            headers={"HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
             status_code=200,
             content=content)
     
@@ -153,9 +144,7 @@ class CSRFProtectTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"csrf_protect": False},
-            view_kwargs={"post": content},
+            {"csrf_protect": False, "post": content},
             method="post",
             status_code=200,
             content=content)
@@ -168,11 +157,9 @@ class CSRFProtectTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"put": content},
+            {"put": content},
             method="put",
-            request_headers={
-                "HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
+            headers={"HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
             status_code=200,
             content=content)
     
@@ -184,9 +171,7 @@ class CSRFProtectTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"csrf_protect": False},
-            view_kwargs={"put": content},
+            {"csrf_protect": False, "put": content},
             method="put",
             status_code=200,
             content=content)
@@ -199,11 +184,9 @@ class CSRFProtectTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"patch": content},
+            {"patch": content},
             method="patch",
-            request_headers={
-                "HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
+            headers={"HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
             status_code=200,
             content=content)
     
@@ -215,9 +198,7 @@ class CSRFProtectTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"csrf_protect": False},
-            view_kwargs={"patch": content},
+            {"csrf_protect": False, "patch": content},
             method="patch",
             status_code=200,
             content=content)
@@ -230,11 +211,9 @@ class CSRFProtectTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"delete": content},
+            {"delete": content},
             method="delete",
-            request_headers={
-                "HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
+            headers={"HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
             status_code=200,
             content=content)
     
@@ -246,9 +225,7 @@ class CSRFProtectTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"csrf_protect": False},
-            view_kwargs={"delete": content},
+            {"csrf_protect": False, "delete": content},
             method="delete",
             status_code=200,
             content=content)
@@ -261,10 +238,8 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
             method="post",
-            request_data={
-                "csrfmiddlewaretoken": self.client.get_csrf_cookie()},
+            data={"csrfmiddlewaretoken": self.client.get_csrf_cookie()},
             status_code=405)
     
     def test_allow_precedence_header(self):
@@ -275,10 +250,8 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
             method="post",
-            request_headers={
-                "HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
+            headers={"HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
             status_code=405)
 
 
@@ -289,34 +262,43 @@ class RequireCSRFTokenTestCase(base.TestCase):
     CSRF middleware is turned off to enable edge case behavior.
     
     """
-    view_class = csrf_decorated.RequiresCSRFToken
+    view_classes = csrf_decorated.RequiresCSRFToken
     
     def test_csrf_token(self):
         """
         A csrf_token value should be added to a RequestContext.
         
         """
+        content = self.unique()
         def get(self, request, *args, **kwargs):
             return http.HttpResponse(
-                template.Template("").render(
+                template.Template(content).render(
                     template.RequestContext(request, {})))
-        self.assertIn(
-            "csrf_token",
-            self.client.get(self.view({"get": get})).context)
+        self.assertResponseBehavior(
+            {"get": get},
+            status_code=200,
+            content=content,
+            include_context="csrf_token")
     
     def test_csrf_token_disabled(self):
         """
-        A csrf_token value should not be added to a RequestContext when
-        the view decorator is disabled.
+        A csrf_token value should be added to a RequestContext even when the
+        view decorator is disabled, because of a hard-coded logic path
+        in Django's RequestContext code.
+        
+        This shows that this view decorator mixin is not very useful.
         
         """
+        content = self.unique()
         def get(self, request, *args, **kwargs):
             return http.HttpResponse(
-                template.Template("").render(
+                template.Template(content).render(
                     template.RequestContext(request, {})))
-            self.assertNotIn(
-                "csrf_token",
-                self.client.get(self.view({"get": get})).content)
+        self.assertResponseBehavior(
+            {"requires_csrf_token": False, "get": get},
+            status_code=200,
+            content=content,
+            include_context="csrf_token")
 
 
 class EnsureCSRFCookieTestCase(base.TestCase):
@@ -326,24 +308,31 @@ class EnsureCSRFCookieTestCase(base.TestCase):
     CSRF middleware is turned off to enable edge case behavior.
     
     """
-    view_class = csrf_decorated.EnsureCSRFCookie
+    view_classes = csrf_decorated.EnsureCSRFCookie
     
     def test_csrf_cookie(self):
         """
         Check that the CSRF cookie appears in the response.
         
         """
-        response = self.client.get(self.view(get=""))
-        self.assertIn(settings.CSRF_COOKIE_NAME, response.cookies)
+        content = self.unique()
+        self.assertResponseBehavior(
+            {"get": content},
+            status_code=200,
+            content=content,
+            include_cookies=settings.CSRF_COOKIE_NAME)
     
     def test_csrf_cookie_disabled(self):
         """
         Check that the CSRF cookie does not appear in the response.
         
         """
-        response = self.client.get(
-            self.view({"ensure_csrf_cookie": False}, get=""))
-        self.assertNotIn(settings.CSRF_COOKIE_NAME, response.cookies)
+        content = self.unique()
+        self.assertResponseBehavior(
+            {"ensure_csrf_cookie": False, "get": content},
+            status_code=200,
+            content=content,
+            exclude_cookies=settings.CSRF_COOKIE_NAME)
 
 
 class CSRFExemptTestCase(base.TestCase):
@@ -353,7 +342,7 @@ class CSRFExemptTestCase(base.TestCase):
     CSRF middleware is turned on to enable edge case behavior.
     
     """
-    view_class = csrf_decorated.CSRFExempt
+    view_classes = csrf_decorated.CSRFExempt
     csrf_middleware_enabled = True
     
     def test_post_csrf_exempt(self):
@@ -363,8 +352,7 @@ class CSRFExemptTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"post": content},
+            {"post": content},
             method="post",
             status_code=200,
             content=content)
@@ -376,8 +364,7 @@ class CSRFExemptTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"put": content},
+            {"put": content},
             method="put",
             status_code=200,
             content=content)
@@ -389,8 +376,7 @@ class CSRFExemptTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"patch": content},
+            {"patch": content},
             method="patch",
             status_code=200,
             content=content)
@@ -402,8 +388,7 @@ class CSRFExemptTestCase(base.TestCase):
         """
         content = self.unique()
         self.assertResponseBehavior(
-            self.unique(),
-            view_kwargs={"delete": content},
+            {"delete": content},
             method="delete",
             status_code=200,
             content=content)
@@ -415,9 +400,7 @@ class CSRFExemptTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"csrf_exempt": False},
-            view_kwargs={"post": self.unique()},
+            {"csrf_exempt": False, "post": self.unique()},
             method="post",
             status_code=403)
     
@@ -428,9 +411,7 @@ class CSRFExemptTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"csrf_exempt": False},
-            view_kwargs={"put": self.unique()},
+            {"csrf_exempt": False, "put": self.unique()},
             method="put",
             status_code=403)
     
@@ -441,9 +422,7 @@ class CSRFExemptTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"csrf_exempt": False},
-            view_kwargs={"patch": self.unique()},
+            {"csrf_exempt": False, "patch": self.unique()},
             method="patch",
             status_code=403)
     
@@ -454,9 +433,7 @@ class CSRFExemptTestCase(base.TestCase):
         
         """
         self.assertResponseBehavior(
-            self.unique(),
-            view_attrs={"csrf_exempt": False},
-            view_kwargs={"delete": self.unique()},
+            {"csrf_exempt": False, "delete": self.unique()},
             method="delete",
             status_code=403)
 
@@ -472,5 +449,5 @@ class CSRFProtectCSRFExemptTestCase(CSRFExemptTestCase):
     middleware disabled.
     
     """
-    view_class = (csrf_decorated.CSRFProtect, csrf_decorated.CSRFExempt,)
+    view_classes = (csrf_decorated.CSRFProtect, csrf_decorated.CSRFExempt,)
     csrf_middleware_enabled = False

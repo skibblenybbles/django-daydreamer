@@ -25,7 +25,7 @@ class TestCase(base.TestCase):
         # There must be a context in the response.
         self.assertTrue(
             hasattr(response, "context") and response.context,
-            "The response must have a truthy context attribute.")
+            "The response must have a context attribute that is not None.")
         
         # Get the messages from the context. This may be a fragile
         # django.test.utils.ContextList data structure, so we can't
