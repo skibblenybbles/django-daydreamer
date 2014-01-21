@@ -143,8 +143,7 @@ class SecuredView(generic.View):
         
         """
         return (
-            self.get_not_allowed_attr(prefix, "message_tags") or
-            "")
+            self.get_not_allowed_attr(prefix, "message_tags") or "")
     
     def get_not_allowed_redirect_url(self, prefix):
         """

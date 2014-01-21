@@ -27,7 +27,8 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
     
     # Assertions.
     def assertResponseBehavior(self, path,
-            setup=None, view_attrs=None, view_kwargs=None, method="get",
+            setup=None, view_attrs=None, view_kwargs=None,
+            method="get", request_data=None, request_headers=None,
             exception=None, status_code=None, follow_status_code=False,
             content=None, headers=None,
             message=None, message_level=None, message_tags=None,
@@ -36,8 +37,12 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         """
         Sets up the environment with the optional setup callback and generates
         a view from setup()'s return and the optional attributes. Makes an
-        HTTP request for the specified method and path and makes a series of
-        assertions about the response behavior.
+        HTTP request for the specified method and path, with optional request
+        data or headers, and makes a series of assertions about the
+        response behavior.
+        
+        If request_data is specified, it should be a dictionary for a "get"
+        "post" or "head" request. Otherwise, it should be a string.
         
         If exception is specified, the view should raise the exception,
         and no other assertions will be performed.
@@ -64,6 +69,22 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         the latter is specified.
         
         """
+        # Sanity check and normalize the request data.
+        if request_data is not None:
+            if method in ("get", "post", "head",):
+                if not isinstance(request_data, collections.Mapping):
+                    raise ValueError(
+                        'The request_data must be a dictionary for "get", '
+                        '"post" or "head" requests.')
+            else:
+                if not isinstance(request_data, six.string_types):
+                    raise ValueError(
+                        "The request_data must be a string for request "
+                        'methods other than "get", "post" or "head".')
+        else:
+            request_data = {} if method in ("get", "post", "head",) else ""
+        
+        # Do we expect an exception or a normal response?
         if exception:
             # Expecting an exception.
             with self.assertRaises(
@@ -78,7 +99,9 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
                                 if isinstance(setup, collections.Callable)
                                 else {}),
                         **view_kwargs or {}),
-                    path=path)
+                    path=path,
+                    data=request_data,
+                    **request_headers or {})
         
         else:
             # Expecting a normal response.
@@ -90,7 +113,9 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
                             if isinstance(setup, collections.Callable)
                             else {}),
                     **view_kwargs or {}),
-                path=path)
+                path=path,
+                data=request_data,
+                **request_headers or {})
             
             # Check status code?
             if status_code:

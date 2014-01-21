@@ -19,7 +19,6 @@ class TestCase(base.TestCase):
     You must also provide overrides for the four setup_*() methods.
     
     """
-    view_class = None
     prefix = None
     
     # Test environment setups.

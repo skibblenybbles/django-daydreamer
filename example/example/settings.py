@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "south",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -57,11 +58,15 @@ WSGI_APPLICATION = "example.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
+# Database configuration.
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "daydreamer",
+        "USER": "daydreamer",
+        "PASSWORD": "daydreamer",
+        "STORAGE_ENGINE": "INNODB",
+    },
 }
 
 # Internationalization

@@ -331,7 +331,8 @@ class TestCase(base.TestCase):
             get=None, post=None, head=None,
             put=None, patch=None, delete=None):
         """
-        Generate a view from the given view class and attributes.
+        Generate a view from the given view class and attributes. The
+        view_class argument may specify an iterable of classes to inherit from.
         
         The generated view will inherit from the view_class, so it should be
         a class that inherits from django.views.generic.base.View, or a class
@@ -352,7 +353,11 @@ class TestCase(base.TestCase):
         method is provided by the django.views.generic.base.View base class.
         
         """
-        # Normalize the attributes.
+        # Normalize the view class and attributes.
+        view_class = (
+            (view_class,)
+                if isinstance(view_class, types.TypeType)
+                else view_class)
         attrs = attrs or {}
         
         # Add a get() method?
@@ -368,7 +373,7 @@ class TestCase(base.TestCase):
             not hasattr(view_class, "post") and
             "post" not in attrs):
             def _post(self, request, *args, **kwargs):
-                return http.HttpResopnse(post)
+                return http.HttpResponse(post)
             attrs["post"] = _post
         
         # Add a head() method?
@@ -376,7 +381,7 @@ class TestCase(base.TestCase):
             not hasattr(view_class, "head") and
             "head" not in attrs):
             def _head(self, request, *args, **kwargs):
-                return http.HttpResopnse("")
+                return http.HttpResponse("")
             attrs["head"] = _head
         
         # Add a put() method?
@@ -384,7 +389,7 @@ class TestCase(base.TestCase):
             not hasattr(view_class, "put") and
             "put" not in attrs):
             def _put(self, request, *args, **kwargs):
-                return http.HttpResopnse(put)
+                return http.HttpResponse(put)
             attrs["put"] = _put
         
         # Add a patch() method?
@@ -392,7 +397,7 @@ class TestCase(base.TestCase):
             not hasattr(view_class, "patch") and
             "patch" not in attrs):
             def _patch(self, request, *args, **kwargs):
-                return http.HttpResopnse(patch)
+                return http.HttpResponse(patch)
             attrs["patch"] = _patch
         
         # Add a delete() method?
@@ -400,11 +405,13 @@ class TestCase(base.TestCase):
             not hasattr(view_class, "delete") and
             "delete" not in attrs):
             def _delete(self, request, *args, **kwargs):
-                return http.HttpResopnse(delete)
+                return http.HttpResponse(delete)
             attrs["delete"] = _delete
         
         # Create the view.
         return type(
-            b"Test{base:s}".format(base=view_class.__name__),
-            (view_class,),
+            b"".join(
+                (b"Test",) + 
+                tuple(klass.__name__ for klass in view_class)),
+            view_class,
             attrs).as_view()
