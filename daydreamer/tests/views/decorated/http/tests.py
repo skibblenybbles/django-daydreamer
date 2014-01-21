@@ -257,6 +257,22 @@ class ConditionTestCase(base.TestCase):
             content=content,
             headers={"ETag": self.format_etag(etag)})
     
+    def test_etag_set_precedence(self):
+        """
+        Check that the default HTTP method name protection takes precedence
+        when no valid ETag header is sent and that an ETag is set on
+        the response.
+        
+        """
+        etag = self.unique()
+        def condition_etag(self, request, *args, **kwargs):
+            return etag
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_etag": condition_etag},
+            status_code=405,
+            headers={"ETag": self.format_etag(etag)})
+    
     def test_etag_not_modified(self):
         """
         Check for a not modified response on ETag match.
@@ -276,7 +292,7 @@ class ConditionTestCase(base.TestCase):
     
     def test_etag_fail(self):
         """
-        Check for a precondition fail resopnse for an ETag mismatch.
+        Check for a precondition fail response for an ETag mismatch.
         
         """
         etag = self.unique()
@@ -309,6 +325,23 @@ class ConditionTestCase(base.TestCase):
             content=content,
             headers={"ETag": self.format_etag(etag)})
     
+    def test_etag_miss_precedence(self):
+        """
+        Check that the default HTTP method name protection takes precedence
+        upon ETag header miss and that the ETag header is updated.
+        
+        """
+        etag = self.unique()
+        def condition_etag(self, request, *args, **kwargs):
+            return etag
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_etag": condition_etag},
+            request_headers={
+                "HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
+            status_code=405,
+            headers={"ETag": self.format_etag(etag)})
+    
     def test_last_modified_set(self):
         """
         Check that the last modified header is set.
@@ -324,6 +357,22 @@ class ConditionTestCase(base.TestCase):
             view_kwargs={"get": content},
             status_code=200,
             content=content,
+            headers={"Last-Modified": self.format_datetime(last_modified)})
+    
+    def test_last_modified_set_precedence(self):
+        """
+        Check that the default HTTP method name protection takes precedence
+        when no valid last modified header is sent and that a last modified
+        header is set on the response.
+        
+        """
+        last_modified = datetime.datetime.now()
+        def condition_last_modified(self, request, *args, **kwargs):
+            return last_modified
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_last_modified": condition_last_modified},
+            status_code=405,
             headers={"Last-Modified": self.format_datetime(last_modified)})
     
     def test_last_modified_not_modified(self):
@@ -362,6 +411,28 @@ class ConditionTestCase(base.TestCase):
                 "HTTP_IF_MODIFIED_SINCE": self.format_datetime(last_modified)},
             status_code=200,
             content=content,
-            headers={"Last-Modified":
-                self.format_datetime(
-                    last_modified + datetime.timedelta(hours=1))})
+            headers={
+                "Last-Modified":
+                    self.format_datetime(
+                        last_modified + datetime.timedelta(hours=1))})
+    
+    def test_last_modified_miss_precedence(self):
+        """
+        Check that the default HTTP method name protection takes precedence
+        upon last modified header miss and that a last modified header is
+        set on the response.
+        
+        """
+        last_modified = datetime.datetime.now()
+        def condition_last_modified(self, request, *args, **kwargs):
+            return last_modified + datetime.timedelta(hours=1)
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_last_modified": condition_last_modified},
+            request_headers={
+                "HTTP_IF_MODIFIED_SINCE": self.format_datetime(last_modified)},
+            status_code=405,
+            headers={
+                "Last-Modified":
+                    self.format_datetime(
+                        last_modified + datetime.timedelta(hours=1))})
