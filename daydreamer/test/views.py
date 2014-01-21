@@ -327,14 +327,15 @@ class TestCase(base.TestCase):
         self.client = self.client_class(
             enforce_csrf_checks=self.enforce_csrf_checks)
     
-    def view(self, view_class, attrs=None,
+    def view(self, view_classes, attrs=None,
             get=None, post=None, head=None,
             put=None, patch=None, delete=None):
         """
-        Generate a view from the given view class and attributes. The
-        view_class argument may specify an iterable of classes to inherit from.
+        Generate a view from the given view class(es) and attributes. The
+        view_classes argument may specify a single class or an iterable of
+        classes to inherit from.
         
-        The generated view will inherit from the view_class, so it should be
+        The generated view will inherit from the view_classes, so it should be
         a class that inherits from django.views.generic.base.View, or a class
         that is duck type equivalent.
         
@@ -342,7 +343,7 @@ class TestCase(base.TestCase):
         added to the class at creation time.
         
         If get is truthy and a get() method is not provided by either
-        the view_class or the attrs, a simple get() method that
+        the view_classes or the attrs, a simple get() method that
         returns an HttpResponse with the content in the get argument will be
         automatically added to the class. If False, it is the caller's
         responsibility to provide any required HTTP method handlers.
@@ -353,57 +354,69 @@ class TestCase(base.TestCase):
         method is provided by the django.views.generic.base.View base class.
         
         """
-        # Normalize the view class and attributes.
-        view_class = (
-            (view_class,)
-                if isinstance(view_class, types.TypeType)
-                else view_class)
+        # Normalize the view classes and attributes.
+        view_classes = (
+            (view_classes,)
+                if isinstance(view_classes, types.TypeType)
+                else view_classes)
         attrs = attrs or {}
         
         # Add a get() method?
-        if (get and 
-            not hasattr(view_class, "get") and
-            "get" not in attrs):
+        if (get and
+            "get" not in attrs and
+            not any(
+                hasattr(view_class, "get")
+                for view_class in view_classes)):
             def _get(self, request, *args, **kwargs):
                 return http.HttpResponse(get)
             attrs["get"] = _get
         
         # Add a post() method?
         if (post and
-            not hasattr(view_class, "post") and
-            "post" not in attrs):
+            "post" not in attrs and
+            not any(
+                hasattr(view_class, "post")
+                for view_class in view_classes)):
             def _post(self, request, *args, **kwargs):
                 return http.HttpResponse(post)
             attrs["post"] = _post
         
         # Add a head() method?
         if (head and
-            not hasattr(view_class, "head") and
-            "head" not in attrs):
+            "head" not in attrs and
+            not any(
+                hasattr(view_class, "head")
+                for view_class in view_classes)):
             def _head(self, request, *args, **kwargs):
                 return http.HttpResponse("")
             attrs["head"] = _head
         
         # Add a put() method?
         if (put and
-            not hasattr(view_class, "put") and
-            "put" not in attrs):
+            "put" not in attrs and
+            not any(
+                hasattr(view_class, "put")
+                for view_class in view_classes)):
             def _put(self, request, *args, **kwargs):
                 return http.HttpResponse(put)
             attrs["put"] = _put
         
         # Add a patch() method?
         if (patch and
-            not hasattr(view_class, "patch") and
-            "patch" not in attrs):
+            "patch" not in attrs and
+            not any(
+                hasattr(view_class, "patch")
+                for view_class in view_classes)):
             def _patch(self, request, *args, **kwargs):
                 return http.HttpResponse(patch)
             attrs["patch"] = _patch
         
         # Add a delete() method?
         if (delete and
-            not hasattr(view_class, "delete") and
-            "delete" not in attrs):
+            "delete" not in attrs and
+            not any(
+                hasattr(view_class, "delete")
+                for view_class in view_classes)):
             def _delete(self, request, *args, **kwargs):
                 return http.HttpResponse(delete)
             attrs["delete"] = _delete
@@ -412,6 +425,6 @@ class TestCase(base.TestCase):
         return type(
             b"".join(
                 (b"Test",) + 
-                tuple(klass.__name__ for klass in view_class)),
-            view_class,
+                tuple(view_class.__name__ for view_class in view_classes)),
+            view_classes,
             attrs).as_view()

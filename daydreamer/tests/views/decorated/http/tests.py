@@ -1,0 +1,367 @@
+from __future__ import unicode_literals
+
+import datetime
+
+from daydreamer.views.decorated import http as http_decorated
+
+from . import base
+
+
+class RequireGETTestCase(base.TestCase):
+    """
+    Tests for the RequireGET view decorator mixin.
+    
+    """
+    view_class = http_decorated.RequireGET
+    
+    def test_get_allowed(self):
+        """
+        Check that GET requests are allowed.
+        
+        """
+        content = self.unique()
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"get": content},
+            status_code=200,
+            content=content)
+    
+    def test_head_not_allowed(self):
+        """
+        Check that HEAD requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"head": self.unique()},
+            method="head",
+            status_code=405)
+    
+    def test_options_not_allowed(self):
+        """
+        Check that OPTIONS requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            method="options",
+            status_code=405)
+    
+    def test_post_not_allowed(self):
+        """
+        Check that POST requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"post": self.unique()},
+            method="post",
+            status_code=405)
+    
+    def test_put_not_allowed(self):
+        """
+        Check that PUT requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"put": self.unique()},
+            method="put",
+            status_code=405)
+    
+    def test_delete_not_allowed(self):
+        """
+        Check that DELETE requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"delete": self.unique()},
+            method="delete",
+            status_code=405)
+
+
+class RequirePOSTTestCase(base.TestCase):
+    """
+    Tests for the RequirePOST view decorator mixin.
+    
+    """
+    view_class = http_decorated.RequirePOST
+    
+    def test_post_allowed(self):
+        """
+        Check that POST requests are allowed.
+        
+        """
+        content = self.unique()
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"post": content},
+            method="post",
+            status_code=200,
+            content=content)
+    
+    def test_get_allowed(self):
+        """
+        Check that GET requests are allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"get": self.unique()},
+            status_code=405)
+    
+    def test_head_not_allowed(self):
+        """
+        Check that HEAD requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"head": self.unique()},
+            method="head",
+            status_code=405)
+    
+    def test_options_not_allowed(self):
+        """
+        Check that OPTIONS requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            method="options",
+            status_code=405)
+    
+    def test_put_not_allowed(self):
+        """
+        Check that PUT requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"put": self.unique()},
+            method="put",
+            status_code=405)
+    
+    def test_delete_not_allowed(self):
+        """
+        Check that DELETE requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"delete": self.unique()},
+            method="delete",
+            status_code=405)
+
+
+class RequireSafeTestCase(base.TestCase):
+    """
+    Tests for the RequireSafe view decorator mixin.
+    
+    """
+    view_class = http_decorated.RequireSafe
+    
+    def test_get_allowed(self):
+        """
+        Check that GET requests are allowed.
+        
+        """
+        content = self.unique()
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"get": content},
+            status_code=200,
+            content=content)
+    
+    def test_head_not_allowed(self):
+        """
+        Check that HEAD requests are allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"head": self.unique()},
+            method="head",
+            status_code=200,
+            content="")
+    
+    def test_options_not_allowed(self):
+        """
+        Check that OPTIONS requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            method="options",
+            status_code=405)
+    
+    def test_post_not_allowed(self):
+        """
+        Check that POST requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"post": self.unique()},
+            method="post",
+            status_code=405)
+    
+    def test_put_not_allowed(self):
+        """
+        Check that PUT requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"put": self.unique()},
+            method="put",
+            status_code=405)
+    
+    def test_delete_not_allowed(self):
+        """
+        Check that DELETE requests are not allowed.
+        
+        """
+        self.assertResponseBehavior(
+            self.unique(),
+            view_kwargs={"delete": self.unique()},
+            method="delete",
+            status_code=405)
+
+
+class ConditionTestCase(base.TestCase):
+    """
+    Tests for the Condition view decorator mixin.
+    
+    Note that this does not confirm all possible ETag and Last-Modified
+    behaviors. It just shows that the decorator is wired in correctly.
+    
+    """
+    view_class = http_decorated.Condition
+    
+    def test_etag_set(self):
+        """
+        Check that the ETag header is set.
+        
+        """
+        etag = self.unique()
+        content = self.unique()
+        def condition_etag(self, request, *args, **kwargs):
+            return etag
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_etag": condition_etag},
+            view_kwargs={"get": content},
+            status_code=200,
+            content=content,
+            headers={"ETag": self.format_etag(etag)})
+    
+    def test_etag_not_modified(self):
+        """
+        Check for a not modified response on ETag match.
+        
+        """
+        etag = self.unique()
+        def condition_etag(self, request, *args, **kwargs):
+            return etag
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_etag": condition_etag},
+            view_kwargs={"get": self.unique()},
+            request_headers={"HTTP_IF_NONE_MATCH": self.format_etag(etag)},
+            status_code=304,
+            content="",
+            headers={"ETag": self.format_etag(etag)})
+    
+    def test_etag_fail(self):
+        """
+        Check for a precondition fail resopnse for an ETag mismatch.
+        
+        """
+        etag = self.unique()
+        def condition_etag(self, request, *args, **kwargs):
+            return etag
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_etag": condition_etag},
+            view_kwargs={"get": self.unique()},
+            request_headers={"HTTP_IF_MATCH": self.format_etag(self.unique())},
+            status_code=412,
+            headers={"ETag": self.format_etag(etag)})
+    
+    def test_etag_miss(self):
+        """
+        Check the ETag header is updated upon miss.
+        
+        """
+        etag = self.unique()
+        content = self.unique()
+        def condition_etag(self, request, *args, **kwargs):
+            return etag
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_etag": condition_etag},
+            view_kwargs={"get": content},
+            request_headers={
+                "HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
+            status_code=200,
+            content=content,
+            headers={"ETag": self.format_etag(etag)})
+    
+    def test_last_modified_set(self):
+        """
+        Check that the last modified header is set.
+        
+        """
+        last_modified = datetime.datetime.now()
+        content = self.unique()
+        def condition_last_modified(self, request, *args, **kwargs):
+            return last_modified
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_last_modified": condition_last_modified},
+            view_kwargs={"get": content},
+            status_code=200,
+            content=content,
+            headers={"Last-Modified": self.format_datetime(last_modified)})
+    
+    def test_last_modified_not_modified(self):
+        """
+        Check for a not modified response on last modified match.
+        
+        """
+        last_modified = datetime.datetime.now()
+        def condition_last_modified(self, request, *args, **kwargs):
+            return last_modified
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_last_modified": condition_last_modified},
+            view_kwargs={"get": self.unique()},
+            request_headers={
+                "HTTP_IF_MODIFIED_SINCE":
+                    self.format_datetime(
+                        last_modified + datetime.timedelta(hours=1))},
+            status_code=304,
+            headers={"Last-Modified": self.format_datetime(last_modified)})
+    
+    def test_last_modified_miss(self):
+        """
+        Check that the last modified header is updated upon miss.
+        
+        """
+        last_modified = datetime.datetime.now()
+        content = self.unique()
+        def condition_last_modified(self, request, *args, **kwargs):
+            return last_modified + datetime.timedelta(hours=1)
+        self.assertResponseBehavior(
+            self.unique(),
+            view_attrs={"condition_last_modified": condition_last_modified},
+            view_kwargs={"get": content},
+            request_headers={
+                "HTTP_IF_MODIFIED_SINCE": self.format_datetime(last_modified)},
+            status_code=200,
+            content=content,
+            headers={"Last-Modified":
+                self.format_datetime(
+                    last_modified + datetime.timedelta(hours=1))})
