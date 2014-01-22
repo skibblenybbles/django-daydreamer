@@ -10,7 +10,7 @@ from daydreamer.tests.views.generic import base
 
 class TestCase(base.TestCase):
     """
-    Common utilities for testing HTTP view decorator mixins.
+    Common utilities for testing HTTP view behaviors.
     
     """
     # Utilities.

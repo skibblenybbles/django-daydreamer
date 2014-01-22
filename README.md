@@ -58,7 +58,7 @@ Of course, you won't want to repeat all of these attributes on your view
 classes, so set up a few base classes that provide the common behaviors you
 need and inherit from them throughout your view codebase.
 
-The behavior of all the authentication view decorator mixins defined in
+The behavior of all the authentication view behaviors defined in
 `daydreamer.views.decorated.auth` (import accessible at
 `daydreamer.views.decorated`) can be controlled with a consistently-named
 set of inherited attributes. The attributes are prefixed to match their
@@ -115,4 +115,4 @@ to use a specific version and read the changelog before attempting to upgrade.
 ##### 0.0.1a
 
 Initial release. Includes base view class enhancements and authentication view
-decorator mixins. View code has 100% test coverage.
+behaviors. View code has 100% test coverage.

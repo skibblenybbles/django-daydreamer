@@ -9,7 +9,7 @@ from . import base
 
 class RequireGETTestCase(base.TestCase):
     """
-    Tests for the RequireGET view decorator mixin.
+    Tests for the RequireGET view behavior.
     
     """
     view_classes = http_decorated.RequireGET
@@ -25,9 +25,9 @@ class RequireGETTestCase(base.TestCase):
             status_code=200,
             content=content)
     
-    def test_head_not_allowed(self):
+    def test_head_denied(self):
         """
-        Check that HEAD requests are not allowed.
+        Check that HEAD requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -35,9 +35,9 @@ class RequireGETTestCase(base.TestCase):
             method="head",
             status_code=405)
     
-    def test_options_not_allowed(self):
+    def test_options_denied(self):
         """
-        Check that OPTIONS requests are not allowed.
+        Check that OPTIONS requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -45,9 +45,9 @@ class RequireGETTestCase(base.TestCase):
             method="options",
             status_code=405)
     
-    def test_post_not_allowed(self):
+    def test_post_denied(self):
         """
-        Check that POST requests are not allowed.
+        Check that POST requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -55,9 +55,9 @@ class RequireGETTestCase(base.TestCase):
             method="post",
             status_code=405)
     
-    def test_put_not_allowed(self):
+    def test_put_denied(self):
         """
-        Check that PUT requests are not allowed.
+        Check that PUT requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -65,9 +65,9 @@ class RequireGETTestCase(base.TestCase):
             method="put",
             status_code=405)
     
-    def test_delete_not_allowed(self):
+    def test_delete_denied(self):
         """
-        Check that DELETE requests are not allowed.
+        Check that DELETE requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -78,7 +78,7 @@ class RequireGETTestCase(base.TestCase):
 
 class RequirePOSTTestCase(base.TestCase):
     """
-    Tests for the RequirePOST view decorator mixin.
+    Tests for the RequirePOST view behavior.
     
     """
     view_classes = http_decorated.RequirePOST
@@ -104,9 +104,9 @@ class RequirePOSTTestCase(base.TestCase):
             {"get": self.unique()},
             status_code=405)
     
-    def test_head_not_allowed(self):
+    def test_head_denied(self):
         """
-        Check that HEAD requests are not allowed.
+        Check that HEAD requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -114,9 +114,9 @@ class RequirePOSTTestCase(base.TestCase):
             method="head",
             status_code=405)
     
-    def test_options_not_allowed(self):
+    def test_options_denied(self):
         """
-        Check that OPTIONS requests are not allowed.
+        Check that OPTIONS requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -124,9 +124,9 @@ class RequirePOSTTestCase(base.TestCase):
             method="options",
             status_code=405)
     
-    def test_put_not_allowed(self):
+    def test_put_denied(self):
         """
-        Check that PUT requests are not allowed.
+        Check that PUT requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -134,9 +134,9 @@ class RequirePOSTTestCase(base.TestCase):
             method="put",
             status_code=405)
     
-    def test_delete_not_allowed(self):
+    def test_delete_denied(self):
         """
-        Check that DELETE requests are not allowed.
+        Check that DELETE requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -147,7 +147,7 @@ class RequirePOSTTestCase(base.TestCase):
 
 class RequireSafeTestCase(base.TestCase):
     """
-    Tests for the RequireSafe view decorator mixin.
+    Tests for the RequireSafe view behavior.
     
     """
     view_classes = http_decorated.RequireSafe
@@ -163,7 +163,7 @@ class RequireSafeTestCase(base.TestCase):
             status_code=200,
             content=content)
     
-    def test_head_not_allowed(self):
+    def test_head_denied(self):
         """
         Check that HEAD requests are allowed.
         
@@ -174,9 +174,9 @@ class RequireSafeTestCase(base.TestCase):
             status_code=200,
             content="")
     
-    def test_options_not_allowed(self):
+    def test_options_denied(self):
         """
-        Check that OPTIONS requests are not allowed.
+        Check that OPTIONS requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -184,9 +184,9 @@ class RequireSafeTestCase(base.TestCase):
             method="options",
             status_code=405)
     
-    def test_post_not_allowed(self):
+    def test_post_denied(self):
         """
-        Check that POST requests are not allowed.
+        Check that POST requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -194,9 +194,9 @@ class RequireSafeTestCase(base.TestCase):
             method="post",
             status_code=405)
     
-    def test_put_not_allowed(self):
+    def test_put_denied(self):
         """
-        Check that PUT requests are not allowed.
+        Check that PUT requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -204,9 +204,9 @@ class RequireSafeTestCase(base.TestCase):
             method="put",
             status_code=405)
     
-    def test_delete_not_allowed(self):
+    def test_delete_denied(self):
         """
-        Check that DELETE requests are not allowed.
+        Check that DELETE requests are denied.
         
         """
         self.assertResponseBehavior(
@@ -217,7 +217,7 @@ class RequireSafeTestCase(base.TestCase):
 
 class ConditionTestCase(base.TestCase):
     """
-    Tests for the Condition view decorator mixin.
+    Tests for the Condition view behavior.
     
     Note that this does not confirm all possible ETag and Last-Modified
     behaviors. It just shows that the decorator is wired in correctly.

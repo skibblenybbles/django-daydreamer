@@ -43,7 +43,7 @@ class Client(test_views.Client):
 
 class TestCase(base.TestCase):
     """
-    Common utilities for testing CSRF view decorator mixins.
+    Common utilities for testing CSRF view behaviors.
     
     CSRF middleware is disabled by default with the
     csrf_middleware_enabled attribute. CSRF processing during tests is

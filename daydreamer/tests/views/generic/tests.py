@@ -132,7 +132,7 @@ class ViewTestCase(base.TestCase):
         self.assertResponseBehavior(
             status_code=405)
     
-    def test_method_not_allowed(self):
+    def test_method_denied(self):
         """
         Check that disallowed methods get a 405 response.
         

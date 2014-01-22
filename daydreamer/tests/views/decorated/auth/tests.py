@@ -4,6 +4,7 @@ import unittest
 
 from django.core import exceptions
 
+from daydreamer.views import generic
 from daydreamer.views.decorated import auth as auth_decorated
 
 from . import base
@@ -11,10 +12,10 @@ from . import base
 
 class LoginRequiredTestCase(base.TestCase):
     """
-    Tests for the LoginRequired view decorator mixin.
+    Tests for the LoginRequired view behavior.
     
     """
-    view_classes = auth_decorated.LoginRequired
+    view_classes = (auth_decorated.LoginRequired, generic.View,)
     prefix = "login_required"
     
     def setup_unauth_fail(self):
@@ -35,10 +36,10 @@ class LoginRequiredTestCase(base.TestCase):
 
 class ActiveRequiredTestCase(base.TestCase):
     """
-    Tests for the ActiveRequired view decorator mixin.
+    Tests for the ActiveRequired view behavior.
     
     """
-    view_classes = auth_decorated.ActiveRequired
+    view_classes = (auth_decorated.ActiveRequired, generic.View,)
     prefix = "active_required"
     
     def setup_unauth_fail(self):
@@ -58,10 +59,10 @@ class ActiveRequiredTestCase(base.TestCase):
 
 class StaffRequiredTestCase(base.TestCase):
     """
-    Tests for the StaffRequired view decorator mixin.
+    Tests for the StaffRequired view behavior.
     
     """
-    view_classes = auth_decorated.StaffRequired
+    view_classes = (auth_decorated.StaffRequired, generic.View,)
     prefix = "staff_required"
     
     def setup_unauth_fail(self):
@@ -81,10 +82,10 @@ class StaffRequiredTestCase(base.TestCase):
 
 class SuperuserRequiredTestCase(base.TestCase):
     """
-    Tests for the SuperuserRequired view decorator mixin.
+    Tests for the SuperuserRequired view behavior.
     
     """
-    view_classes = auth_decorated.SuperuserRequired
+    view_classes = (auth_decorated.SuperuserRequired, generic.View,)
     prefix = "superuser_required"
     
     def setup_unauth_fail(self):
@@ -104,10 +105,10 @@ class SuperuserRequiredTestCase(base.TestCase):
 
 class GroupsRequiredTestCase(base.TestCase):
     """
-    Tests for the GroupsRequired view decorator mixin.
+    Tests for the GroupsRequired view behavior.
     
     """
-    view_classes = auth_decorated.GroupsRequired
+    view_classes = (auth_decorated.GroupsRequired, generic.View,)
     prefix = "groups_required"
     
     def setup_unauth_fail(self):
@@ -178,10 +179,10 @@ class GroupsRequiredTestCase(base.TestCase):
 
 class PermissionsRequiredTestCase(base.TestCase):
     """
-    Tests for the PermissionsRequired view decorator mixin.
+    Tests for the PermissionsRequired view behavior.
     
     """
-    view_classes = auth_decorated.PermissionsRequired
+    view_classes = (auth_decorated.PermissionsRequired, generic.View,)
     prefix = "permissions_required"
     
     def setup_unauth_fail(self):
@@ -248,10 +249,10 @@ class PermissionsRequiredTestCase(base.TestCase):
 
 class ObjectPermissionsRequiredTestCase(base.TestCase):
     """
-    Tests for the ObjectPermissionsRequired view decorator mixin.
+    Tests for the ObjectPermissionsRequired view behavior.
     
     """
-    view_classes = auth_decorated.ObjectPermissionsRequired
+    view_classes = (auth_decorated.ObjectPermissionsRequired, generic.View,)
     prefix = "object_permissions_required"
     
     def setup_unauth_fail(self):
@@ -364,10 +365,10 @@ class ObjectPermissionsRequiredTestCase(base.TestCase):
 
 class TestRequiredTestCase(base.TestCase):
     """
-    Tests for the TestRequired view decorator mixin.
+    Tests for the TestRequired view behavior.
     
     """
-    view_classes = auth_decorated.TestRequired
+    view_classes = (auth_decorated.TestRequired, generic.View,)
     prefix = "test_required"
     
     def create_name_test(self, name):

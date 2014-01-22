@@ -12,7 +12,7 @@ __all__ = (
 
 class CSRFProtect(generic.View):
     """
-    A view decorator mixin that adds CSRF protection to a view the same
+    A view behavior that adds CSRF protection to a view the same
     way as CsrfViewMiddleware.
     
     Disable the view decorator's functionality by setting the csrf_protect
@@ -35,7 +35,7 @@ class CSRFProtect(generic.View):
 
 class RequiresCSRFToken(generic.View):
     """
-    A view decorator mixin that ensures "csrf_token" will be present
+    A view behavior that ensures "csrf_token" will be present
     in the request context, but does not enforce CSRF protection.
     
     Disable the view decorator's functionality by setting the
@@ -60,7 +60,7 @@ class RequiresCSRFToken(generic.View):
 
 class EnsureCSRFCookie(generic.View):
     """
-    A view decorator mixin that ensures a CSRF cookie will be present
+    A view behavior that ensures a CSRF cookie will be present
     in the response, but does not enforce CSRF protection.
     
     Disable the view decorator's functionality by setting the
@@ -85,7 +85,7 @@ class EnsureCSRFCookie(generic.View):
 
 class CSRFExempt(generic.View):
     """
-    A view decorator mixin that disables CSRF protection.
+    A view behavior that disables CSRF protection.
     
     Disable the view decorator's functionality by setting the
     csrf_exampt attribute to a falsy value.

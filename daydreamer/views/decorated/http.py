@@ -12,7 +12,7 @@ __all__ = ("RequireGET", "RequirePOST", "RequireSafe", "Condition",)
 
 class RequireGET(generic.View):
     """
-    A view decorator mixin that requires an HTTP GET request.
+    A view behavior that requires an HTTP GET request.
     
     """
     http_method_names = ("get",)
@@ -20,7 +20,7 @@ class RequireGET(generic.View):
 
 class RequirePOST(generic.View):
     """
-    A view decorator mixin that requires an HTTP POST request.
+    A view behavior that requires an HTTP POST request.
     
     """
     http_method_names = ("post",)
@@ -28,7 +28,7 @@ class RequirePOST(generic.View):
 
 class RequireSafe(generic.View):
     """
-    A view decorator mixin that requires an HTTP GET or HEAD request.
+    A view behavior that requires an HTTP GET or HEAD request.
     
     """
     http_method_names = ("get", "head",)
@@ -36,7 +36,7 @@ class RequireSafe(generic.View):
 
 class Condition(generic.View):
     """
-    A view decorator mixin that provides conditional retrieval or change
+    A view behavior that provides conditional retrieval or change
     notification for requests.
     
     Define a condition_etag() method to compute the ETag for the requested

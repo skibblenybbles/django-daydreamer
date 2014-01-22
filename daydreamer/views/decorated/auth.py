@@ -7,7 +7,7 @@ from django.contrib.auth import models as auth_models
 from django.core import exceptions
 from django.utils import six
 
-from .. import generic
+from daydreamer.views.core import behaviors
 
 
 __all__ = (
@@ -16,16 +16,16 @@ __all__ = (
     "TestRequired", "AuthRequired",)
 
 
-class LoginRequired(generic.View):
+class LoginRequired(behaviors.Denial):
     """
-    A view decorator mixin that tests whether the user is authenticated.
+    A view behavior that tests whether the user is authenticated.
     
     If the login_required attribute is falsy, the login requirement testing
     will be disabled. Its initial value is True.
     
     Set the login_required_* attributes to configure the behavior when a login
     is required in order for the user to proceed. See
-    daydreamer.views.generic.base.View for the attributes' documentation.
+    daydreamer.views.core.behaviors.Denial for the attributes' documentation.
     
     """
     login_required = True
@@ -56,35 +56,35 @@ class LoginRequired(generic.View):
             not self.get_login_required() or 
             self.request.user.is_authenticated())
     
-    def login_required_not_allowed(self, request, *args, **kwargs):
+    def login_required_denied(self, request, *args, **kwargs):
         """
         The handler called upon login requirement test failure.
         
         """
-        return self.not_allowed("login_required")
+        return self.deny("login_required")
     
-    def get_not_allowed_handler(self):
+    def get_deny_handler(self):
         """
-        Returns self.login_required_not_allowed when the login requirement
+        Returns self.login_required_denied when the login requirement
         test fails, falling back to super().
         
         """
         return (
             not self.login_required_test() and
-            self.login_required_not_allowed or
-            super(LoginRequired, self).get_not_allowed_handler())
+            self.login_required_denied or
+            super(LoginRequired, self).get_deny_handler())
 
 
-class ActiveRequired(generic.View):
+class ActiveRequired(behaviors.Denial):
     """
-    A view decorator mixin that tests whether the user is active.
+    A view behavior that tests whether the user is active.
     
     If the active_required attribute is falsy, the active requirement testing
     will be disabled. Its initial value is True.
     
     Set the active_required_* attributes to configure the behavior when an
     active user is required in order for the user to proceed. See
-    daydreamer.views.generic.base.View for the attributes' documentation.
+    daydreamer.views.core.behaviors.Denial for the attributes' documentation.
     
     """
     active_required = True
@@ -116,35 +116,35 @@ class ActiveRequired(generic.View):
             not self.get_active_required() or
             self.request.user.is_active)
     
-    def active_required_not_allowed(self, request, *args, **kwargs):
+    def active_required_denied(self, request, *args, **kwargs):
         """
         The handler called upon active requirement test failure.
         
         """
-        return self.not_allowed("active_required")
+        return self.deny("active_required")
     
-    def get_not_allowed_handler(self):
+    def get_deny_handler(self):
         """
-        Returns self.active_required_not_allowed when the active requirement
+        Returns self.active_required_denied when the active requirement
         test fails, falling back to super().
         
         """
         return (
             not self.active_required_test() and
-            self.active_required_not_allowed or
-            super(ActiveRequired, self).get_not_allowed_handler())
+            self.active_required_denied or
+            super(ActiveRequired, self).get_deny_handler())
 
 
-class StaffRequired(generic.View):
+class StaffRequired(behaviors.Denial):
     """
-    A view decorator mixin that tests whether the user is a staff member.
+    A view behavior that tests whether the user is a staff member.
     
     If the staff_required attribute is falsy, the staff requirement testing
     will be disabled. Its initial value is True.
     
     Set the staff_required_* attributes to configure the behavior when a
     staff user is required in order for the user to proceed. See
-    daydreamer.views.generic.base.View for the attributes' documentation.
+    daydreamer.views.core.behaviors.Denial for the attributes' documentation.
     
     """
     staff_required = True
@@ -176,35 +176,35 @@ class StaffRequired(generic.View):
             not self.get_staff_required() or
             self.request.user.is_staff)
     
-    def staff_required_not_allowed(self, request, *args, **kwargs):
+    def staff_required_denied(self, request, *args, **kwargs):
         """
         The handler called upon staff requirement test failure.
         
         """
-        return self.not_allowed("staff_required")
+        return self.deny("staff_required")
     
-    def get_not_allowed_handler(self):
+    def get_deny_handler(self):
         """
-        Returns self.staff_required_not_allowed when the staff requirement
+        Returns self.staff_required_denied when the staff requirement
         test fails, falling back to super().
         
         """
         return (
             not self.staff_required_test() and
-            self.staff_required_not_allowed or
-            super(StaffRequired, self).get_not_allowed_handler())
+            self.staff_required_denied or
+            super(StaffRequired, self).get_deny_handler())
 
 
-class SuperuserRequired(generic.View):
+class SuperuserRequired(behaviors.Denial):
     """
-    A view decorator mixin that tests whether the user is a superuser.
+    A view behavior that tests whether the user is a superuser.
     
     If the superuser_required attribute is falsy, the superuser requirement
     testing will be disabled. Its initial value is True.
     
     Set the superuser_required_* attributes to configure the behavior when
     a superuser is required in order for the user to proceed. See
-    daydreamer.views.generic.base.View for the attributes' documentation.
+    daydreamer.views.core.behaviors.Denial for the attributes' documentation.
     
     """
     superuser_required = True
@@ -236,28 +236,28 @@ class SuperuserRequired(generic.View):
             not self.get_superuser_required() or
             self.request.user.is_superuser)
     
-    def superuser_required_not_allowed(self, request, *args, **kwargs):
+    def superuser_required_denied(self, request, *args, **kwargs):
         """
         The handler called upon superuser requirement test failure.
         
         """
-        return self.not_allowed("superuser_required")
+        return self.deny("superuser_required")
     
-    def get_not_allowed_handler(self):
+    def get_deny_handler(self):
         """
-        Returns self.superuser_required_not_allowed when the superuser
+        Returns self.superuser_required_denied when the superuser
         requirement test fails, falling back to super().
         
         """
         return (
             not self.superuser_required_test() and
-            self.superuser_required_not_allowed or
-            super(SuperuserRequired, self).get_not_allowed_handler())
+            self.superuser_required_denied or
+            super(SuperuserRequired, self).get_deny_handler())
 
 
-class GroupsRequired(generic.View):
+class GroupsRequired(behaviors.Denial):
     """
-    A view decorator mixin that tests whether the user is in a set of groups.
+    A view behavior that tests whether the user is in a set of groups.
     
     If the groups_required attribute is falsy, the groups requirement testing
     will be disabled. Its initial value is None. The groups_required attribute
@@ -270,7 +270,7 @@ class GroupsRequired(generic.View):
     
     Set the groups_required_* attribute to configure the behavior when a set
     of groups is required in order for the user to proceed. See
-    daydreamer.views.generic.base.View for the attributes' documentation.
+    daydreamer.views.core.behaviors.Denial for the attributes' documentation.
     
     """
     groups_required = None
@@ -347,28 +347,28 @@ class GroupsRequired(generic.View):
             self.request.user.groups.filter(
                 pk__in=groups).count() == len(groups))
     
-    def groups_required_not_allowed(self, request, *args, **kwargs):
+    def groups_required_denied(self, request, *args, **kwargs):
         """
         The handler called upon groups requirement test failure.
         
         """
-        return self.not_allowed("groups_required")
+        return self.deny("groups_required")
     
-    def get_not_allowed_handler(self):
+    def get_deny_handler(self):
         """
-        Returns self.groups_required_not_allowed when the groups
+        Returns self.groups_required_denied when the groups
         requirement test fails, falling back to super().
         
         """
         return (
             not self.groups_required_test() and
-            self.groups_required_not_allowed or
-            super(GroupsRequired, self).get_not_allowed_handler())
+            self.groups_required_denied or
+            super(GroupsRequired, self).get_deny_handler())
 
 
-class PermissionsRequired(generic.View):
+class PermissionsRequired(behaviors.Denial):
     """
-    A view decorator mixin that tests whether the user has a set
+    A view behavior that tests whether the user has a set
     of permissions.
     
     If the permissions_required attribute is falsy, the permissions requirement
@@ -378,7 +378,7 @@ class PermissionsRequired(generic.View):
     
     Set the permissions_required_* attributes to configure the behavior when
     permissions are required in order for the user to proceed.
-    See daydreamer.views.generic.base.View for the attributes' documentation.
+    See daydreamer.views.core.behaviors.Denial for the attributes' documentation.
     
     """
     permissions_required = None
@@ -431,28 +431,28 @@ class PermissionsRequired(generic.View):
             not permissions or
             self.request.user.has_perms(permissions))
     
-    def permissions_required_not_allowed(self, request, *args, **kwargs):
+    def permissions_required_denied(self, request, *args, **kwargs):
         """
         The handler called upon permissions requirement test failure.
         
         """
-        return self.not_allowed("permissions_required")
+        return self.deny("permissions_required")
     
-    def get_not_allowed_handler(self):
+    def get_deny_handler(self):
         """
-        Returns self.permissions_required_not_allowed when the permissions
+        Returns self.permissions_required_denied when the permissions
         requirement test fails, falling back to super().
         
         """
         return (
             not self.permissions_required_test() and
-            self.permissions_required_not_allowed or
-            super(PermissionsRequired, self).get_not_allowed_handler())
+            self.permissions_required_denied or
+            super(PermissionsRequired, self).get_deny_handler())
 
 
-class ObjectPermissionsRequired(generic.View):
+class ObjectPermissionsRequired(behaviors.Denial):
     """
-    A view decorator mixin that tests whether the user has a set of permissions
+    A view behavior that tests whether the user has a set of permissions
     for a particular object.
     
     If either of the object_permissions_required attribute or the
@@ -465,7 +465,7 @@ class ObjectPermissionsRequired(generic.View):
     
     Set the object_permissions_required_* attributes to configure the behavior
     when permissions are required for an object in order for the user to
-    proceed. See daydreamer.views.generic.base.View for the
+    proceed. See daydreamer.views.core.behaviors.Denial for the
     attributes' documentation.
     
     """
@@ -530,28 +530,28 @@ class ObjectPermissionsRequired(generic.View):
             (not all((permissions, obj,))) or
             self.request.user.has_perms(permissions, obj=obj))
     
-    def object_permissions_required_not_allowed(self, request, *args, **kwargs):
+    def object_permissions_required_denied(self, request, *args, **kwargs):
         """
         The handler called upon object permissions requirement test failure.
         
         """
-        return self.not_allowed("object_permissions_required")
+        return self.deny("object_permissions_required")
     
-    def get_not_allowed_handler(self):
+    def get_deny_handler(self):
         """
-        Returns self.object_permissions_required_not_allowed when the object
+        Returns self.object_permissions_required_denied when the object
         permissions test fails, falling back to super().
         
         """
         return (
             not self.object_permissions_required_test() and
-            self.object_permissions_required_not_allowed or
-            super(ObjectPermissionsRequired, self).get_not_allowed_handler())
+            self.object_permissions_required_denied or
+            super(ObjectPermissionsRequired, self).get_deny_handler())
 
 
-class TestRequired(generic.View):
+class TestRequired(behaviors.Denial):
     """
-    A view decorator mixin that performs a test against the current request,
+    A view behavior that performs a test against the current request,
     typically a predicate for self.request.user.
     
     If the test_required attribute is not a callable, the test requirement
@@ -559,7 +559,7 @@ class TestRequired(generic.View):
     
     Set the test_required_* attributes to configure the behavior when a
     test must be passed in order for the user to proceed. See
-    daydreamer.views.generic.base.View for the attributes' documentation.
+    daydreamer.views.core.behaviors.Denial for the attributes' documentation.
     
     """
     test_required = None
@@ -591,31 +591,31 @@ class TestRequired(generic.View):
             not isinstance(test, collections.Callable) or
             test())
     
-    def test_required_not_allowed(self, request, *args, **kwargs):
+    def test_required_denied(self, request, *args, **kwargs):
         """
         The handler called upon test failure.
         
         """
-        return self.not_allowed("test_required")
+        return self.deny("test_required")
     
-    def get_not_allowed_handler(self):
+    def get_deny_handler(self):
         """
-        Returns self.test_required_not_allowed when the test requirement fails,
+        Returns self.test_required_denied when the test requirement fails,
         falling back to super().
         
         """
         return (
             not self.test_required_test() and
-            self.test_required_not_allowed or
-            super(TestRequired, self).get_not_allowed_handler())
+            self.test_required_denied or
+            super(TestRequired, self).get_deny_handler())
 
 
 class AuthRequired(LoginRequired, ActiveRequired, StaffRequired,
         SuperuserRequired, GroupsRequired, PermissionsRequired,
         ObjectPermissionsRequired, TestRequired):
     """
-    A view decorator mixin that performs authentication tests from least
-    to most specific by inheriting from the other view decorator mixins in
+    A view behavior that performs authentication tests from least
+    to most specific by inheriting from the other view behaviors in
     daydreamer.views.decorated.auth. All tests are disabled by default.
     
     See the inherited class' documentation for usage.

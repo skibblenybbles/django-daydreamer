@@ -13,7 +13,7 @@ from daydreamer.tests.views.generic import base
 
 class TestCase(base.TestCase):
     """
-    Common utilities for testing authentication view decorator mixins.
+    Common utilities for testing authentication view behaviors.
     
     Specify a prefix to use for the attributes passed to self.view().
     
@@ -421,7 +421,7 @@ class TestCase(base.TestCase):
     
     def test_unauth_fail_precedence(self, setup_unauth_fail=None):
         """
-        Check that the view decorator mixin's behavior takes precedence when
+        Check that the view behavior's behavior takes precedence when
         using an unsupported HTTP method for an unauthenticated user failing
         the test.
         
@@ -729,7 +729,7 @@ class TestCase(base.TestCase):
     
     def test_auth_fail_precedence(self, setup_auth_fail=None):
         """
-        Check that the view decorator mixin's behavior takes precedence when
+        Check that the view behavior's behavior takes precedence when
         using an unsupported HTTP method for an authenticated user failing
         the test.
         

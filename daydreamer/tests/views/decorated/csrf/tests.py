@@ -10,7 +10,7 @@ from . import base
 
 class CSRFProtectTestCase(base.TestCase):
     """
-    Tests for the CSRFProtect view decorator mixin.
+    Tests for the CSRFProtect view behavior.
     
     CSRF middleware is turned off to enable edge case behavior.
     
@@ -257,7 +257,7 @@ class CSRFProtectTestCase(base.TestCase):
 
 class RequireCSRFTokenTestCase(base.TestCase):
     """
-    Tests for the RequiresCSRFToken view decorator mixin.
+    Tests for the RequiresCSRFToken view behavior.
     
     CSRF middleware is turned off to enable edge case behavior.
     
@@ -286,7 +286,7 @@ class RequireCSRFTokenTestCase(base.TestCase):
         view decorator is disabled, because of a hard-coded logic path
         in Django's RequestContext code.
         
-        This shows that this view decorator mixin is not very useful.
+        This shows that this view behavior is not very useful.
         
         """
         content = self.unique()
@@ -303,7 +303,7 @@ class RequireCSRFTokenTestCase(base.TestCase):
 
 class EnsureCSRFCookieTestCase(base.TestCase):
     """
-    Tests for the EnsureCSRFCookie view decorator mixin.
+    Tests for the EnsureCSRFCookie view behavior.
     
     CSRF middleware is turned off to enable edge case behavior.
     
@@ -337,7 +337,7 @@ class EnsureCSRFCookieTestCase(base.TestCase):
 
 class CSRFExemptTestCase(base.TestCase):
     """
-    Tests for the CSRFExempt view decorator mixin.
+    Tests for the CSRFExempt view behavior.
     
     CSRF middleware is turned on to enable edge case behavior.
     
