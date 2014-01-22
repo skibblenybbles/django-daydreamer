@@ -157,7 +157,7 @@ class GroupsRequiredTestCase(base.TestCase):
     
     def test_auth_pass_multiple(self):
         return self.test_auth_pass(self.setup_auth_pass_multiple)
-
+    
     # Tests for invalid group values.
     def test_invalid_type(self):
         with self.assertRaises(ValueError):

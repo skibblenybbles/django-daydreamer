@@ -20,7 +20,7 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
     # Utilities.
     def view(self, **attrs):
         """
-        Hardcodes self.view_classes.
+        Hardcodes self.view_classes as the first argument.
         
         """
         return super(TestCase, self).view(self.view_classes, **attrs)
