@@ -7,7 +7,7 @@ from django.contrib.auth import models as auth_models
 from django.core import exceptions
 from django.utils import six
 
-from ..core import behaviors
+from .. import core
 
 
 __all__ = (
@@ -16,7 +16,7 @@ __all__ = (
     "TestRequired", "AuthRequired",)
 
 
-class LoginRequired(behaviors.Denial):
+class LoginRequired(core.behaviors.Denial):
     """
     A view behavior that tests whether the user is authenticated.
     
@@ -75,7 +75,7 @@ class LoginRequired(behaviors.Denial):
             super(LoginRequired, self).get_deny_handler())
 
 
-class ActiveRequired(behaviors.Denial):
+class ActiveRequired(core.behaviors.Denial):
     """
     A view behavior that tests whether the user is active.
     
@@ -135,7 +135,7 @@ class ActiveRequired(behaviors.Denial):
             super(ActiveRequired, self).get_deny_handler())
 
 
-class StaffRequired(behaviors.Denial):
+class StaffRequired(core.behaviors.Denial):
     """
     A view behavior that tests whether the user is a staff member.
     
@@ -195,7 +195,7 @@ class StaffRequired(behaviors.Denial):
             super(StaffRequired, self).get_deny_handler())
 
 
-class SuperuserRequired(behaviors.Denial):
+class SuperuserRequired(core.behaviors.Denial):
     """
     A view behavior that tests whether the user is a superuser.
     
@@ -255,7 +255,7 @@ class SuperuserRequired(behaviors.Denial):
             super(SuperuserRequired, self).get_deny_handler())
 
 
-class GroupsRequired(behaviors.Denial):
+class GroupsRequired(core.behaviors.Denial):
     """
     A view behavior that tests whether the user is in a set of groups.
     
@@ -366,7 +366,7 @@ class GroupsRequired(behaviors.Denial):
             super(GroupsRequired, self).get_deny_handler())
 
 
-class PermissionsRequired(behaviors.Denial):
+class PermissionsRequired(core.behaviors.Denial):
     """
     A view behavior that tests whether the user has a set
     of permissions.
@@ -450,7 +450,7 @@ class PermissionsRequired(behaviors.Denial):
             super(PermissionsRequired, self).get_deny_handler())
 
 
-class ObjectPermissionsRequired(behaviors.Denial):
+class ObjectPermissionsRequired(core.behaviors.Denial):
     """
     A view behavior that tests whether the user has a set of permissions
     for a particular object.
@@ -549,7 +549,7 @@ class ObjectPermissionsRequired(behaviors.Denial):
             super(ObjectPermissionsRequired, self).get_deny_handler())
 
 
-class TestRequired(behaviors.Denial):
+class TestRequired(core.behaviors.Denial):
     """
     A view behavior that performs a test against the current request,
     typically a predicate for self.request.user.

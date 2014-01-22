@@ -4,13 +4,13 @@ import collections
 
 from django.views.decorators import http
 
-from ..core import http as http_views
+from .. import core
 
 
 __all__ = ("RequireGET", "RequirePOST", "RequireSafe", "Condition",)
 
 
-class RequireGET(http_views.HttpMethodDeny):
+class RequireGET(core.http.HttpMethodDeny):
     """
     A view behavior that requires an HTTP GET request.
     
@@ -18,7 +18,7 @@ class RequireGET(http_views.HttpMethodDeny):
     http_method_names = ("get",)
 
 
-class RequirePOST(http_views.HttpMethodDeny):
+class RequirePOST(core.http.HttpMethodDeny):
     """
     A view behavior that requires an HTTP POST request.
     
@@ -26,7 +26,7 @@ class RequirePOST(http_views.HttpMethodDeny):
     http_method_names = ("post",)
 
 
-class RequireSafe(http_views.HttpMethodDeny):
+class RequireSafe(core.http.HttpMethodDeny):
     """
     A view behavior that requires an HTTP GET or HEAD request.
     
@@ -34,7 +34,7 @@ class RequireSafe(http_views.HttpMethodDeny):
     http_method_names = ("get", "head",)
 
 
-class Condition(http_views.HttpMethodAllow):
+class Condition(core.http.HttpMethodAllow):
     """
     A view behavior that provides conditional retrieval or change
     notification for requests during the allow phase of the dispatch.

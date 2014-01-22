@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import datetime
 
 from daydreamer.views import generic
-from daydreamer.views.behaviors import http as http_behaviors
+from daydreamer.views.behaviors import http as http
 
 from . import base
 
@@ -13,7 +13,7 @@ class RequireGETTestCase(base.TestCase):
     Tests for the RequireGET view behavior.
     
     """
-    view_classes = (http_behaviors.RequireGET, generic.View,)
+    view_classes = (http.RequireGET, generic.View,)
     
     def test_get_allowed(self):
         """
@@ -82,7 +82,7 @@ class RequirePOSTTestCase(base.TestCase):
     Tests for the RequirePOST view behavior.
     
     """
-    view_classes = (http_behaviors.RequirePOST, generic.View,)
+    view_classes = (http.RequirePOST, generic.View,)
     
     def test_post_allowed(self):
         """
@@ -151,7 +151,7 @@ class RequireSafeTestCase(base.TestCase):
     Tests for the RequireSafe view behavior.
     
     """
-    view_classes = (http_behaviors.RequireSafe, generic.View,)
+    view_classes = (http.RequireSafe, generic.View,)
     
     def test_get_allowed(self):
         """
@@ -224,7 +224,7 @@ class ConditionTestCase(base.TestCase):
     behaviors. It just shows that the decorator is wired in correctly.
     
     """
-    view_classes = (http_behaviors.Condition, generic.View,)
+    view_classes = (http.Condition, generic.View,)
     
     def test_etag(self):
         """
