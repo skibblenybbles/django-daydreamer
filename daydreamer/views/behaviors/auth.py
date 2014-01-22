@@ -7,7 +7,7 @@ from django.contrib.auth import models as auth_models
 from django.core import exceptions
 from django.utils import six
 
-from daydreamer.views.core import behaviors
+from ..core import behaviors
 
 
 __all__ = (

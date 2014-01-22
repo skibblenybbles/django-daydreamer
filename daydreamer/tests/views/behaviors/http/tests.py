@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import datetime
 
+from daydreamer.views import generic
 from daydreamer.views.behaviors import http as http_behaviors
 
 from . import base
@@ -12,7 +13,7 @@ class RequireGETTestCase(base.TestCase):
     Tests for the RequireGET view behavior.
     
     """
-    view_classes = http_behaviors.RequireGET
+    view_classes = (http_behaviors.RequireGET, generic.View,)
     
     def test_get_allowed(self):
         """
@@ -81,7 +82,7 @@ class RequirePOSTTestCase(base.TestCase):
     Tests for the RequirePOST view behavior.
     
     """
-    view_classes = http_behaviors.RequirePOST
+    view_classes = (http_behaviors.RequirePOST, generic.View,)
     
     def test_post_allowed(self):
         """
@@ -150,7 +151,7 @@ class RequireSafeTestCase(base.TestCase):
     Tests for the RequireSafe view behavior.
     
     """
-    view_classes = http_behaviors.RequireSafe
+    view_classes = (http_behaviors.RequireSafe, generic.View,)
     
     def test_get_allowed(self):
         """
@@ -223,11 +224,11 @@ class ConditionTestCase(base.TestCase):
     behaviors. It just shows that the decorator is wired in correctly.
     
     """
-    view_classes = http_behaviors.Condition
+    view_classes = (http_behaviors.Condition, generic.View,)
     
-    def test_etag_set(self):
+    def test_etag(self):
         """
-        Check that the ETag header is set.
+        Check that the ETag header is set on the response.
         
         """
         etag = self.unique()
@@ -240,10 +241,10 @@ class ConditionTestCase(base.TestCase):
             content=content,
             exact_headers={"ETag": self.format_etag(etag)})
     
-    def test_etag_set_precedence(self):
+    def test_etag_precedence(self):
         """
         Check that the default HTTP method name protection takes precedence
-        when no valid ETag header is sent and that an ETag is set on
+        when no valid ETag header is sent and that an ETag header is not set on
         the response.
         
         """
@@ -253,9 +254,9 @@ class ConditionTestCase(base.TestCase):
         self.assertViewBehavior(
             {"condition_etag": condition_etag},
             status_code=405,
-            exact_headers={"ETag": self.format_etag(etag)})
+            exclude_headers=("ETag",))
     
-    def test_etag_not_modified(self):
+    def test_etag_match_not_modified(self):
         """
         Check for a not modified response on ETag match.
         
@@ -270,6 +271,21 @@ class ConditionTestCase(base.TestCase):
             content="",
             exact_headers={"ETag": self.format_etag(etag)})
     
+    def test_etag_match_precdence(self):
+        """
+        Check that the default HTTP method name protection takes precedence
+        upon ETag match and than an ETag header is not set on the response.
+        
+        """
+        etag = self.unique()
+        def condition_etag(self, request, *args, **kwargs):
+            return etag
+        self.assertViewBehavior(
+            {"condition_etag": condition_etag},
+            headers={"HTTP_IF_NONE_MATCH": self.format_etag(etag)},
+            status_code=405,
+            exclude_headers=("ETag",))
+    
     def test_etag_fail(self):
         """
         Check for a precondition fail response for an ETag mismatch.
@@ -283,6 +299,21 @@ class ConditionTestCase(base.TestCase):
             headers={"HTTP_IF_MATCH": self.format_etag(self.unique())},
             status_code=412,
             exact_headers={"ETag": self.format_etag(etag)})
+    
+    def test_etag_fail_precedence(self):
+        """
+        Check that the default HTTP method name protection takes precedence
+        upon ETag mismatch and that an ETag header is not set on the response.
+        
+        """
+        etag = self.unique()
+        def condition_etag(self, request, *args, **kwargs):
+            return etag
+        self.assertViewBehavior(
+            {"condition_etag": condition_etag},
+            headers={"HTTP_IF_MATCH": self.format_etag(self.unique())},
+            status_code=405,
+            exclude_headers=("ETag",))
     
     def test_etag_miss(self):
         """
@@ -303,7 +334,8 @@ class ConditionTestCase(base.TestCase):
     def test_etag_miss_precedence(self):
         """
         Check that the default HTTP method name protection takes precedence
-        upon ETag header miss and that the ETag header is updated.
+        upon ETag header miss and that the ETag header is not set on
+        the response.
         
         """
         etag = self.unique()
@@ -313,9 +345,9 @@ class ConditionTestCase(base.TestCase):
             {"condition_etag": condition_etag},
             headers={"HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
             status_code=405,
-            exact_headers={"ETag": self.format_etag(etag)})
+            exclude_headers=("ETag",))
     
-    def test_last_modified_set(self):
+    def test_last_modified(self):
         """
         Check that the last modified header is set.
         
@@ -332,11 +364,11 @@ class ConditionTestCase(base.TestCase):
             exact_headers={
                 "Last-Modified": self.format_datetime(last_modified)})
     
-    def test_last_modified_set_precedence(self):
+    def test_last_modified_precedence(self):
         """
         Check that the default HTTP method name protection takes precedence
         when no valid last modified header is sent and that a last modified
-        header is set on the response.
+        header is not set on the response.
         
         """
         last_modified = datetime.datetime.now()
@@ -345,10 +377,9 @@ class ConditionTestCase(base.TestCase):
         self.assertViewBehavior(
             {"condition_last_modified": condition_last_modified},
             status_code=405,
-            exact_headers={
-                "Last-Modified": self.format_datetime(last_modified)})
+            exclude_headers=("Last-Modified",))
     
-    def test_last_modified_not_modified(self):
+    def test_last_modified_match_not_modified(self):
         """
         Check for a not modified response on last modified match.
         
@@ -366,6 +397,25 @@ class ConditionTestCase(base.TestCase):
             status_code=304,
             exact_headers={
                 "Last-Modified": self.format_datetime(last_modified)})
+    
+    def test_last_modified_match_precedence(self):
+        """
+        Check that the default HTTP method name protection takes precedence
+        upon last modified match and that a last modified header is not set on
+        the response.
+        
+        """
+        last_modified = datetime.datetime.now()
+        def condition_last_modified(self, request, *args, **kwargs):
+            return last_modified
+        self.assertViewBehavior(
+            {"condition_last_modified": condition_last_modified},
+            headers={
+                "HTTP_IF_MODIFIED_SINCE":
+                    self.format_datetime(
+                        last_modified + datetime.timedelta(hours=1))},
+            status_code=405,
+            exclude_headers=("Last-Modified",))
     
     def test_last_modified_miss(self):
         """
@@ -392,7 +442,7 @@ class ConditionTestCase(base.TestCase):
         """
         Check that the default HTTP method name protection takes precedence
         upon last modified header miss and that a last modified header is
-        set on the response.
+        not set on the response.
         
         """
         last_modified = datetime.datetime.now()
@@ -403,7 +453,4 @@ class ConditionTestCase(base.TestCase):
             headers={
                 "HTTP_IF_MODIFIED_SINCE": self.format_datetime(last_modified)},
             status_code=405,
-            exact_headers={
-                "Last-Modified":
-                    self.format_datetime(
-                        last_modified + datetime.timedelta(hours=1))})
+            exclude_headers=("Last-Modified",))

@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 
-from .. import base as core
+from .. import base
 
 
-class TestCase(core.TestCase):
+class TestCase(base.TestCase):
     """
     Common utilities for testing HTTP method views.
     

@@ -8,10 +8,10 @@ from django.contrib.auth import models as auth_models
 from django.contrib.contenttypes import models as type_models
 from django.utils import six
 
-from .. import base as core
+from .. import base
 
 
-class TestCase(core.TestCase):
+class TestCase(base.TestCase):
     """
     Common utilities for testing Denial view behaviors. This is an abstract
     base class that subclasses of Denial should use to test edge cases and
