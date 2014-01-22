@@ -1,14 +1,6 @@
 from __future__ import unicode_literals
 
 import collections
-import logging
-
-from django import http
-from django.conf import settings
-from django.contrib import messages
-from django.core import exceptions
-
-from daydreamer.core import lang, urlresolvers
 
 from . import base
 

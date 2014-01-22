@@ -1,18 +1,15 @@
 from __future__ import unicode_literals
 
-import collections
 import logging
 
 from django import http
-from django.conf import settings
-from django.contrib import messages
 from django.core import exceptions
 from django.views import generic
 
 from daydreamer.core import lang, urlresolvers
 
 
-__all__ = ("Core", "Null", "Deny", "Allow",)
+__all__ = ("Core", "Null", "Allow", "Deny",)
 
 
 class Core(generic.View):
@@ -152,6 +149,30 @@ class Null(Core):
         return self.http_method_not_allowed(request, *args, **kwargs)
 
 
+class Allow(Null):
+    """
+    The allow view. Selects a handler to allow the request or defers
+    to super().
+    
+    """
+    def get_allow_handler(self):
+        """
+        Either return a handler to allow the request or defer to super().
+        
+        """
+        return None
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Call the allow handler or defer to super().
+        
+        """
+        return (
+            self.get_allow_handler() or
+            super(Allow, self).dispatch)(
+                request, *args, **kwargs)
+
+
 class Deny(Null):
     """
     The denial view. Selects a handler to deny the request or defers
@@ -173,27 +194,4 @@ class Deny(Null):
         return (
             self.get_deny_handler() or 
             super(Deny, self).dispatch)(
-                request, *args, **kwargs)
-
-class Allow(Null):
-    """
-    The allow view. Selects a handler to allow the request or defers
-    to super().
-    
-    """
-    def get_allow_handler(self):
-        """
-        Either return a handler to allow the request or defer to super().
-        
-        """
-        return None
-    
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Call the allow handler or defer to super().
-        
-        """
-        return (
-            self.get_allow_handler() or
-            super(Allowance, self).dispatch)(
                 request, *args, **kwargs)

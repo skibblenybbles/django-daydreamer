@@ -22,7 +22,7 @@ class CSRFProtectTestCase(base.TestCase):
         Check that POST requests without a cookie are CSRF protected.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"post": self.unique()},
             method="post",
             status_code=403)
@@ -40,7 +40,7 @@ class CSRFProtectTestCase(base.TestCase):
         Checks that PUT requests without a cookie are CSRF protected.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"put": self.unique()},
             method="put",
             status_code=403)
@@ -58,7 +58,7 @@ class CSRFProtectTestCase(base.TestCase):
         Checks that PATCH requests without a cookie are CSRF protected.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"patch": self.unique()},
             method="patch",
             status_code=403)
@@ -76,7 +76,7 @@ class CSRFProtectTestCase(base.TestCase):
         Checks that DELETE requests without a cookie are CSRF protected.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"delete": self.unique()},
             method="delete",
             status_code=403)
@@ -95,7 +95,7 @@ class CSRFProtectTestCase(base.TestCase):
         precedence over the default HTTP method name protection.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             method="post",
             status_code=403)
     
@@ -115,7 +115,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"post": content},
             method="post",
             data={"csrfmiddlewaretoken": self.client.get_csrf_cookie()},
@@ -129,7 +129,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"post": content},
             method="post",
             headers={"HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
@@ -143,7 +143,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"csrf_protect": False, "post": content},
             method="post",
             status_code=200,
@@ -156,7 +156,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"put": content},
             method="put",
             headers={"HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
@@ -170,7 +170,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"csrf_protect": False, "put": content},
             method="put",
             status_code=200,
@@ -183,7 +183,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"patch": content},
             method="patch",
             headers={"HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
@@ -197,7 +197,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"csrf_protect": False, "patch": content},
             method="patch",
             status_code=200,
@@ -210,7 +210,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"delete": content},
             method="delete",
             headers={"HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
@@ -224,7 +224,7 @@ class CSRFProtectTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"csrf_protect": False, "delete": content},
             method="delete",
             status_code=200,
@@ -237,7 +237,7 @@ class CSRFProtectTestCase(base.TestCase):
         takes precedence.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             method="post",
             data={"csrfmiddlewaretoken": self.client.get_csrf_cookie()},
             status_code=405)
@@ -249,7 +249,7 @@ class CSRFProtectTestCase(base.TestCase):
         takes precedence.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             method="post",
             headers={"HTTP_X_CSRFTOKEN": self.client.get_csrf_cookie()},
             status_code=405)
@@ -274,7 +274,7 @@ class RequireCSRFTokenTestCase(base.TestCase):
             return http.HttpResponse(
                 template.Template(content).render(
                     template.RequestContext(request, {})))
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"get": get},
             status_code=200,
             content=content,
@@ -294,7 +294,7 @@ class RequireCSRFTokenTestCase(base.TestCase):
             return http.HttpResponse(
                 template.Template(content).render(
                     template.RequestContext(request, {})))
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"requires_csrf_token": False, "get": get},
             status_code=200,
             content=content,
@@ -316,7 +316,7 @@ class EnsureCSRFCookieTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"get": content},
             status_code=200,
             content=content,
@@ -328,7 +328,7 @@ class EnsureCSRFCookieTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"ensure_csrf_cookie": False, "get": content},
             status_code=200,
             content=content,
@@ -351,7 +351,7 @@ class CSRFExemptTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"post": content},
             method="post",
             status_code=200,
@@ -363,7 +363,7 @@ class CSRFExemptTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"put": content},
             method="put",
             status_code=200,
@@ -375,7 +375,7 @@ class CSRFExemptTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"patch": content},
             method="patch",
             status_code=200,
@@ -387,7 +387,7 @@ class CSRFExemptTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"delete": content},
             method="delete",
             status_code=200,
@@ -399,7 +399,7 @@ class CSRFExemptTestCase(base.TestCase):
         is disabled.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"csrf_exempt": False, "post": self.unique()},
             method="post",
             status_code=403)
@@ -410,7 +410,7 @@ class CSRFExemptTestCase(base.TestCase):
         is disabled.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"csrf_exempt": False, "put": self.unique()},
             method="put",
             status_code=403)
@@ -421,7 +421,7 @@ class CSRFExemptTestCase(base.TestCase):
         is disabled.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"csrf_exempt": False, "patch": self.unique()},
             method="patch",
             status_code=403)
@@ -432,7 +432,7 @@ class CSRFExemptTestCase(base.TestCase):
         is disabled.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"csrf_exempt": False, "delete": self.unique()},
             method="delete",
             status_code=403)

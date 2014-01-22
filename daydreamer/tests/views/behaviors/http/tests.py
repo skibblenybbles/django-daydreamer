@@ -20,7 +20,7 @@ class RequireGETTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"get": content},
             status_code=200,
             content=content)
@@ -30,7 +30,7 @@ class RequireGETTestCase(base.TestCase):
         Check that HEAD requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"head": self.unique()},
             method="head",
             status_code=405)
@@ -40,7 +40,7 @@ class RequireGETTestCase(base.TestCase):
         Check that OPTIONS requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"options": self.unique()},
             method="options",
             status_code=405)
@@ -50,7 +50,7 @@ class RequireGETTestCase(base.TestCase):
         Check that POST requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"post": self.unique()},
             method="post",
             status_code=405)
@@ -60,7 +60,7 @@ class RequireGETTestCase(base.TestCase):
         Check that PUT requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"put": self.unique()},
             method="put",
             status_code=405)
@@ -70,7 +70,7 @@ class RequireGETTestCase(base.TestCase):
         Check that DELETE requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"delete": self.unique()},
             method="delete",
             status_code=405)
@@ -89,7 +89,7 @@ class RequirePOSTTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"post": content},
             method="post",
             status_code=200,
@@ -100,7 +100,7 @@ class RequirePOSTTestCase(base.TestCase):
         Check that GET requests are allowed.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"get": self.unique()},
             status_code=405)
     
@@ -109,7 +109,7 @@ class RequirePOSTTestCase(base.TestCase):
         Check that HEAD requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"head": self.unique()},
             method="head",
             status_code=405)
@@ -119,7 +119,7 @@ class RequirePOSTTestCase(base.TestCase):
         Check that OPTIONS requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"options": self.unique()},
             method="options",
             status_code=405)
@@ -129,7 +129,7 @@ class RequirePOSTTestCase(base.TestCase):
         Check that PUT requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"put": self.unique()},
             method="put",
             status_code=405)
@@ -139,7 +139,7 @@ class RequirePOSTTestCase(base.TestCase):
         Check that DELETE requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"delete": self.unique()},
             method="delete",
             status_code=405)
@@ -158,7 +158,7 @@ class RequireSafeTestCase(base.TestCase):
         
         """
         content = self.unique()
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"get": content},
             status_code=200,
             content=content)
@@ -168,7 +168,7 @@ class RequireSafeTestCase(base.TestCase):
         Check that HEAD requests are allowed.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"head": self.unique()},
             method="head",
             status_code=200,
@@ -179,7 +179,7 @@ class RequireSafeTestCase(base.TestCase):
         Check that OPTIONS requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"options": self.unique()},
             method="options",
             status_code=405)
@@ -189,7 +189,7 @@ class RequireSafeTestCase(base.TestCase):
         Check that POST requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"post": self.unique()},
             method="post",
             status_code=405)
@@ -199,7 +199,7 @@ class RequireSafeTestCase(base.TestCase):
         Check that PUT requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"put": self.unique()},
             method="put",
             status_code=405)
@@ -209,7 +209,7 @@ class RequireSafeTestCase(base.TestCase):
         Check that DELETE requests are denied.
         
         """
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"delete": self.unique()},
             method="delete",
             status_code=405)
@@ -234,7 +234,7 @@ class ConditionTestCase(base.TestCase):
         content = self.unique()
         def condition_etag(self, request, *args, **kwargs):
             return etag
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"condition_etag": condition_etag, "get": content},
             status_code=200,
             content=content,
@@ -250,7 +250,7 @@ class ConditionTestCase(base.TestCase):
         etag = self.unique()
         def condition_etag(self, request, *args, **kwargs):
             return etag
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"condition_etag": condition_etag},
             status_code=405,
             exact_headers={"ETag": self.format_etag(etag)})
@@ -263,7 +263,7 @@ class ConditionTestCase(base.TestCase):
         etag = self.unique()
         def condition_etag(self, request, *args, **kwargs):
             return etag
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"condition_etag": condition_etag, "get": self.unique()},
             headers={"HTTP_IF_NONE_MATCH": self.format_etag(etag)},
             status_code=304,
@@ -278,7 +278,7 @@ class ConditionTestCase(base.TestCase):
         etag = self.unique()
         def condition_etag(self, request, *args, **kwargs):
             return etag
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"condition_etag": condition_etag, "get": self.unique()},
             headers={"HTTP_IF_MATCH": self.format_etag(self.unique())},
             status_code=412,
@@ -293,7 +293,7 @@ class ConditionTestCase(base.TestCase):
         content = self.unique()
         def condition_etag(self, request, *args, **kwargs):
             return etag
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"condition_etag": condition_etag, "get": content},
             headers={"HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
             status_code=200,
@@ -309,7 +309,7 @@ class ConditionTestCase(base.TestCase):
         etag = self.unique()
         def condition_etag(self, request, *args, **kwargs):
             return etag
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"condition_etag": condition_etag},
             headers={"HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
             status_code=405,
@@ -324,7 +324,7 @@ class ConditionTestCase(base.TestCase):
         content = self.unique()
         def condition_last_modified(self, request, *args, **kwargs):
             return last_modified
-        self.assertResponseBehavior({
+        self.assertViewBehavior({
                 "condition_last_modified": condition_last_modified,
                 "get": content},
             status_code=200,
@@ -342,7 +342,7 @@ class ConditionTestCase(base.TestCase):
         last_modified = datetime.datetime.now()
         def condition_last_modified(self, request, *args, **kwargs):
             return last_modified
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"condition_last_modified": condition_last_modified},
             status_code=405,
             exact_headers={
@@ -356,7 +356,7 @@ class ConditionTestCase(base.TestCase):
         last_modified = datetime.datetime.now()
         def condition_last_modified(self, request, *args, **kwargs):
             return last_modified
-        self.assertResponseBehavior({
+        self.assertViewBehavior({
                 "condition_last_modified": condition_last_modified,
                 "get": self.unique()},
             headers={
@@ -376,7 +376,7 @@ class ConditionTestCase(base.TestCase):
         content = self.unique()
         def condition_last_modified(self, request, *args, **kwargs):
             return last_modified + datetime.timedelta(hours=1)
-        self.assertResponseBehavior({
+        self.assertViewBehavior({
                 "condition_last_modified": condition_last_modified,
                 "get": content},
             headers={
@@ -398,7 +398,7 @@ class ConditionTestCase(base.TestCase):
         last_modified = datetime.datetime.now()
         def condition_last_modified(self, request, *args, **kwargs):
             return last_modified + datetime.timedelta(hours=1)
-        self.assertResponseBehavior(
+        self.assertViewBehavior(
             {"condition_last_modified": condition_last_modified},
             headers={
                 "HTTP_IF_MODIFIED_SINCE": self.format_datetime(last_modified)},

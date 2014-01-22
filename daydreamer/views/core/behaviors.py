@@ -1,14 +1,11 @@
 from __future__ import unicode_literals
 
-import collections
-import logging
-
 from django import http
 from django.conf import settings
 from django.contrib import messages
 from django.core import exceptions
 
-from daydreamer.core import lang, urlresolvers
+from daydreamer.core import urlresolvers
 
 from . import base
 
@@ -18,7 +15,7 @@ __all__ = ("Denial",)
 
 class Denial(base.Deny):
     """
-    A base class providing a denial behavior framework.
+    An abstract base class providing a denial behavior framework.
     
     Implements the deny() method, which when called:
     

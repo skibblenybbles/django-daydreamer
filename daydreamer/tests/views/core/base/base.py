@@ -10,7 +10,7 @@ from daydreamer.test import messages as test_messages, views as test_views
 
 class TestCase(test_messages.TestCase, test_views.TestCase):
     """
-    Common utilities for testing base views.
+    Common utilities for testing view classes.
     
     Specify view class(es) to inherit from for the test cases.
     
@@ -26,7 +26,7 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         return super(TestCase, self).view(self.view_classes, **attrs)
     
     # Assertions.
-    def assertResponseBehavior(self,
+    def assertViewBehavior(self,
             attrs=None, setup=None, view_args=None, view_kwargs=None,
             method="get", path=None, data=None, headers=None,
             exception=None,
