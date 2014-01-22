@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import datetime
 
 from daydreamer.views import generic
-from daydreamer.views.behaviors import http as http
+from daydreamer.views.behaviors import http
 
 from . import base
 
