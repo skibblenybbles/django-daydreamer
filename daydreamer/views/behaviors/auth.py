@@ -616,7 +616,7 @@ class AuthRequired(LoginRequired, ActiveRequired, StaffRequired,
     """
     A view behavior that performs authentication tests from least
     to most specific by inheriting from the other view behaviors in
-    daydreamer.views.decorated.auth. All tests are disabled by default.
+    daydreamer.views.behaviors.auth. All tests are disabled by default.
     
     See the inherited class' documentation for usage.
     

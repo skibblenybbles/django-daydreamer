@@ -1,1 +1,1 @@
-from . import decorated, generic
+from . import behaviors, generic

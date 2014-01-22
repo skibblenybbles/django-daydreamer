@@ -5,7 +5,7 @@ import unittest
 from django.core import exceptions
 
 from daydreamer.views import generic
-from daydreamer.views.decorated import auth as auth_decorated
+from daydreamer.views.behaviors import auth as auth_behaviors
 
 from . import base
 
@@ -15,7 +15,7 @@ class LoginRequiredTestCase(base.TestCase):
     Tests for the LoginRequired view behavior.
     
     """
-    view_classes = (auth_decorated.LoginRequired, generic.View,)
+    view_classes = (auth_behaviors.LoginRequired, generic.View,)
     prefix = "login_required"
     
     def setup_unauth_fail(self):
@@ -39,7 +39,7 @@ class ActiveRequiredTestCase(base.TestCase):
     Tests for the ActiveRequired view behavior.
     
     """
-    view_classes = (auth_decorated.ActiveRequired, generic.View,)
+    view_classes = (auth_behaviors.ActiveRequired, generic.View,)
     prefix = "active_required"
     
     def setup_unauth_fail(self):
@@ -62,7 +62,7 @@ class StaffRequiredTestCase(base.TestCase):
     Tests for the StaffRequired view behavior.
     
     """
-    view_classes = (auth_decorated.StaffRequired, generic.View,)
+    view_classes = (auth_behaviors.StaffRequired, generic.View,)
     prefix = "staff_required"
     
     def setup_unauth_fail(self):
@@ -85,7 +85,7 @@ class SuperuserRequiredTestCase(base.TestCase):
     Tests for the SuperuserRequired view behavior.
     
     """
-    view_classes = (auth_decorated.SuperuserRequired, generic.View,)
+    view_classes = (auth_behaviors.SuperuserRequired, generic.View,)
     prefix = "superuser_required"
     
     def setup_unauth_fail(self):
@@ -108,7 +108,7 @@ class GroupsRequiredTestCase(base.TestCase):
     Tests for the GroupsRequired view behavior.
     
     """
-    view_classes = (auth_decorated.GroupsRequired, generic.View,)
+    view_classes = (auth_behaviors.GroupsRequired, generic.View,)
     prefix = "groups_required"
     
     def setup_unauth_fail(self):
@@ -182,7 +182,7 @@ class PermissionsRequiredTestCase(base.TestCase):
     Tests for the PermissionsRequired view behavior.
     
     """
-    view_classes = (auth_decorated.PermissionsRequired, generic.View,)
+    view_classes = (auth_behaviors.PermissionsRequired, generic.View,)
     prefix = "permissions_required"
     
     def setup_unauth_fail(self):
@@ -252,7 +252,7 @@ class ObjectPermissionsRequiredTestCase(base.TestCase):
     Tests for the ObjectPermissionsRequired view behavior.
     
     """
-    view_classes = (auth_decorated.ObjectPermissionsRequired, generic.View,)
+    view_classes = (auth_behaviors.ObjectPermissionsRequired, generic.View,)
     prefix = "object_permissions_required"
     
     def setup_unauth_fail(self):
@@ -368,7 +368,7 @@ class TestRequiredTestCase(base.TestCase):
     Tests for the TestRequired view behavior.
     
     """
-    view_classes = (auth_decorated.TestRequired, generic.View,)
+    view_classes = (auth_behaviors.TestRequired, generic.View,)
     prefix = "test_required"
     
     def create_name_test(self, name):

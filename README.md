@@ -15,10 +15,10 @@ Do stuff like this:
 
 ```python
 from daydreamer.core import urlresolvers
-from daydreamer.views import decorated, generic
+from daydreamer.views import behaviors, generic
 
 
-class SpookyProtectedResourceView(decorated.AuthRequired, generic.TemplateView):
+class SpookyProtectedResourceView(behaviors.AuthRequired, generic.TemplateView):
     template_name = "resources/detail.html"
     
     login_required = True
@@ -59,8 +59,8 @@ classes, so set up a few base classes that provide the common behaviors you
 need and inherit from them throughout your view codebase.
 
 The behavior of all the authentication view behaviors defined in
-`daydreamer.views.decorated.auth` (import accessible at
-`daydreamer.views.decorated`) can be controlled with a consistently-named
+`daydreamer.views.behaviors.auth` (import accessible at
+`daydreamer.views.behaviors`) can be controlled with a consistently-named
 set of inherited attributes. The attributes are prefixed to match their
 class names, except that they use lowercase-underscore casing instead of 
 capital-camel casing. The optional values are:

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django import http, template
 from django.conf import settings
 
-from daydreamer.views.decorated import csrf as csrf_decorated
+from daydreamer.views.behaviors import csrf as csrf_behaviors
 
 from . import base
 
@@ -15,7 +15,7 @@ class CSRFProtectTestCase(base.TestCase):
     CSRF middleware is turned off to enable edge case behavior.
     
     """
-    view_classes = csrf_decorated.CSRFProtect
+    view_classes = csrf_behaviors.CSRFProtect
     
     def test_protect_post_no_cookie(self):
         """
@@ -262,7 +262,7 @@ class RequireCSRFTokenTestCase(base.TestCase):
     CSRF middleware is turned off to enable edge case behavior.
     
     """
-    view_classes = csrf_decorated.RequiresCSRFToken
+    view_classes = csrf_behaviors.RequiresCSRFToken
     
     def test_csrf_token(self):
         """
@@ -308,7 +308,7 @@ class EnsureCSRFCookieTestCase(base.TestCase):
     CSRF middleware is turned off to enable edge case behavior.
     
     """
-    view_classes = csrf_decorated.EnsureCSRFCookie
+    view_classes = csrf_behaviors.EnsureCSRFCookie
     
     def test_csrf_cookie(self):
         """
@@ -342,7 +342,7 @@ class CSRFExemptTestCase(base.TestCase):
     CSRF middleware is turned on to enable edge case behavior.
     
     """
-    view_classes = csrf_decorated.CSRFExempt
+    view_classes = csrf_behaviors.CSRFExempt
     csrf_middleware_enabled = True
     
     def test_post_csrf_exempt(self):
@@ -449,5 +449,5 @@ class CSRFProtectCSRFExemptTestCase(CSRFExemptTestCase):
     middleware disabled.
     
     """
-    view_classes = (csrf_decorated.CSRFProtect, csrf_decorated.CSRFExempt,)
+    view_classes = (csrf_behaviors.CSRFProtect, csrf_behaviors.CSRFExempt,)
     csrf_middleware_enabled = False
