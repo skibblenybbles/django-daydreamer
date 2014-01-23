@@ -7,17 +7,17 @@ from .. import generic
 
 
 __all__ = (
-    "CSRFProtect", "RequiresCSRFToken", "EnsureCSRFCookie", "CSRFExempt",)
+    "CsrfProtect", "RequiresCsrfToken", "EnsureCsrfCookie", "CsrfExempt",)
 
 
-class CSRFProtect(generic.View):
+class CsrfProtect(generic.View):
     """
     A view behavior that adds CSRF protection to a view the same at the top
     level of the dispatch.
     
     Disable the view decorator's functionality by setting the csrf_protect
     attribute to a falsy value. Note that this is not the same as making the
-    view exempt from CSRF checks (see CSRFExempt).
+    view exempt from CSRF checks (see CsrfExempt).
     
     """
     csrf_protect = True
@@ -29,11 +29,11 @@ class CSRFProtect(generic.View):
         django.views.decorators.csrf.csrf_protect().
         
         """
-        view = super(CSRFProtect, cls).as_view(**kwargs)
+        view = super(CsrfProtect, cls).as_view(**kwargs)
         return csrf.csrf_protect(view) if cls.csrf_protect else view
 
 
-class RequiresCSRFToken(generic.View):
+class RequiresCsrfToken(generic.View):
     """
     A view behavior that ensures "csrf_token" will be present in the request
     context, but does not enforce CSRF protection at the top level of
@@ -52,14 +52,14 @@ class RequiresCSRFToken(generic.View):
         django.views.decorators.csrf.requires_csrf_token().
         
         """
-        view = super(RequiresCSRFToken, cls).as_view(**kwargs)
+        view = super(RequiresCsrfToken, cls).as_view(**kwargs)
         return (
             csrf.requires_csrf_token(view)
                 if cls.requires_csrf_token
                 else view)
 
 
-class EnsureCSRFCookie(generic.View):
+class EnsureCsrfCookie(generic.View):
     """
     A view behavior that ensures a CSRF cookie will be present in the response,
     but does not enforce CSRF protection at the top level of the dispatch.
@@ -77,14 +77,14 @@ class EnsureCSRFCookie(generic.View):
         django.views.decorators.csrf.ensure_csrf_cookie().
         
         """
-        view = super(EnsureCSRFCookie, cls).as_view(**kwargs)
+        view = super(EnsureCsrfCookie, cls).as_view(**kwargs)
         return (
             csrf.ensure_csrf_cookie(view)
                 if cls.ensure_csrf_cookie
                 else view)
 
 
-class CSRFExempt(generic.View):
+class CsrfExempt(generic.View):
     """
     A view behavior that disables CSRF protection at the top level of
     the dispatch.
@@ -102,5 +102,5 @@ class CSRFExempt(generic.View):
         django.views.decorators.csrf.csrf_exempt().
         
         """
-        view = super(CSRFExempt, cls).as_view(**kwargs)
+        view = super(CsrfExempt, cls).as_view(**kwargs)
         return csrf.csrf_exempt(view) if cls.csrf_exempt else view

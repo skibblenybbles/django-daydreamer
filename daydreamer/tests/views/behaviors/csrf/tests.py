@@ -8,14 +8,14 @@ from daydreamer.views.behaviors import csrf as csrf
 from . import base
 
 
-class CSRFProtectTestCase(base.TestCase):
+class CsrfProtectTestCase(base.TestCase):
     """
-    Tests for the CSRFProtect view behavior.
+    Tests for the CsrfProtect view behavior.
     
     CSRF middleware is turned off to enable edge case behavior.
     
     """
-    view_classes = csrf.CSRFProtect
+    view_classes = csrf.CsrfProtect
     
     def test_protect_post_no_cookie(self):
         """
@@ -255,14 +255,14 @@ class CSRFProtectTestCase(base.TestCase):
             status_code=405)
 
 
-class RequireCSRFTokenTestCase(base.TestCase):
+class RequireCsrfTokenTestCase(base.TestCase):
     """
-    Tests for the RequiresCSRFToken view behavior.
+    Tests for the RequiresCsrfToken view behavior.
     
     CSRF middleware is turned off to enable edge case behavior.
     
     """
-    view_classes = csrf.RequiresCSRFToken
+    view_classes = csrf.RequiresCsrfToken
     
     def test_csrf_token(self):
         """
@@ -301,14 +301,14 @@ class RequireCSRFTokenTestCase(base.TestCase):
             include_context="csrf_token")
 
 
-class EnsureCSRFCookieTestCase(base.TestCase):
+class EnsureCsrfCookieTestCase(base.TestCase):
     """
-    Tests for the EnsureCSRFCookie view behavior.
+    Tests for the EnsureCsrfCookie view behavior.
     
     CSRF middleware is turned off to enable edge case behavior.
     
     """
-    view_classes = csrf.EnsureCSRFCookie
+    view_classes = csrf.EnsureCsrfCookie
     
     def test_csrf_cookie(self):
         """
@@ -335,14 +335,14 @@ class EnsureCSRFCookieTestCase(base.TestCase):
             exclude_cookies=settings.CSRF_COOKIE_NAME)
 
 
-class CSRFExemptTestCase(base.TestCase):
+class CsrfExemptTestCase(base.TestCase):
     """
-    Tests for the CSRFExempt view behavior.
+    Tests for the CsrfExempt view behavior.
     
     CSRF middleware is turned on to enable edge case behavior.
     
     """
-    view_classes = csrf.CSRFExempt
+    view_classes = csrf.CsrfExempt
     csrf_middleware_enabled = True
     
     def test_post_csrf_exempt(self):
@@ -438,9 +438,9 @@ class CSRFExemptTestCase(base.TestCase):
             status_code=403)
 
 
-class CSRFProtectCSRFExemptTestCase(CSRFExemptTestCase):
+class CsrfProtectCsrfExemptTestCase(CsrfExemptTestCase):
     """
-    Tests for views inheriting from CSRFProtect followed by CSRFExempt.
+    Tests for views inheriting from CsrfProtect followed by CsrfExempt.
     
     CSRF middleware is turned off to enable edge case behavior.
     
@@ -449,5 +449,5 @@ class CSRFProtectCSRFExemptTestCase(CSRFExemptTestCase):
     middleware disabled.
     
     """
-    view_classes = (csrf.CSRFProtect, csrf.CSRFExempt,)
+    view_classes = (csrf.CsrfProtect, csrf.CsrfExempt,)
     csrf_middleware_enabled = False
