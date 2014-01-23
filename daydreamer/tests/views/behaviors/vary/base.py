@@ -5,7 +5,7 @@ from daydreamer.tests.views import core
 
 class TestCase(core.TestCase):
     """
-    Common utilities for testing Vary view behaviors.
+    Common utilities for testing vary view behaviors.
     
     """
     pass

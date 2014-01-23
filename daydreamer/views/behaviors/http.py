@@ -37,7 +37,7 @@ class RequireSafe(core.http.HttpMethodDeny):
 class Condition(core.http.HttpMethodAllow):
     """
     A view behavior that provides conditional retrieval or change
-    notification for requests during the allow phase of the dispatch.
+    notification during the allow phase of the dispatch.
     
     Define a condition_etag() method to compute the ETag for the requested
     resource and/or define a condition_last_modified() method to compute the

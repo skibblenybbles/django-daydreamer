@@ -28,7 +28,7 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
     # Assertions.
     def assertViewBehavior(self,
             attrs=None, setup=None, view_args=None, view_kwargs=None,
-            method="get", path=None, data=None, headers=None,
+            method="get", path=None, data=None, headers=None, repeat=None,
             exception=None,
             status_code=None, follow_status_code=None, content=None,
             include_headers=None, exclude_headers=None, exact_headers=None,
@@ -53,6 +53,13 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         
         If data is specified, it should be a dictionary for a "get", "post"
         or "head" request. Otherwise, it should be a string.
+        
+        If header is specified, it should be a dictionary with header
+        values for the request.
+        
+        If repeat is specified, it should indicate the number of times to
+        repeat the request. Each call will be wrapped in an exception handler
+        until the last call, which will be processed by the assertions.
         
         If exception is specified, the view should raise the exception,
         and no other assertions will be performed.
@@ -96,9 +103,7 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         attrs = attrs or {}
         view_args = view_args or ()
         view_kwargs = view_kwargs or {}
-        
         path = self.unique_path() if path is None else path
-        
         if data is not None:
             if method in ("get", "post", "head",):
                 if not isinstance(data, collections.Mapping):
@@ -112,9 +117,8 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
                         'than "get", "post" or "head".')
         else:
             data = {} if method in ("get", "post", "head",) else ""
-        
         headers = headers or {}
-        
+        repeat = repeat or 0
         include_headers = (
             (include_headers,)
                 if isinstance(include_headers, six.string_types)
@@ -154,20 +158,28 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
                 if isinstance(exact_context, collections.Mapping)
                 else dict(exact_context or {}))
         
-        # Set up a closure to coll the view.
-        def view():
+        # Create the view function.
+        view = self.view(
+            **lang.updated(
+                attrs,
+                setup() or {}
+                    if isinstance(setup, collections.Callable)
+                    else {}))
+        
+        # Set up a closure to call the view.
+        def respond():
             return getattr(self.client, method)(
-                self.view(
-                    **lang.updated(
-                        attrs,
-                        setup() or {}
-                            if isinstance(setup, collections.Callable)
-                            else {})),
-                view_args=view_args,
-                view_kwargs=view_kwargs,
-                path=path,
-                data=data,
-                **headers)
+                view, view_args, view_kwargs, path=path, data=data, **headers)
+        
+        # Burn through the repetions?
+        while repeat > 1:
+            try:
+                respond()
+            except SystemExit:
+                raise
+            except:
+                pass
+            repeat -= 1
         
         # Do we expect an exception or a normal response?
         if exception:
@@ -176,10 +188,10 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
                 exception.__class__
                     if isinstance(exception, Exception)
                     else exception):
-                view()
+                respond()
         else:
             # Expecting a normal response.
-            response = view()
+            response = respond()
             
             # Check status code?
             if status_code is not None:
