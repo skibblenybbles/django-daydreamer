@@ -50,7 +50,7 @@ class VaryOnHeadersTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            exclude_headers=("Vary",))
+            exclude_headers="Vary")
     
     def test_vary_on_headers_precedence(self):
         """
@@ -62,7 +62,7 @@ class VaryOnHeadersTestCase(base.TestCase):
         self.assertViewBehavior(
             {"vary_on_headers": vary},
             status_code=405,
-            exclude_headers=("Vary",))
+            exclude_headers="Vary")
 
 
 class VaryOnCookieTestCase(base.TestCase):
@@ -94,7 +94,7 @@ class VaryOnCookieTestCase(base.TestCase):
             {"vary_on_cookie": False, "get": content},
             status_code=200,
             content=content,
-            exclude_headers=("Vary",))
+            exclude_headers="Vary")
     
     def test_vary_on_cookie_precedence(self):
         """
@@ -105,4 +105,4 @@ class VaryOnCookieTestCase(base.TestCase):
         vary = self.unique()
         self.assertViewBehavior(
             status_code=405,
-            exclude_headers=("Vary",))
+            exclude_headers="Vary")

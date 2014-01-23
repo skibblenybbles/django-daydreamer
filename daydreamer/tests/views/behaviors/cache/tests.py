@@ -188,7 +188,7 @@ class CacheControlTestCase(base.TestCase):
                 "get": content},
             status_code=200,
             content=content,
-            exclude_headers=("Cache-Control",))
+            exclude_headers="Cache-Control")
     
     def test_precedence(self):
         """
@@ -242,4 +242,4 @@ class NeverCacheTestCase(base.TestCase):
         """
         self.assertViewBehavior(
             status_code=405,
-            exclude_headers=("Cache-Control",))
+            exclude_headers="Cache-Control")

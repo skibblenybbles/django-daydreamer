@@ -8,6 +8,9 @@ from django.views.decorators import vary
 from .. import core
 
 
+__all__ = ("VaryOnHeaders", "VaryOnCookie",)
+
+
 class VaryOnHeaders(core.http.HttpMethodAllow):
     """
     A view behavior that adds values to the response's Vary header during the

@@ -25,7 +25,7 @@ class CsrfProtect(generic.View):
     @classonlymethod
     def as_view(cls, **kwargs):
         """
-        Decorates the returned view function with
+        Optionally decorates the base view function with
         django.views.decorators.csrf.csrf_protect().
         
         """
@@ -48,7 +48,7 @@ class RequiresCsrfToken(generic.View):
     @classonlymethod
     def as_view(cls, **kwargs):
         """
-        Decorates the returned view function with
+        Optionally decorates the base view function with
         django.views.decorators.csrf.requires_csrf_token().
         
         """
@@ -73,7 +73,7 @@ class EnsureCsrfCookie(generic.View):
     @classonlymethod
     def as_view(cls, **kwargs):
         """
-        Decorates the returned view function with
+        Optionally decorates the base view function with
         django.views.decorators.csrf.ensure_csrf_cookie().
         
         """
@@ -98,7 +98,7 @@ class CsrfExempt(generic.View):
     @classonlymethod
     def as_view(cls, **kwargs):
         """
-        Decorates the returned view function with
+        Optionally decorates the base view function with
         django.views.decorators.csrf.csrf_exempt().
         
         """

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django import http, template
 from django.conf import settings
 
-from daydreamer.views.behaviors import csrf as csrf
+from daydreamer.views.behaviors import csrf
 
 from . import base
 

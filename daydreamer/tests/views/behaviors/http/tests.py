@@ -254,7 +254,7 @@ class ConditionTestCase(base.TestCase):
         self.assertViewBehavior(
             {"condition_etag": condition_etag},
             status_code=405,
-            exclude_headers=("ETag",))
+            exclude_headers="ETag")
     
     def test_etag_match_not_modified(self):
         """
@@ -284,7 +284,7 @@ class ConditionTestCase(base.TestCase):
             {"condition_etag": condition_etag},
             headers={"HTTP_IF_NONE_MATCH": self.format_etag(etag)},
             status_code=405,
-            exclude_headers=("ETag",))
+            exclude_headers="ETag")
     
     def test_etag_fail(self):
         """
@@ -313,7 +313,7 @@ class ConditionTestCase(base.TestCase):
             {"condition_etag": condition_etag},
             headers={"HTTP_IF_MATCH": self.format_etag(self.unique())},
             status_code=405,
-            exclude_headers=("ETag",))
+            exclude_headers="ETag")
     
     def test_etag_miss(self):
         """
@@ -345,7 +345,7 @@ class ConditionTestCase(base.TestCase):
             {"condition_etag": condition_etag},
             headers={"HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
             status_code=405,
-            exclude_headers=("ETag",))
+            exclude_headers="ETag")
     
     def test_last_modified(self):
         """
@@ -377,7 +377,7 @@ class ConditionTestCase(base.TestCase):
         self.assertViewBehavior(
             {"condition_last_modified": condition_last_modified},
             status_code=405,
-            exclude_headers=("Last-Modified",))
+            exclude_headers="Last-Modified")
     
     def test_last_modified_match_not_modified(self):
         """
@@ -415,7 +415,7 @@ class ConditionTestCase(base.TestCase):
                     self.format_datetime(
                         last_modified + datetime.timedelta(hours=1))},
             status_code=405,
-            exclude_headers=("Last-Modified",))
+            exclude_headers="Last-Modified")
     
     def test_last_modified_miss(self):
         """
@@ -453,4 +453,4 @@ class ConditionTestCase(base.TestCase):
             headers={
                 "HTTP_IF_MODIFIED_SINCE": self.format_datetime(last_modified)},
             status_code=405,
-            exclude_headers=("Last-Modified",))
+            exclude_headers="Last-Modified")
