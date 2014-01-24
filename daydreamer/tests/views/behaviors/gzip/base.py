@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from django.utils.text import compress_string
-from django.core.cache import cache
 
 from daydreamer.tests.views import core
 

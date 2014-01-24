@@ -1,11 +1,13 @@
 from __future__ import unicode_literals
 
 import collections
+import functools
 
 from django.utils import six
 
 from daydreamer.core import lang
 from daydreamer.test import messages as test_messages, views as test_views
+from django.utils.decorators import available_attrs
 
 
 class TestCase(test_messages.TestCase, test_views.TestCase):
@@ -34,9 +36,13 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
             include_headers=None, exclude_headers=None, exact_headers=None,
             include_cookies=None, exclude_cookies=None, exact_cookies=None,
             include_context=None, exclude_context=None, exact_context=None,
+            include_request_attrs=None, exclude_request_attrs=None,
+                exact_request_attrs=None,
+            include_view_attrs=None, exclude_view_attrs=None,
+                exact_view_attrs=None,
             message=None, message_level=None, message_tags=None,
             redirect_url=None, redirect_next_url=None,
-            redirect_next_name=None):
+                redirect_next_name=None):
         """
         Generates a view from the optional attributes and from the setup()
         callback's return value. Makes an HTTP request for the specified
@@ -87,6 +93,22 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         context must not contain the name or names. If exact_context is
         specified, the names and exact values must be present in the response's
         context.
+        
+        If include_request_attrs is specified, the request passed to the
+        generated view must have the specified attributes after the view has
+        been called. If exclude_response_attrs is specified, the request
+        passed to the generated view must not have the specified attributes
+        after the view has been called. If exact_response_attrs is specified,
+        the request passed to the generated view must have the specified names
+        and exact attribute values after the view has been called.
+        
+        If include_view_attrs is specified, the generated view function must
+        have the specified attributes after it has been called. If
+        exclude_view_attrs is specified, the generated view function must not
+        have the specified attributes after the view has been called. If
+        exact_view_attrs is specified, the generated view function must have
+        the specified names and exact attribute values after the view has
+        been called.
         
         If message is not specified, checks that no messages are present in the
         response's context. Otherwise, checks that exactly one message with the
@@ -158,13 +180,45 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
                 if isinstance(exact_context, collections.Mapping)
                 else dict(exact_context or {}))
         
-        # Create the view function.
-        view = self.view(
+        include_view_attrs = (
+            (include_view_attrs,)
+                if isinstance(include_view_attrs, six.string_types)
+                else include_view_attrs or ())
+        exclude_view_attrs = (
+            (exclude_view_attrs,)
+                if isinstance(exclude_view_attrs, six.string_types)
+                else exclude_view_attrs or ())
+        exact_view_attrs = (
+            exact_view_attrs
+                if isinstance(exact_view_attrs, collections.Mapping)
+                else dict(exact_view_attrs or {}))
+        
+        include_request_attrs = (
+            (include_request_attrs,)
+                if isinstance(include_request_attrs, six.string_types)
+                else include_request_attrs or ())
+        exclude_request_attrs = (
+            (exclude_request_attrs,)
+                if isinstance(exclude_request_attrs, six.string_types)
+                else exclude_request_attrs or ())
+        exact_request_attrs = (
+            exact_request_attrs
+                if isinstance(exact_request_attrs, collections.Mapping)
+                else dict(exact_request_attrs or {}))
+        
+        # Create the view function, wrapping it in a closure so we can extract
+        # the passed request argument.
+        closure = {}
+        _view = self.view(
             **lang.updated(
                 attrs,
                 setup() or {}
                     if isinstance(setup, collections.Callable)
                     else {}))
+        @functools.wraps(_view, assigned=available_attrs(_view))
+        def view(request, *args, **kwargs):
+            closure["request"] = request
+            return _view(request, *args, **kwargs)
         
         # Set up a closure to call the view.
         def respond():
@@ -192,6 +246,9 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
         else:
             # Expecting a normal response.
             response = respond()
+            
+            # Get the request.
+            request = closure["request"]
             
             # Check status code?
             if status_code is not None:
@@ -239,6 +296,15 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
                 for name, value in six.iteritems(exact_context):
                     self.assertIn(name, response.context)
                     self.assertEqual(response.context[name], value)
+            
+            # Check request attributes.
+            for name in include_request_attrs:
+                self.assertTrue(hasattr(request, name))
+            for name in exclude_request_attrs:
+                self.assertTrue(not hasattr(request, name))
+            for name, value in six.iteritems(exact_request_attrs):
+                self.assertTrue(hasattr(request, name))
+                self.assertEqual(getattr(request, name), value)
             
             # Contains a message?
             if message:
