@@ -5,14 +5,14 @@ import types
 from django import http
 from django.utils import six
 
-from .. import testcases
+from .. import base
 from . import client
 
 
 __all__ = ("TestCase",)
 
 
-class TestCase(testcases.TestCase):
+class TestCase(base.TestCase):
     """
     A test case for dynamically generating and testing class-based views.
     Uses a customized client and request handler to facilitate view testing
@@ -53,7 +53,7 @@ class TestCase(testcases.TestCase):
         response with the specified content.
         
         """
-        def methd(self, request, *args, **kwargs):
+        def method(self, request, *args, **kwargs):
             return http.HttpResponse(content)
         method.__name__ = verb
         return method

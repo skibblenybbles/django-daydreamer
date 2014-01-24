@@ -1,7 +1,7 @@
-from . import testcases
+from . import base
 
 
-class TestCase(testcases.TestCase):
+class TestCase(base.TestCase):
     """
     A test case for making assertions about messsages from
     django.contrib.messages in the context of a response.

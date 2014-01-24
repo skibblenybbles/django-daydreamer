@@ -46,8 +46,8 @@ class Handler(base.BaseHandler):
     
     def resolve_view(self, request, resolver):
         """
-        If necessary, caches the result of get_resolver_match() on the request.
-        Returns the resolver match data (see get_resolver_match()).
+        If missing, caches the result of get_resolver_match() on the request.
+        Returns the resolver match data. See get_resolver_match() for details.
         
         """
         if (not hasattr(request, "resolver_match") or

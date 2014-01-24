@@ -1,5 +1,5 @@
-from . import testcases
-from .testcases import TestCase
+from . import base
+from .base import TestCase
 
 
 __all__ = ("TestCase",)
