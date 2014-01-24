@@ -3,11 +3,11 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.middleware import csrf
 
-from daydreamer.test import views as test_views
+from daydreamer.test.views import client
 from daydreamer.tests.views import core
 
 
-class Client(test_views.Client):
+class Client(client.Client):
     """
     A specialized test client that can set a CSRF cookie.
     

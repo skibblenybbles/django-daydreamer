@@ -1,7 +1,7 @@
-from . import base
+from . import testcases
 
 
-class TestCase(base.TestCase):
+class TestCase(testcases.TestCase):
     """
     A test case for making assertions about messsages from
     django.contrib.messages in the context of a response.
@@ -63,7 +63,7 @@ class TestCase(base.TestCase):
     
     def assertNoMessages(self, response):
         """
-        Asserts that the resopnse does not have any messages in its context.
+        Asserts that the response does not have any messages in its context.
         
         """
         if getattr(response, "context", None):

@@ -1,28 +1,12 @@
 from __future__ import unicode_literals
 
+import collections
 import copy as copying
 
 from django.utils import six
 
 
-__all__ = ("extended", "updated",)
-
-
-def extended(destination, source, copy=False):
-    """
-    Extends the destination list with the given source iterable. Optionally
-    makes a shallow copy of the destination before the update. Returns the
-    extended list.
-    
-    """
-    if copy:
-        destination = copying.copy(destination)
-    if callable(getattr(destination, "extend", None)):
-        destination.extend(source)
-    else:
-        for value in source:
-            destination.append(value)
-    return destination
+__all__ = ("updated",)
 
 
 def updated(destination, source, copy=False):
@@ -33,13 +17,43 @@ def updated(destination, source, copy=False):
     
     """
     if copy:
-        if callable(getattr(destination, "copy", None)):
+        if isinstance(
+            getattr(destination, "copy", None), collections.Callable):
             destination = destination.copy()
         else:
             destination = copying.copy(destination)
-    if callable(getattr(destination, "update", None)):
+    
+    if isinstance(destination, collections.MutableMapping):
         destination.update(source)
     else:
-        for key, value in six.iteritems(source):
+        for key, value in six.iteritems(
+                source
+                    if isinstance(source, collections.Mapping)
+                    else dict(source)):
             destination[key] = value
     return destination
+
+
+def any(values, falsy=False):
+    """
+    Returns the first truthy value encountered in the values iterable,
+    falling back to the given falsy value.
+    
+    """
+    for value in values:
+        if value:
+            return value
+    return falsy
+
+
+def all(values, truthy=True):
+    """
+    Returns the first falsy value encountered in the values interable,
+    falling back to the given truthy value.
+    
+    """
+    for value in values:
+        if not value:
+            return value
+    return truthy
+
