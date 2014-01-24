@@ -248,7 +248,7 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
             response = respond()
             
             # Get the request.
-            request = closure["request"]
+            request = closure.get("request", None)
             
             # Check status code?
             if status_code is not None:
@@ -298,6 +298,11 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
                     self.assertEqual(response.context[name], value)
             
             # Check request attributes.
+            self.assertTrue(
+                request or not any((
+                    include_request_attrs,
+                    exclude_request_attrs,
+                    exact_request_attrs)))
             for name in include_request_attrs:
                 self.assertTrue(hasattr(request, name))
             for name in exclude_request_attrs:

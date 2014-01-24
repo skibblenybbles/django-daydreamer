@@ -37,6 +37,13 @@ class HttpMethodDeny(base.Deny):
     Deny the request if the HTTP method name is not allowed or not implemented.
     
     """
+    def get_http_method_names(self):
+        """
+        A hook to override the allowed HTTP method names.
+        
+        """
+        return self.http_method_names
+    
     def http_method_deny_test(self):
         """
         A hook to control when HTTP methods are denied.
@@ -44,7 +51,7 @@ class HttpMethodDeny(base.Deny):
         """
         method = self.request.method.lower()
         return (
-            method in self.http_method_names and
+            method in self.get_http_method_names() and
             isinstance(getattr(self, method, None), collections.Callable))
     
     def get_deny_handler(self):
