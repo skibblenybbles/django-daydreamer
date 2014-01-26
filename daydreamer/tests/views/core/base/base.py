@@ -312,6 +312,15 @@ class TestCase(messages.TestCase, generic.TestCase):
                 self.assertTrue(hasattr(request, name))
                 self.assertEqual(getattr(request, name), value)
             
+            # Check view attributes.
+            for name in include_view_attrs:
+                self.assertTrue(hasattr(_view, name))
+            for name in exclude_view_attrs:
+                self.assertTrue(not hasattr(_view, name))
+            for name, value in six.iteritems(exact_view_attrs):
+                self.assertTrue(hasattr(_view, name))
+                self.assertEqual(getattr(_view, name), value)
+            
             # Contains a message?
             if message:
                 self.assertMessage(

@@ -15,7 +15,7 @@ class SensitiveVariablesTestCase(base.TestCase):
     def test_defaults(self):
         """
         Check that the special marker for all sensitive variables is set on
-        the response.
+        the generated view.
         
         """
         content = self.unique()
