@@ -2,11 +2,13 @@ from __future__ import unicode_literals
 
 import collections
 import functools
+import sys
 
 from django.utils import six
 
 from daydreamer.core import lang
-from daydreamer.test import messages as test_messages, views as test_views
+from daydreamer.test import views as test_views
+from daydreamer.test.views import messages as test_messages
 from django.utils.decorators import available_attrs
 
 
@@ -230,7 +232,7 @@ class TestCase(test_messages.TestCase, test_views.TestCase):
             try:
                 respond()
             except SystemExit:
-                raise
+                six.reraise(*sys.exc_info())
             except:
                 pass
             repeat -= 1

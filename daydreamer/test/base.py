@@ -15,8 +15,9 @@ class TestCase(test.TestCase):
     """
     def unique(self):
         """
-        Returns a unique string (a UUID) that can be useful in tests when
-        you don't want to make up a dummy value.
+        Returns a unique string (a UUID), useful for dummy values in tests.
+        Helps to guarantee that functions or methods are not returning
+        hardcoded values that coincidentally match a test's dummy value.
         
         """
         return encoding.force_text(uuid.uuid4())
