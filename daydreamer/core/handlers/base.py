@@ -129,8 +129,7 @@ class Handler(base.BaseHandler):
         the response.
         
         """
-        if isinstance(
-            getattr(response, "render", None), collections.Callable):
+        if isinstance(getattr(response, "render", None), collections.Callable):
             for method in self._template_response_middleware:
                 response = method(request, response)
             response = response.render()
@@ -205,30 +204,39 @@ class Handler(base.BaseHandler):
         return super(Handler, self).handle_uncaught_exception(
             request, resolver, exc_info)
     
-    def generate_response(self, request, resolver):
+    def view_response(self, request, resolver):
         """
-        Generates a validated, initial response.
+        Generates an initial response from either the request middleware,
+        the view middleware or the view, in that order.
         
         """
-        return self.validate_response(
-            request, resolver,
-            self.apply_template_response_middleware(
-                request, resolver,
-                self.apply_request_middleware(request, resolver) or
-                self.apply_view_middleware(request, resolver) or
-                self.apply_view(request, resolver)))
+        return (
+            self.apply_request_middleware(request, resolver) or
+            self.apply_view_middleware(request, resolver) or
+            self.apply_view(request, resolver))
     
-    def initialize_response(self, request, resolver):
+    def render_response(self, request, resolver):
         """
-        Generates an initial response, falling back to an exception handler's
-        response when particular exceptions are caught.
+        Validates the view response and applies the template response
+        middleware, which finishes rendering of the response.
+        
+        """
+        return self.apply_template_response_middleware(
+            request, resolver, self.validate_response(
+                request, resolver, self.view_response(
+                    request, resolver)))
+    
+    def generate_response(self, request, resolver):
+        """
+        Renders an initial response, falling back to exception handler
+        responses for particular exceptions.
         
         Subclasses wishing to handle more exception types should override this
         method to catch any additional exceptions raised by super().
         
         """
         try:
-            return self.generate_response(request, resolver)
+            return self.render_response(request, resolver)
         except http.Http404 as exception:
             return self.handle_not_found(
                 request, resolver, exception)
@@ -239,15 +247,15 @@ class Handler(base.BaseHandler):
             return self.handle_suspicious_operation(
                 request, resolver, exception)
     
-    def finalize_response(self, request, resolver, response):
+    def process_response(self, request, resolver, response):
         """
         Processes the response with response middleware and response fixes,
         returning the finalized response.
         
         """
         return self.apply_response_fixes(
-            request, resolver,
-            self.apply_response_middleware(request, resolver, response))
+            request, resolver, self.apply_response_middleware(
+                request, resolver, response))
     
     def get_response(self, request):
         """
@@ -258,8 +266,9 @@ class Handler(base.BaseHandler):
         """
         resolver = self.get_resolver(request)
         try:
-            return self.finalize_response(
-                request, resolver, self.initialize_response(request, resolver))
+            return self.process_response(
+                request, resolver, self.generate_response(
+                    request, resolver))
         except SystemExit:
             six.reraise(*sys.exc_info())
         except:
