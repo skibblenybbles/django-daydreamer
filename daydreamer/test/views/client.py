@@ -17,9 +17,6 @@ class Client(client.Client):
     hardcode follow=True.
     
     """
-    # Redirect status codes.
-    redirect_status_codes = set((301, 302, 303, 307))
-    
     def __init__(self, enforce_csrf_checks=False, **defaults):
         """
         Replace the default handler with the customized request handler.
@@ -27,7 +24,7 @@ class Client(client.Client):
         """
         super(Client, self).__init__(
             enforce_csrf_checks=enforce_csrf_checks, **defaults)
-        self._client_handler = self.handler
+        self._base_handler = self.handler
         self.handler = handler.ClientHandler(enforce_csrf_checks)
     
     def _view_request(self, view, view_args, view_kwargs):
@@ -127,7 +124,7 @@ class Client(client.Client):
         get = self.get
         self.get = super(Client, self).get
         handler = self.handler
-        self.handler = self._client_handler
+        self.handler = self._base_handler
         response = super(Client, self)._handle_redirects(response, **extra)
         self.get = get
         self.handler = handler

@@ -5,14 +5,13 @@ import functools
 import sys
 
 from django.utils import six
-
-from daydreamer.core import lang
-from daydreamer.test import views as test_views
-from daydreamer.test.views import messages as test_messages
 from django.utils.decorators import available_attrs
 
+from daydreamer.core import lang
+from daydreamer.test.views import generic, messages
 
-class TestCase(test_messages.TestCase, test_views.TestCase):
+
+class TestCase(messages.TestCase, generic.TestCase):
     """
     Common utilities for testing view classes.
     
