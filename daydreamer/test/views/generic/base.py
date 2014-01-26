@@ -5,7 +5,7 @@ import types
 from django import http
 from django.utils import six
 
-from . import base
+from .. import base
 
 
 __all__ = ("TestCase",)

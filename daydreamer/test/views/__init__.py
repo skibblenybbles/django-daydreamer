@@ -1,4 +1,4 @@
-from . import base
+from . import base, generic
 from .base import TestCase
 
 

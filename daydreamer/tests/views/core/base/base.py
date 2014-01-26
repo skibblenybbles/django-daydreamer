@@ -7,11 +7,12 @@ import sys
 from django.utils import six
 from django.utils.decorators import available_attrs
 
+from daydreamer import test
 from daydreamer.core import lang
-from daydreamer.test.views import generic, messages
+from daydreamer.test import views
 
 
-class TestCase(messages.TestCase, generic.TestCase):
+class TestCase(test.messages.TestCase, views.generic.TestCase):
     """
     Common utilities for testing view classes.
     
