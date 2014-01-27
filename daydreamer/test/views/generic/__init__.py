@@ -1,2 +1,1 @@
-from . import base
-from .base import TestCase
+from .testcases import TestCase
