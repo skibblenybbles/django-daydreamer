@@ -43,7 +43,7 @@ class TestCase(views.TestCase, redirects.TestCase, testcases.TestCase):
         If method_args or method_kwargs is specified, their values will
         take precedence to allow for cooperative super() calls.
         
-        If the path is not specified, a unique path will be used.
+        If the path is not specified, a unique path will be generated.
         
         If include_view is specified, the generated view function must have the
         specified attributes after it has been called. If exclude_view is

@@ -13,7 +13,7 @@ class TestCase(requests.TestCase, headers.TestCase, cookies.TestCase,
     
     """
     def assertViewBehavior(self,
-            path, method="get", method_args=None, method_kwargs=None,
+            path="/", method="get", method_args=None, method_kwargs=None,
             data=None, follow=False, headers=None,
             setup=None, repeat=None, exception=None,
             status_code=None, content=None,

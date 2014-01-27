@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 
 import functools
+import urlparse
+
+from django.http import request
 
 from daydreamer.core import lang, urlresolvers
 
@@ -22,12 +25,19 @@ class TestCase(base.TestCase):
         will be performed.
         
         """
+        # If unspecified, make sure the target status code will match the
+        # base implementation's expected code.
+        if target_status_code is None:
+            if getattr(response, "redirect_chain", None):
+                target_status_code = response.status_code
+            else:
+                parts = urlparse.urlparse(response.url)
+                target_status_code = response.client.get(
+                    parts.path, request.QueryDict(parts.query)).status_code
+        
         return super(TestCase, self).assertRedirects(
             response, urlresolvers.update_query(expected_url, query),
-            status_code=status_code, target_status_code=
-                target_status_code
-                    if target_status_code is not None
-                    else response.status_code,
+            status_code=status_code, target_status_code=target_status_code,
             host=host, msg_prefix=msg_prefix)
     
     def create_redirect_assertions(self, expected_url=None, query=None,

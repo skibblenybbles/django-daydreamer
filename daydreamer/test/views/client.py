@@ -72,84 +72,79 @@ class Client(client.Client):
             "django.view_kwargs": view_kwargs or {}}
     
     def get(self, view, view_args=None, view_kwargs=None, path="/", data={},
-            **extra):
+            follow=False, **extra):
         """
         Runs the given view with a GET request.
         
         """
         extra.pop("follow", None)
-        return super(Client, self).get(path, data=data, follow=True,
+        return super(Client, self).get(path, data=data, follow=follow,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def post(self, view, view_args=None, view_kwargs=None, path="/", data={},
-            content_type=client.MULTIPART_CONTENT, **extra):
+            content_type=client.MULTIPART_CONTENT, follow=False, **extra):
         """
         Runs the given view with a POST request.
         
         """
-        extra.pop("follow", None)
         return super(Client, self).post(path, data=data,
-            content_type=content_type, follow=True,
+            content_type=content_type, follow=follow,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def head(self, view, view_args=None, view_kwargs=None, path="/", data={},
-            **extra):
+            follow=False, **extra):
         """
         Runs the given view with a HEAD request.
         
         """
-        extra.pop("follow", None)
-        return super(Client, self).head(path, data=data, follow=True,
+        return super(Client, self).head(path, data=data, follow=follow,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def options(self, view, view_args=None, view_kwargs=None, path="/", data="",
-            content_type="application/octet-stream", **extra):
+            content_type="application/octet-stream", follow=False, **extra):
         """
         Runs the given view with an OPTIONS request.
         
         """
-        extra.pop("follow", None)
         return super(Client, self).options(path, data=data,
-            content_type=content_type, follow=True,
+            content_type=content_type, follow=follow,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def put(self, view, view_args=None, view_kwargs=None, path="/", data="",
-            content_type="application/octet-stream", **extra):
+            content_type="application/octet-stream", follow=False, **extra):
         """
         Runs the given view with a PUT request.
         
         """
-        extra.pop("follow", None)
         return super(Client, self).put(path, data=data,
-            content_type=content_type, follow=True,
+            content_type=content_type, follow=follow,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def patch(self, view, view_args=None, view_kwargs=None, path="/", data="",
-            content_type="application/octet-stream", **extra):
+            content_type="application/octet-stream", follow=False, **extra):
         """
         Runs the given view with a PATCH request.
         
         """
         extra.pop("follow", None)
         return super(Client, self).patch(path, data=data,
-            content_type=content_type, follow=True,
+            content_type=content_type, follow=follow,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
     def delete(self, view, view_args=None, view_kwargs=None, path="/", data="",
-            content_type="application/octet-stream", **extra):
+            content_type="application/octet-stream", follow=False, **extra):
         """
         Runs the given view with a DELETE request.
         
         """
-        extra.pop("follow", None)
         return super(Client, self).delete(path, data=data,
-            content_type=content_type, follow=True,
+            content_type=content_type, follow=follow,
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
