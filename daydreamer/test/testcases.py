@@ -12,11 +12,8 @@ class TestCase(requests.TestCase, headers.TestCase, cookies.TestCase,
     enhanced version of the base class' assertViewBehavior().
     
     """
-    def assertViewBehavior(self,
-            path="/", method="get", method_args=None, method_kwargs=None,
-            data=None, follow=False, headers=None,
-            setup=None, repeat=None, exception=None,
-            status_code=None, content=None,
+    def assertViewBehavior(self, path, method="get",
+            method_args=None, method_kwargs=None,
             include_request=None, exclude_request=None, exact_request=None,
             include_headers=None, exclude_headers=None, exact_headers=None,
             include_cookies=None, exclude_cookies=None, exact_cookies=None,
@@ -26,9 +23,6 @@ class TestCase(requests.TestCase, headers.TestCase, cookies.TestCase,
             redirect_url=None, redirect_next_url=None,
             redirect_next_name=None, redirect_status_code=None,
             redirect_target_status_code=None,
-            method_assertions=None,
-            request_assertions=None,
-            response_assertions=None,
             **kwargs):
         """
         Sends an HTTP request to the given path using the specified method.
@@ -77,20 +71,21 @@ class TestCase(requests.TestCase, headers.TestCase, cookies.TestCase,
         """
         # Use the passed method arguments and keyword arguments or
         # generate them?
-        if method_args is None and method_kwargs is None:
+        if method_args is None or method_kwargs is None:
             method_args = (path,)
+            method_kwargs = None
         
         # Set up the assertions.
         request_assertions = lang.updated(
-            request_assertions or {},
+            kwargs.pop("request_assertions", {}),
             dict(
                 include_request=include_request,
                 exclude_request=exclude_request,
                 exact_request=exact_request),
-            copy=bool(request_assertions))
+            copy=True)
         
         response_assertions = lang.updated(
-            response_assertions or {},
+            kwargs.pop("response_assertions", {}),
             dict(
                 include_headers=include_headers,
                 exclude_headers=exclude_headers,
@@ -110,15 +105,11 @@ class TestCase(requests.TestCase, headers.TestCase, cookies.TestCase,
                 redirect_next_name=redirect_next_name,
                 redirect_status_code=redirect_status_code,
                 redirect_target_status_code=redirect_target_status_code),
-            copy=bool(response_assertions))
+            copy=True)
         
         return super(TestCase, self).assertViewBehavior(
             method=method, method_args=method_args,
             method_kwargs=method_kwargs,
-            data=data, follow=follow, headers=headers,
-            setup=setup, repeat=repeat,
-            exception=exception, status_code=status_code, content=content,
-            method_assertions=method_assertions,
             request_assertions=request_assertions,
             response_assertions=response_assertions,
             **kwargs)

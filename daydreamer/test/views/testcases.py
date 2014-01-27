@@ -25,16 +25,9 @@ class TestCase(views.TestCase, redirects.TestCase, testcases.TestCase):
         return "/{unique:s}/".format(unique=self.unique())
     
     # Assertions.
-    def assertViewBehavior(self,
-            view, view_args=None, view_kwargs=None,
+    def assertViewBehavior(self, view, view_args=None, view_kwargs=None,
             path=None, method="get", method_args=None, method_kwargs=None,
-            data=None, follow=False, headers=None,
-            setup=None, repeat=None, exception=None,
-            status_code=None, content=None,
             include_view=None, exclude_view=None, exact_view=None,
-            method_assertions=None,
-            request_assertions=None,
-            response_assertions=None,
             **kwargs):
         """
         Sends an HTTP request to the given view with arguments and keyword
@@ -60,7 +53,7 @@ class TestCase(views.TestCase, redirects.TestCase, testcases.TestCase):
         path = self.unique_path() if path is None else path
         
         # Generate or use the passed method arguments and keyword arguments?
-        if method_args is None and method_kwargs is None:
+        if method_args is None or method_kwargs is None:
             method_args = (view,)
             method_kwargs = {
                 "view_args": view_args,
@@ -69,21 +62,15 @@ class TestCase(views.TestCase, redirects.TestCase, testcases.TestCase):
         
         # Set up the assertions.
         method_assertions = lang.updated(
-            method_assertions or {},
+            kwargs.pop("method_assertions", {}),
             dict(
                 include_view=include_view,
                 exclude_view=exclude_view,
                 exact_view=exact_view),
-            copy=bool(method_assertions))
+            copy=True)
         
         return super(TestCase, self).assertViewBehavior(
-            path, method=method, method_args=method_args,
+            None, method=method, method_args=method_args,
             method_kwargs=method_kwargs,
-            data=data, follow=follow, headers=headers,
-            setup=setup, repeat=repeat,
-            exception=exception,
-            status_code=status_code, content=content,
             method_assertions=method_assertions,
-            request_assertions=request_assertions,
-            response_assertions=response_assertions,
             **kwargs)

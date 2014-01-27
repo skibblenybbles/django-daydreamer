@@ -27,16 +27,7 @@ class TestCase(base.TestCase, testcases.TestCase):
         return super(TestCase, self).view(self.view_classes, **attrs)
     
     # Assertions.
-    def assertViewBehavior(self,
-            attrs=None, setup=None, view_args=None, view_kwargs=None,
-            path=None, method="get", method_args=None, method_kwargs=None,
-            data=None, follow=False, headers=None,
-            repeat=None, exception=None,
-            status_code=None, content=None,
-            method_assertions=None,
-            request_assertions=None,
-            response_assertions=None,
-            **kwargs):
+    def assertViewBehavior(self, attrs=None, setup=None, **kwargs):
         """
         Sends an HTTP request to the view created from attrs with arguments
         and keyword arguments using the client's method.
@@ -58,14 +49,4 @@ class TestCase(base.TestCase, testcases.TestCase):
                     setup() or {}
                         if isinstance(setup, collections.Callable)
                         else {})),
-            view_args=view_args, view_kwargs=view_kwargs,
-            path=path, method=method, method_args=method_args,
-            method_kwargs=method_kwargs,
-            data=data, follow=follow, headers=headers,
-            repeat=repeat,
-            exception=exception,
-            status_code=status_code, content=content,
-            method_assertions=method_assertions,
-            request_assertions=request_assertions,
-            response_assertions=response_assertions,
             **kwargs)

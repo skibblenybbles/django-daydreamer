@@ -145,8 +145,8 @@ class TestCase(test.TestCase):
                     "equal to {value!r}.".format(
                         actual=getattr(obj, attr), attr=attr, value=value)))
     
-    def assertViewBehavior(self,
-            method="get", method_args=None, method_kwargs=None,
+    def assertViewBehavior(self, method="get",
+            method_args=None, method_kwargs=None,
             data=None, follow=False, headers=None,
             setup=None, repeat=None, exception=None,
             status_code=None, content=None,
@@ -234,13 +234,12 @@ class TestCase(test.TestCase):
         
         # Mix data and headers into the method keyword arguments.
         method_kwargs = lang.updated(
-            lang.updated(
-                lang.updated(
-                    method_kwargs,
-                    {"data": data} if data else {},
-                    copy=True),
-                {"follow": follow}),
-            headers)
+            method_kwargs,
+            dict(
+                ((("data", data),) if data else ()) +
+                (("follow", follow),) +
+                tuple(six.iteritems(headers))),
+            copy=True)
         
         # Burn through the repetitions?
         while repeat > 1:
