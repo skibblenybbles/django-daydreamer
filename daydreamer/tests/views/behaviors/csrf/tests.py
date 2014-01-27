@@ -47,7 +47,7 @@ class CsrfProtectTestCase(base.TestCase):
     
     def test_protect_put_cookie(self):
         """
-        Checks that PUT requsets with a cookie are CSRF protected.
+        Checks that PUT requests with a cookie are CSRF protected.
         
         """
         self.client.set_csrf_cookie()

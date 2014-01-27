@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django import http
 
 from daydreamer.core import urlresolvers
-from daydreamer.views import core as core_views
+from daydreamer.views import core
 
 from . import base
 
@@ -13,7 +13,7 @@ class CoreTestCase(base.TestCase):
     Tests for the Core view base class.
     
     """
-    view_classes = core_views.Core
+    view_classes = core.Core
     
     def test_attachment(self):
         """
@@ -96,7 +96,7 @@ class NullTestCase(base.TestCase):
     Tests for the Null view base class.
     
     """
-    view_classes = core_views.Null
+    view_classes = core.Null
     
     def test_get_not_allowed(self):
         """
@@ -173,7 +173,7 @@ class DenyTestCase(NullTestCase):
     Tests for the Deny view base class.
     
     """
-    view_classes = core_views.Deny
+    view_classes = core.Deny
     
     def test_deny_handler(self):
         """
@@ -197,7 +197,7 @@ class AllowTestCase(NullTestCase):
     Tests for the Allow view base class.
     
     """
-    view_classes = core_views.Allow
+    view_classes = core.Allow
     
     def test_allow_handler(self):
         """

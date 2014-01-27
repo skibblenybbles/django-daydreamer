@@ -23,7 +23,7 @@ class SensitiveVariablesTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            exact_view_attrs={"sensitive_variables": "__ALL__"})
+            exact_view={"sensitive_variables": "__ALL__"})
     
     def test_single(self):
         """
@@ -37,7 +37,7 @@ class SensitiveVariablesTestCase(base.TestCase):
             {"sensitive_variables": variable, "get": content},
             status_code=200,
             content=content,
-            exact_view_attrs={"sensitive_variables": (variable,)})
+            exact_view={"sensitive_variables": (variable,)})
     
     def test_multiple(self):
         """
@@ -51,7 +51,7 @@ class SensitiveVariablesTestCase(base.TestCase):
             {"sensitive_variables": variables, "get": content},
             status_code=200,
             content=content,
-            exact_view_attrs={"sensitive_variables": variables})
+            exact_view={"sensitive_variables": variables})
     
     def test_disabled(self):
         """
@@ -64,7 +64,7 @@ class SensitiveVariablesTestCase(base.TestCase):
             {"sensitive_variables": None, "get": content},
             status_code=200,
             content=content,
-            exclude_view_attrs="sensitive_variables")
+            exclude_view="sensitive_variables")
     
     def test_precedence(self):
         """
@@ -74,7 +74,7 @@ class SensitiveVariablesTestCase(base.TestCase):
         """
         self.assertViewBehavior(
             status_code=405,
-            exact_view_attrs={"sensitive_variables": "__ALL__"})
+            exact_view={"sensitive_variables": "__ALL__"})
     
     def test_disabled_precedence(self):
         """
@@ -86,7 +86,7 @@ class SensitiveVariablesTestCase(base.TestCase):
         self.assertViewBehavior(
             {"sensitive_variables": None},
             status_code=405,
-            exclude_view_attrs="sensitive_variables")
+            exclude_view="sensitive_variables")
 
 
 class SensitivePostParametersTestCase(base.TestCase):
@@ -107,7 +107,7 @@ class SensitivePostParametersTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            exact_request_attrs={"sensitive_post_parameters": "__ALL__"})
+            exact_request={"sensitive_post_parameters": "__ALL__"})
     
     def test_single(self):
         """
@@ -121,7 +121,7 @@ class SensitivePostParametersTestCase(base.TestCase):
             {"sensitive_post_parameters": parameter, "get": content},
             status_code=200,
             content=content,
-            exact_request_attrs={"sensitive_post_parameters": (parameter,)})
+            exact_request={"sensitive_post_parameters": (parameter,)})
     
     def test_multiple(self):
         """
@@ -134,7 +134,7 @@ class SensitivePostParametersTestCase(base.TestCase):
             {"sensitive_post_parameters": parameters, "get": content},
             status_code=200,
             content=content,
-            exact_request_attrs={"sensitive_post_parameters": parameters})
+            exact_request={"sensitive_post_parameters": parameters})
     
     def test_disabled(self):
         """
@@ -147,7 +147,7 @@ class SensitivePostParametersTestCase(base.TestCase):
             {"sensitive_post_parameters": None, "get": content},
             status_code=200,
             content=content,
-            exclude_request_attrs="sensitive_post_parameters")
+            exclude_request="sensitive_post_parameters")
     
     def test_precedence(self):
         """
@@ -157,7 +157,7 @@ class SensitivePostParametersTestCase(base.TestCase):
         """
         self.assertViewBehavior(
             status_code=405,
-            exact_request_attrs={"sensitive_post_parameters": "__ALL__"})
+            exact_request={"sensitive_post_parameters": "__ALL__"})
     
     def test_disabled_precedence(self):
         """
@@ -169,4 +169,4 @@ class SensitivePostParametersTestCase(base.TestCase):
         self.assertViewBehavior(
             {"sensitive_post_parameters": None},
             status_code=405,
-            exclude_request_attrs="sensitive_post_parameters")
+            exclude_request="sensitive_post_parameters")

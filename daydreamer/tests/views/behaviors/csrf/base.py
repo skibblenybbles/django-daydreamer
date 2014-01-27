@@ -4,7 +4,7 @@ from django.conf import settings
 from django.middleware import csrf
 
 from daydreamer.test.views import client
-from daydreamer.tests.views import core
+from daydreamer.tests.views.generic import base
 
 
 class Client(client.Client):
@@ -41,7 +41,7 @@ class Client(client.Client):
         return None
 
 
-class TestCase(core.TestCase):
+class TestCase(base.TestCase):
     """
     Common utilities for testing CSRF view behaviors.
     

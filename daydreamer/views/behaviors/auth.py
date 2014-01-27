@@ -301,7 +301,7 @@ class GroupsRequired(core.behaviors.Denial):
             groups = (groups,)
         elif not isinstance(groups, collections.Iterable):
             raise ValueError(
-                "The value {value:r} specified for groups_required is not a "
+                "The value {value!r} specified for groups_required is not a "
                 "group name, nor a Group nor an iterable of groups.".format(
                     value=groups))
         
@@ -318,7 +318,7 @@ class GroupsRequired(core.behaviors.Denial):
                     actual_groups.add(group)
                 else:
                     raise ValueError(
-                        "A value {value:r} specified in groups_required "
+                        "A value {value!r} specified in groups_required "
                         "is not a group name or a Group.".format(value=group))
             
             # Resolve the named groups and perform the sanity check.

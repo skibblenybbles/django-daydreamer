@@ -5,10 +5,10 @@ import datetime
 
 from django.utils import http
 
-from daydreamer.tests.views import core
+from daydreamer.tests.views.core.http import base
 
 
-class TestCase(core.TestCase):
+class TestCase(base.TestCase):
     """
     Common utilities for testing HTTP view behaviors.
     

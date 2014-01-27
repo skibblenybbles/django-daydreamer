@@ -1,11 +1,44 @@
 from __future__ import unicode_literals
 
-from django.http import request
-from django.test import client
+import weakref
 
 from daydreamer.core import lang
 
+from .. import client
 from . import handler
+
+
+class ClientBaseImplementation(object):
+    """
+    A context manager that defers to the Client instance's base handler
+    and methods.
+    
+    """
+    deferred_methods = (
+        "get", "post", "head", "options", "put", "patch", "delete",)
+    
+    def __init__(self, client, base_handler):
+        self.client = weakref.ref(client)
+        self.base_handler = base_handler
+        self.handler = client.handler
+        
+        for method in self.deferred_methods:
+            setattr(self, method, getattr(client, method))
+    
+    def __enter__(self):
+        client = self.client()
+        if client:
+            client.handler = self.base_handler
+            for method in self.deferred_methods:
+                setattr(client, method, getattr(super(Client, client), method))
+        return client
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        client = self.client()
+        if client:
+            client.handler = self.handler
+            for method in self.deferred_methods:
+                setattr(client, method, getattr(self, method))
 
 
 class Client(client.Client):
@@ -19,13 +52,18 @@ class Client(client.Client):
     """
     def __init__(self, enforce_csrf_checks=False, **defaults):
         """
-        Replace the default handler with the customized request handler.
+        Replace the default handler with the customized request handler
+        and set up a context manager for deffering to the base's handler
+        and methods when desired.
         
         """
         super(Client, self).__init__(
             enforce_csrf_checks=enforce_csrf_checks, **defaults)
-        self._base_handler = self.handler
+        
+        # Replace the handler and set up the context manager.
+        base_handler = self.handler
         self.handler = handler.ClientHandler(enforce_csrf_checks)
+        self.base_implementation = ClientBaseImplementation(self, base_handler)
     
     def _view_request(self, view, view_args, view_kwargs):
         return {
@@ -115,17 +153,11 @@ class Client(client.Client):
             **lang.updated(
                 extra, self._view_request(view, view_args, view_kwargs)))
     
-    def _handle_redirects(self, response, **extra):
+    def _handle_redirects(self, *args, **kwargs):
         """
         Patches redirect handling to ensure that the base class' get() method
         and the original request handler are used.
         
         """
-        get = self.get
-        self.get = super(Client, self).get
-        handler = self.handler
-        self.handler = self._base_handler
-        response = super(Client, self)._handle_redirects(response, **extra)
-        self.get = get
-        self.handler = handler
-        return response
+        with self.base_implementation:
+            return super(Client, self)._handle_redirects(*args, **kwargs)

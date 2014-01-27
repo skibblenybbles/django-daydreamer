@@ -2,10 +2,10 @@ from __future__ import unicode_literals
 
 from django.utils.text import compress_string
 
-from daydreamer.tests.views import core
+from daydreamer.tests.views.generic import base
 
 
-class TestCase(core.TestCase):
+class TestCase(base.TestCase):
     """
     Common utilities for testing gzip view behaviors.
     

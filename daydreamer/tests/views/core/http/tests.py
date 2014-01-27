@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from daydreamer.views.core import http as http_views
+from daydreamer.views.core import http
 
 from . import base
 
@@ -10,7 +10,7 @@ class HttpMethodAllowTestCase(base.TestCase):
     Tests for the HttpMethodAllow view base class.
     
     """
-    view_classes = http_views.HttpMethodAllow
+    view_classes = http.HttpMethodAllow
     
     def test_included_present_allowed(self):
         """
@@ -63,7 +63,7 @@ class HttpMethodDenyTestCase(base.TestCase):
     Tests for the HttpMethodDeny view base class.
     
     """
-    view_classes = http_views.HttpMethodDeny
+    view_classes = http.HttpMethodDeny
     
     def test_included_present_denied(self):
         """

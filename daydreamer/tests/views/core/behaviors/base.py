@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-import collections
-
 from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth import models as auth_models

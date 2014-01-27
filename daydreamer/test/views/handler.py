@@ -1,11 +1,9 @@
 from __future__ import unicode_literals
 
-from django.test import client
-
-from daydreamer.core import handlers
+from .. import handler
 
 
-class ClientHandler(client.ClientHandler, handlers.base.Handler):
+class ClientHandler(handler.ClientHandler):
     """
     A customized test client handler that skips over the URL resolution system
     and runs a view specified in the request's META data under the keys

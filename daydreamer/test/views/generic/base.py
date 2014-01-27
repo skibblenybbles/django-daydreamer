@@ -25,6 +25,7 @@ class TestCase(base.TestCase):
     generate_http_verbs = (
         b"get", b"head", b"options", b"post", b"put", b"patch", b"delete",)
     
+    # Utilities.
     def generate_http_verb(self, verb, content):
         """
         Generates an HTTP verb handler method that returns a 200 OK response

@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
 
-from daydreamer.tests.views.core.http import base
+from ..core.http import base
 
 
 class TestCase(base.TestCase):
     """
-    Common utilities for testing vary view behaviors.
+    Common utilities for testing generic views.
     
     """
     pass
