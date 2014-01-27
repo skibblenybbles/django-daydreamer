@@ -608,25 +608,3 @@ class TestRequired(core.behaviors.Denial):
             not self.test_required_test() and
             self.test_required_denied or
             super(TestRequired, self).get_deny_handler())
-
-
-class AuthRequired(LoginRequired, ActiveRequired, StaffRequired,
-        SuperuserRequired, GroupsRequired, PermissionsRequired,
-        ObjectPermissionsRequired, TestRequired):
-    """
-    A view behavior that performs authentication tests from least
-    to most specific by inheriting from the other view behaviors in
-    daydreamer.views.behaviors.auth. All tests are disabled by default.
-    
-    See the inherited class' documentation for usage.
-    
-    """
-    login_required = False
-    active_required = False
-    staff_required = False
-    superuser_required = False
-    groups_required = None
-    permissions_required = None
-    object_permissions_required = None
-    object_permissions_required_object = None
-    test_required = None
