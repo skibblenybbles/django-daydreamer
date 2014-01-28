@@ -239,7 +239,7 @@ class ConditionTestCase(base.TestCase):
             {"condition_etag": condition_etag, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"ETag": self.format_etag(etag)})
+            headers_exact={"ETag": self.format_etag(etag)})
     
     def test_etag_precedence(self):
         """
@@ -254,7 +254,7 @@ class ConditionTestCase(base.TestCase):
         self.assertViewBehavior(
             {"condition_etag": condition_etag},
             status_code=405,
-            exclude_headers="ETag")
+            headers_exclude="ETag")
     
     def test_etag_match_not_modified(self):
         """
@@ -269,7 +269,7 @@ class ConditionTestCase(base.TestCase):
             headers={"HTTP_IF_NONE_MATCH": self.format_etag(etag)},
             status_code=304,
             content="",
-            exact_headers={"ETag": self.format_etag(etag)})
+            headers_exact={"ETag": self.format_etag(etag)})
     
     def test_etag_match_precdence(self):
         """
@@ -284,7 +284,7 @@ class ConditionTestCase(base.TestCase):
             {"condition_etag": condition_etag},
             headers={"HTTP_IF_NONE_MATCH": self.format_etag(etag)},
             status_code=405,
-            exclude_headers="ETag")
+            headers_exclude="ETag")
     
     def test_etag_fail(self):
         """
@@ -298,7 +298,7 @@ class ConditionTestCase(base.TestCase):
             {"condition_etag": condition_etag, "get": self.unique()},
             headers={"HTTP_IF_MATCH": self.format_etag(self.unique())},
             status_code=412,
-            exact_headers={"ETag": self.format_etag(etag)})
+            headers_exact={"ETag": self.format_etag(etag)})
     
     def test_etag_fail_precedence(self):
         """
@@ -313,7 +313,7 @@ class ConditionTestCase(base.TestCase):
             {"condition_etag": condition_etag},
             headers={"HTTP_IF_MATCH": self.format_etag(self.unique())},
             status_code=405,
-            exclude_headers="ETag")
+            headers_exclude="ETag")
     
     def test_etag_miss(self):
         """
@@ -329,7 +329,7 @@ class ConditionTestCase(base.TestCase):
             headers={"HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
             status_code=200,
             content=content,
-            exact_headers={"ETag": self.format_etag(etag)})
+            headers_exact={"ETag": self.format_etag(etag)})
     
     def test_etag_miss_precedence(self):
         """
@@ -345,7 +345,7 @@ class ConditionTestCase(base.TestCase):
             {"condition_etag": condition_etag},
             headers={"HTTP_IF_NONE_MATCH": self.format_etag(self.unique())},
             status_code=405,
-            exclude_headers="ETag")
+            headers_exclude="ETag")
     
     def test_last_modified(self):
         """
@@ -361,7 +361,7 @@ class ConditionTestCase(base.TestCase):
                 "get": content},
             status_code=200,
             content=content,
-            exact_headers={
+            headers_exact={
                 "Last-Modified": self.format_datetime(last_modified)})
     
     def test_last_modified_precedence(self):
@@ -377,7 +377,7 @@ class ConditionTestCase(base.TestCase):
         self.assertViewBehavior(
             {"condition_last_modified": condition_last_modified},
             status_code=405,
-            exclude_headers="Last-Modified")
+            headers_exclude="Last-Modified")
     
     def test_last_modified_match_not_modified(self):
         """
@@ -395,7 +395,7 @@ class ConditionTestCase(base.TestCase):
                     self.format_datetime(
                         last_modified + datetime.timedelta(hours=1))},
             status_code=304,
-            exact_headers={
+            headers_exact={
                 "Last-Modified": self.format_datetime(last_modified)})
     
     def test_last_modified_match_precedence(self):
@@ -415,7 +415,7 @@ class ConditionTestCase(base.TestCase):
                     self.format_datetime(
                         last_modified + datetime.timedelta(hours=1))},
             status_code=405,
-            exclude_headers="Last-Modified")
+            headers_exclude="Last-Modified")
     
     def test_last_modified_miss(self):
         """
@@ -433,7 +433,7 @@ class ConditionTestCase(base.TestCase):
                 "HTTP_IF_MODIFIED_SINCE": self.format_datetime(last_modified)},
             status_code=200,
             content=content,
-            exact_headers={
+            headers_exact={
                 "Last-Modified":
                     self.format_datetime(
                         last_modified + datetime.timedelta(hours=1))})
@@ -453,4 +453,4 @@ class ConditionTestCase(base.TestCase):
             headers={
                 "HTTP_IF_MODIFIED_SINCE": self.format_datetime(last_modified)},
             status_code=405,
-            exclude_headers="Last-Modified")
+            headers_exclude="Last-Modified")

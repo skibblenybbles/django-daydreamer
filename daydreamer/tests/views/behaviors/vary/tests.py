@@ -24,7 +24,7 @@ class VaryOnHeadersTestCase(base.TestCase):
             {"vary_on_headers": vary, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"Vary": vary})
+            headers_exact={"Vary": vary})
     
     def test_vary_on_headers_multiple(self):
         """
@@ -37,7 +37,7 @@ class VaryOnHeadersTestCase(base.TestCase):
             {"vary_on_headers": vary, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"Vary": ", ".join(vary)})
+            headers_exact={"Vary": ", ".join(vary)})
     
     def test_vary_on_headers_disabled(self):
         """
@@ -50,7 +50,7 @@ class VaryOnHeadersTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            exclude_headers="Vary")
+            headers_exclude="Vary")
     
     def test_vary_on_headers_precedence(self):
         """
@@ -62,7 +62,7 @@ class VaryOnHeadersTestCase(base.TestCase):
         self.assertViewBehavior(
             {"vary_on_headers": vary},
             status_code=405,
-            exclude_headers="Vary")
+            headers_exclude="Vary")
 
 
 class VaryOnCookieTestCase(base.TestCase):
@@ -82,7 +82,7 @@ class VaryOnCookieTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            exact_headers={"Vary": "Cookie"})
+            headers_exact={"Vary": "Cookie"})
     
     def test_vary_on_cookie_disabled(self):
         """
@@ -94,7 +94,7 @@ class VaryOnCookieTestCase(base.TestCase):
             {"vary_on_cookie": False, "get": content},
             status_code=200,
             content=content,
-            exclude_headers="Vary")
+            headers_exclude="Vary")
     
     def test_vary_on_cookie_precedence(self):
         """
@@ -105,4 +105,4 @@ class VaryOnCookieTestCase(base.TestCase):
         vary = self.unique()
         self.assertViewBehavior(
             status_code=405,
-            exclude_headers="Vary")
+            headers_exclude="Vary")

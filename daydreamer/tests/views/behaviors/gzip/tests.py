@@ -24,7 +24,7 @@ class GZipPageTestCase(base.TestCase):
             headers={"HTTP_ACCEPT_ENCODING": "gzip"},
             status_code=200,
             content=self.compress(content),
-            exact_headers={"Content-Encoding": "gzip"})
+            headers_exact={"Content-Encoding": "gzip"})
     
     def test_gzip_page_disabled(self):
         """
@@ -38,7 +38,7 @@ class GZipPageTestCase(base.TestCase):
             headers={"HTTP_ACCEPT_ENCODING": "gzip"},
             status_code=200,
             content=content,
-            exclude_headers="Content-Encoding")
+            headers_exclude="Content-Encoding")
     
     def test_gzip_page_precedence(self):
         """
@@ -50,7 +50,7 @@ class GZipPageTestCase(base.TestCase):
         self.assertViewBehavior(
             headers={"HTTP_ACCEPT_ENCODING": "gzip"},
             status_code=405,
-            exclude_headers="Content-Encoding")
+            headers_exclude="Content-Encoding")
     
     def test_gzip_page_disabled_precedence(self):
         """
@@ -63,5 +63,5 @@ class GZipPageTestCase(base.TestCase):
             {"gzip_page": False},
             headers={"HTTP_ACCEPT_ENCODING": "gzip"},
             status_code=405,
-            exclude_headers="Content-Encoding")
+            headers_exclude="Content-Encoding")
     

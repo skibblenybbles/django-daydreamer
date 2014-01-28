@@ -1,7 +1,7 @@
 from . import auth, cache, clickjacking, csrf, http, vary
 from .auth import (LoginRequired, ActiveRequired, StaffRequired,
     SuperuserRequired, GroupsRequired, PermissionsRequired,
-    ObjectPermissionsRequired, TestRequired, AuthRequired,)
+    ObjectPermissionsRequired, TestRequired,)
 from .cache import CachePage, CacheControl, NeverCache
 from .clickjacking import (XFrameOptionsDeny, XFrameOptionsSameOrigin,
     XFrameOptionsExempt)
@@ -15,7 +15,7 @@ from .vary import VaryOnHeaders, VaryOnCookie
 __all__ = (
     "LoginRequired", "ActiveRequired", "StaffRequired", "SuperuserRequired",
     "GroupsRequired", "PermissionsRequired", "ObjectPermissionsRequired",
-    "TestRequired", "AuthRequired",
+    "TestRequired",
     "CachePage", "CacheControl", "NeverCache",
     "XFrameOptionsDeny", "XFrameOptionsSameOrigin", "XFrameOptionsExempt",
     "CsrfProtect", "RequiresCsrfToken", "EnsureCsrfCookie", "CsrfExempt",

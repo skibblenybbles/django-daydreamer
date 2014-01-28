@@ -27,7 +27,7 @@ class TestCase(views.TestCase, redirects.TestCase, testcases.TestCase):
     # Assertions.
     def assertViewBehavior(self, view, view_args=None, view_kwargs=None,
             path=None, method="get", method_args=None, method_kwargs=None,
-            include_view=None, exclude_view=None, exact_view=None,
+            view_includes=None, view_excludes=None, view_exact=None,
             **kwargs):
         """
         Sends an HTTP request to the given view with arguments and keyword
@@ -38,10 +38,10 @@ class TestCase(views.TestCase, redirects.TestCase, testcases.TestCase):
         
         If the path is not specified, a unique path will be generated.
         
-        If include_view is specified, the generated view function must have the
-        specified attributes after it has been called. If exclude_view is
+        If view_includes is specified, the generated view function must have the
+        specified attributes after it has been called. If view_excludes is
         specified, the generated view function must not have the specified
-        attributes after the view has been called. If exact_view is specified,
+        attributes after the view has been called. If view_exact is specified,
         the generated view function must have the specified names and exact
         attribute values after the view has been called.
         
@@ -64,9 +64,9 @@ class TestCase(views.TestCase, redirects.TestCase, testcases.TestCase):
         method_assertions = lang.updated(
             kwargs.pop("method_assertions", {}),
             dict(
-                include_view=include_view,
-                exclude_view=exclude_view,
-                exact_view=exact_view),
+                view_includes=view_includes,
+                view_excludes=view_excludes,
+                view_exact=view_exact),
             copy=True)
         
         return super(TestCase, self).assertViewBehavior(

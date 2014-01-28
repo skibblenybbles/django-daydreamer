@@ -56,15 +56,15 @@ class TestCase(base.TestCase):
                 if exact
                 else ()))
     
-    def create_request_assertions(self, include_request=None,
-            exclude_request=None, exact_request=None, **kwargs):
+    def create_request_assertions(self, request_includes=None,
+            request_excludes=None, request_exact=None, **kwargs):
         """
         Adds request attribute assertions to the request assertions.
         
         """
         return (
             self.create_request_attribute_assertions(
-                include=include_request,
-                exclude=exclude_request,
-                exact=exact_request) +
+                include=request_includes,
+                exclude=request_excludes,
+                exact=request_exact) +
             super(TestCase, self).create_request_assertions(**kwargs))

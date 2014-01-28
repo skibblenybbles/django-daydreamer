@@ -56,15 +56,15 @@ class TestCase(base.TestCase):
                 if exact
                 else ()))
     
-    def create_method_assertions(self, include_view=None, exclude_view=None,
-            exact_view=None, **kwargs):
+    def create_method_assertions(self, view_includes=None, view_excludes=None,
+            view_exact=None, **kwargs):
         """
         Adds view attribute assertions to the method assertions.
         
         """
         return (
             self.create_view_attribute_assertions(
-                include=include_view,
-                exclude=exclude_view,
-                exact=exact_view) +
+                include=view_includes,
+                exclude=view_excludes,
+                exact=view_exact) +
             super(TestCase, self).create_method_assertions(**kwargs))

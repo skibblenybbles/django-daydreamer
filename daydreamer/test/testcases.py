@@ -14,10 +14,10 @@ class TestCase(requests.TestCase, headers.TestCase, cookies.TestCase,
     """
     def assertViewBehavior(self, path, method="get",
             method_args=None, method_kwargs=None,
-            include_request=None, exclude_request=None, exact_request=None,
-            include_headers=None, exclude_headers=None, exact_headers=None,
-            include_cookies=None, exclude_cookies=None, exact_cookies=None,
-            include_context=None, exclude_context=None, exact_context=None,
+            request_includes=None, request_excludes=None, request_exact=None,
+            headers_include=None, headers_exclude=None, headers_exact=None,
+            cookies_include=None, cookies_exclude=None, cookies_exact=None,
+            context_includes=None, context_excludes=None, context_exact=None,
             message=None, message_level=None, message_tags=None,
             message_limit=None,
             redirect_url=None, redirect_next_url=None,
@@ -30,7 +30,7 @@ class TestCase(requests.TestCase, headers.TestCase, cookies.TestCase,
         If method_args or method_kwargs is specified, their values will
         take precedence to allow for cooperative super() calls.
         
-        If include_request is specified, the request passed to the generated
+        If request_includes is specified, the request passed to the generated
         view must have the specified attributes after the view has been called.
         If exclude_response is specified, the request passed to the generated
         view must not have the specified attributes after the view has been
@@ -38,19 +38,19 @@ class TestCase(requests.TestCase, headers.TestCase, cookies.TestCase,
         generated view must have the specified names and exact attribute values
         after the view has been called.
         
-        If include_headers is specified, the response must contain the header
-        name or names. If exclude_headers is specified, the response must not
-        contain the header name or names. If exact_headers is specified, its
+        If headers_include is specified, the response must contain the header
+        name or names. If headers_exclude is specified, the response must not
+        contain the header name or names. If headers_exact is specified, its
         names and exact values must be present in the response's headers.
         
-        If include_cookies is specified, the response must contain the cookie
-        name or names. If exclude_cookies is specified, the response must not
-        contain the cookie name or names. If exact_cookies is specified, its
+        If cookies_include is specified, the response must contain the cookie
+        name or names. If cookies_exclude is specified, the response must not
+        contain the cookie name or names. If cookies_exact is specified, its
         names and exact values must be present in the response's cookies.
         
-        If include_context is specified, the response's context must contain
-        the name or names. If exclude_context is specified, the response's
-        context must not contain the name or names. If exact_context is
+        If context_includes is specified, the response's context must contain
+        the name or names. If context_excludes is specified, the response's
+        context must not contain the name or names. If context_exact is
         specified, the names and exact values must be present in the response's
         context.
         
@@ -79,23 +79,23 @@ class TestCase(requests.TestCase, headers.TestCase, cookies.TestCase,
         request_assertions = lang.updated(
             kwargs.pop("request_assertions", {}),
             dict(
-                include_request=include_request,
-                exclude_request=exclude_request,
-                exact_request=exact_request),
+                request_includes=request_includes,
+                request_excludes=request_excludes,
+                request_exact=request_exact),
             copy=True)
         
         response_assertions = lang.updated(
             kwargs.pop("response_assertions", {}),
             dict(
-                include_headers=include_headers,
-                exclude_headers=exclude_headers,
-                exact_headers=exact_headers,
-                include_cookies=include_cookies,
-                exclude_cookies=exclude_cookies,
-                exact_cookies=exact_cookies,
-                include_context=include_context,
-                exclude_context=exclude_context,
-                exact_context=exact_context,
+                headers_include=headers_include,
+                headers_exclude=headers_exclude,
+                headers_exact=headers_exact,
+                cookies_include=cookies_include,
+                cookies_exclude=cookies_exclude,
+                cookies_exact=cookies_exact,
+                context_includes=context_includes,
+                context_excludes=context_excludes,
+                context_exact=context_exact,
                 message=message,
                 message_level=message_level,
                 message_tags=message_tags,

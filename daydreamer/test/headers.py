@@ -55,15 +55,15 @@ class TestCase(base.TestCase):
                 if exact
                 else ()))
     
-    def create_response_assertions(self, include_headers=None,
-            exclude_headers=None, exact_headers=None, **kwargs):
+    def create_response_assertions(self, headers_include=None,
+            headers_exclude=None, headers_exact=None, **kwargs):
         """
         Adds header assertions to the response assertions.
         
         """
         return (
             self.create_header_assertions(
-                include=include_headers,
-                exclude=exclude_headers,
-                exact=exact_headers) +
+                include=headers_include,
+                exclude=headers_exclude,
+                exact=headers_exact) +
             super(TestCase, self).create_response_assertions(**kwargs))

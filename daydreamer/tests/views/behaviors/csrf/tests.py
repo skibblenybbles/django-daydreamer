@@ -278,7 +278,7 @@ class RequireCsrfTokenTestCase(base.TestCase):
             {"get": get},
             status_code=200,
             content=content,
-            include_context="csrf_token")
+            context_includes="csrf_token")
     
     def test_csrf_token_disabled(self):
         """
@@ -298,7 +298,7 @@ class RequireCsrfTokenTestCase(base.TestCase):
             {"requires_csrf_token": False, "get": get},
             status_code=200,
             content=content,
-            include_context="csrf_token")
+            context_includes="csrf_token")
 
 
 class EnsureCsrfCookieTestCase(base.TestCase):
@@ -320,7 +320,7 @@ class EnsureCsrfCookieTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            include_cookies=settings.CSRF_COOKIE_NAME)
+            cookies_include=settings.CSRF_COOKIE_NAME)
     
     def test_csrf_cookie_disabled(self):
         """
@@ -332,7 +332,7 @@ class EnsureCsrfCookieTestCase(base.TestCase):
             {"ensure_csrf_cookie": False, "get": content},
             status_code=200,
             content=content,
-            exclude_cookies=settings.CSRF_COOKIE_NAME)
+            cookies_exclude=settings.CSRF_COOKIE_NAME)
 
 
 class CsrfExemptTestCase(base.TestCase):

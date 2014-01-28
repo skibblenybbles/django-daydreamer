@@ -29,7 +29,7 @@ class CoreTestCase(base.TestCase):
             {"get": get},
             status_code=200,
             content=content,
-            exact_headers={
+            headers_exact={
                 "Content-Type": content_type,
                 "Content-Disposition":
                     "attachment; filename=\"{filename:s}\"".format(

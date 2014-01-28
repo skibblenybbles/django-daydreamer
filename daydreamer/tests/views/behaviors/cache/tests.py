@@ -76,7 +76,7 @@ class CacheControlTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            exclude_headers="Cache-Control")
+            headers_exclude="Cache-Control")
     
     def test_public(self):
         """
@@ -88,7 +88,7 @@ class CacheControlTestCase(base.TestCase):
             {"cache_control_public": True, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"Cache-Control": "public"})
+            headers_exact={"Cache-Control": "public"})
     
     def test_private(self):
         """
@@ -100,7 +100,7 @@ class CacheControlTestCase(base.TestCase):
             {"cache_control_public": False, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"Cache-Control": "private"})
+            headers_exact={"Cache-Control": "private"})
     
     def test_no_cache(self):
         """
@@ -112,7 +112,7 @@ class CacheControlTestCase(base.TestCase):
             {"cache_control_no_cache": True, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"Cache-Control": "no-cache"})
+            headers_exact={"Cache-Control": "no-cache"})
     
     def test_no_transform(self):
         """
@@ -124,7 +124,7 @@ class CacheControlTestCase(base.TestCase):
             {"cache_control_no_transform": True, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"Cache-Control": "no-transform"})
+            headers_exact={"Cache-Control": "no-transform"})
     
     def test_must_revalidate(self):
         """
@@ -137,7 +137,7 @@ class CacheControlTestCase(base.TestCase):
             {"cache_control_must_revalidate": True, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"Cache-Control": "must-revalidate"})
+            headers_exact={"Cache-Control": "must-revalidate"})
     
     def test_proxy_revalidate(self):
         """
@@ -150,7 +150,7 @@ class CacheControlTestCase(base.TestCase):
             {"cache_control_proxy_revalidate": True, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"Cache-Control": "proxy-revalidate"})
+            headers_exact={"Cache-Control": "proxy-revalidate"})
     
     def test_max_age(self):
         """
@@ -162,7 +162,7 @@ class CacheControlTestCase(base.TestCase):
             {"cache_control_max_age": 1, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"Cache-Control": "max-age=1"})
+            headers_exact={"Cache-Control": "max-age=1"})
     
     def test_s_maxage(self):
         """
@@ -174,7 +174,7 @@ class CacheControlTestCase(base.TestCase):
             {"cache_control_s_maxage": 1, "get": content},
             status_code=200,
             content=content,
-            exact_headers={"Cache-Control": "s-maxage=1"})
+            headers_exact={"Cache-Control": "s-maxage=1"})
     
     def test_disabled(self):
         """
@@ -188,7 +188,7 @@ class CacheControlTestCase(base.TestCase):
                 "get": content},
             status_code=200,
             content=content,
-            exclude_headers="Cache-Control")
+            headers_exclude="Cache-Control")
     
     def test_precedence(self):
         """
@@ -199,7 +199,7 @@ class CacheControlTestCase(base.TestCase):
         self.assertViewBehavior(
             {"cache_control_public": True},
             status_code=405,
-            exclude_headers="Cache-Control")
+            headers_exclude="Cache-Control")
 
 
 class NeverCacheTestCase(base.TestCase):
@@ -220,7 +220,7 @@ class NeverCacheTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            exact_headers={"Cache-Control": "max-age=0"})
+            headers_exact={"Cache-Control": "max-age=0"})
     
     def test_disabled(self):
         """
@@ -232,7 +232,7 @@ class NeverCacheTestCase(base.TestCase):
             {"never_cache": False, "get": content},
             status_code=200,
             content=content,
-            exclude_headers="Cache-Control")
+            headers_exclude="Cache-Control")
     
     def test_precedence(self):
         """
@@ -242,4 +242,4 @@ class NeverCacheTestCase(base.TestCase):
         """
         self.assertViewBehavior(
             status_code=405,
-            exclude_headers="Cache-Control")
+            headers_exclude="Cache-Control")

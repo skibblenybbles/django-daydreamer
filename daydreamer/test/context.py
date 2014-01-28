@@ -62,15 +62,15 @@ class TestCase(base.TestCase):
                 if exact
                 else ()))
     
-    def create_response_assertions(self, include_context=None,
-            exclude_context=None, exact_context=None, **kwargs):
+    def create_response_assertions(self, context_includes=None,
+            context_excludes=None, context_exact=None, **kwargs):
         """
         Add context assertions to the response assertions.
         
         """
         return (
             self.create_context_assertions(
-                include=include_context,
-                exclude=exclude_context,
-                exact=exact_context) +
+                include=context_includes,
+                exclude=context_excludes,
+                exact=context_exact) +
             super(TestCase, self).create_response_assertions(**kwargs))

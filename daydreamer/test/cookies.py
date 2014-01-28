@@ -62,15 +62,15 @@ class TestCase(base.TestCase):
                 if exact
                 else ()))
     
-    def create_response_assertions(self, include_cookies=None,
-            exclude_cookies=None, exact_cookies=None, **kwargs):
+    def create_response_assertions(self, cookies_include=None,
+            cookies_exclude=None, cookies_exact=None, **kwargs):
         """
         Adds cookie assertions to the response assertions.
         
         """
         return (
             self.create_cookie_assertions(
-                include=include_cookies,
-                exclude=exclude_cookies,
-                exact=exact_cookies) +
+                include=cookies_include,
+                exclude=cookies_exclude,
+                exact=cookies_exact) +
             super(TestCase, self).create_response_assertions(**kwargs))

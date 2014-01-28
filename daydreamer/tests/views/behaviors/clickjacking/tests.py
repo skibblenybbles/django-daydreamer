@@ -24,7 +24,7 @@ class XFrameOptionsDenyTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            exact_headers={"X-Frame-Options": "DENY"})
+            headers_exact={"X-Frame-Options": "DENY"})
     
     def test_deny_disabled(self):
         """
@@ -37,7 +37,7 @@ class XFrameOptionsDenyTestCase(base.TestCase):
             {"xframe_options_deny": False, "get": content},
             status_code=200,
             content=content,
-            exclude_headers="X-Frame-Options")
+            headers_exclude="X-Frame-Options")
     
     def test_deny_precedence(self):
         """
@@ -47,7 +47,7 @@ class XFrameOptionsDenyTestCase(base.TestCase):
         """
         self.assertViewBehavior(
             status_code=405,
-            exact_headers={"X-Frame-Options": "DENY"})
+            headers_exact={"X-Frame-Options": "DENY"})
     
     def test_deny_disabled_precedence(self):
         """
@@ -59,7 +59,7 @@ class XFrameOptionsDenyTestCase(base.TestCase):
         self.assertViewBehavior(
             {"xframe_options_deny": False},
             status_code=405,
-            exclude_headers="X-Frame-Options")
+            headers_exclude="X-Frame-Options")
 
 
 class XFrameOptionsSameOriginTestCase(base.TestCase):
@@ -82,7 +82,7 @@ class XFrameOptionsSameOriginTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            exact_headers={"X-Frame-Options": "SAMEORIGIN"})
+            headers_exact={"X-Frame-Options": "SAMEORIGIN"})
     
     def test_same_origin_disabled(self):
         """
@@ -95,7 +95,7 @@ class XFrameOptionsSameOriginTestCase(base.TestCase):
             {"xframe_options_same_origin": False, "get": content},
             status_code=200,
             content=content,
-            exclude_headers="X-Frame-Options")
+            headers_exclude="X-Frame-Options")
     
     def test_same_origin_precedence(self):
         """
@@ -105,7 +105,7 @@ class XFrameOptionsSameOriginTestCase(base.TestCase):
         """
         self.assertViewBehavior(
             status_code=405,
-            exact_headers={"X-Frame-Options": "SAMEORIGIN"})
+            headers_exact={"X-Frame-Options": "SAMEORIGIN"})
     
     def test_same_origin_disabled_precedence(self):
         """
@@ -117,7 +117,7 @@ class XFrameOptionsSameOriginTestCase(base.TestCase):
         self.assertViewBehavior(
             {"xframe_options_same_origin": False},
             status_code=405,
-            exclude_headers="X-Frame-Options")
+            headers_exclude="X-Frame-Options")
 
 
 class XFrameOptionsExemptTestCase(base.TestCase):
@@ -140,7 +140,7 @@ class XFrameOptionsExemptTestCase(base.TestCase):
             {"get": content},
             status_code=200,
             content=content,
-            exclude_headers="X-Frame-Options")
+            headers_exclude="X-Frame-Options")
     
     def test_exempt_disabled(self):
         """
@@ -153,7 +153,7 @@ class XFrameOptionsExemptTestCase(base.TestCase):
             {"xframe_options_exempt": False, "get": content},
             status_code=200,
             content=content,
-            include_headers="X-Frame-Options")
+            headers_include="X-Frame-Options")
     
     def test_exempt_precedence(self):
         """
@@ -163,7 +163,7 @@ class XFrameOptionsExemptTestCase(base.TestCase):
         """
         self.assertViewBehavior(
             status_code=405,
-            exclude_headers="X-Frame-Options")
+            headers_exclude="X-Frame-Options")
     
     def test_exempt_disabled_precedence(self):
         """
@@ -175,4 +175,4 @@ class XFrameOptionsExemptTestCase(base.TestCase):
         self.assertViewBehavior(
             {"xframe_options_exempt": False},
             status_code=405,
-            include_headers="X-Frame-Options")
+            headers_include="X-Frame-Options")

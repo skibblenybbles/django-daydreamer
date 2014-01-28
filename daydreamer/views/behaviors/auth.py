@@ -13,7 +13,7 @@ from .. import core
 __all__ = (
     "LoginRequired", "ActiveRequired", "StaffRequired", "SuperuserRequired",
     "GroupsRequired", "PermissionsRequired", "ObjectPermissionsRequired",
-    "TestRequired", "AuthRequired",)
+    "TestRequired",)
 
 
 class LoginRequired(core.behaviors.Denial):
