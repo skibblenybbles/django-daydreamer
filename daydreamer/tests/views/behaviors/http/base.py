@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 import calendar
 import datetime
 
-from django.utils import http
+from django.utils import http as http_utils
 
-from daydreamer.tests.views.core.http import base
+from daydreamer.tests.views.core import http
 
 
-class TestCase(base.TestCase):
+class TestCase(http.TestCase):
     """
     Common utilities for testing HTTP view behaviors.
     
@@ -19,11 +19,11 @@ class TestCase(base.TestCase):
         Quote the given ETag for use in an HTTP header.
         
         """
-        return http.quote_etag(etag)
+        return http_utils.quote_etag(etag)
     
     def format_datetime(self, dt):
         """
         Format a datetime for use in an HTTP header.
         
         """
-        return http.http_date(calendar.timegm(dt.utctimetuple()))
+        return http_utils.http_date(calendar.timegm(dt.utctimetuple()))

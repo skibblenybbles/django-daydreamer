@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 
-from daydreamer.tests.views.generic import base
+from daydreamer.tests.views import generic
 
 
-class TestCase(base.TestCase):
+class TestCase(generic.TestCase):
     """
     Common utilities for testing debug view behaviors.
     

@@ -2,10 +2,10 @@ from __future__ import unicode_literals
 
 from django.core.cache import cache
 
-from daydreamer.tests.views.core.http import base
+from daydreamer.tests.views.core import http
 
 
-class TestCase(base.TestCase):
+class TestCase(http.TestCase):
     """
     Common utilities for testing cache view behaviors.
     

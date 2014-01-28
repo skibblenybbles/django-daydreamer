@@ -109,7 +109,9 @@ def simplify_redirect(redirect, source, request=None):
     source = urlparse.urlparse(encoding.force_str(source))
     empty = ("", "",)
     request = (
-        ("https" if request.is_secure() else "http", request.get_host(),)
+        (("https", request.get_host(),)
+            if request.is_secure()
+            else ("http", request.get_host(),))
             if request is not None
             else empty)
     if (redirect[:2] != empty and (
@@ -126,8 +128,7 @@ def update_query(url, data):
     The URL should be a string or a lazy string.
     
     """
-    url = encoding.force_str(url)
-    parts = urlparse.urlparse(url)
+    parts = urlparse.urlparse(encoding.force_str(url))
     return urlparse.urlunparse(
         parts[:4] +
         (lang.updated(

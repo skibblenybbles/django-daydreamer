@@ -46,9 +46,6 @@ class Client(client.Client):
     A test client that uses a customized request handler to directly test 
     a specified view with arguments and keyword arguments.
     
-    To avoid a bug encountered during implementation, all HTTP methods
-    hardcode follow=True.
-    
     """
     def __init__(self, enforce_csrf_checks=False, **defaults):
         """

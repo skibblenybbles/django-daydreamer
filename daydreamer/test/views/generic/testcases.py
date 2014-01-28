@@ -32,9 +32,6 @@ class TestCase(base.TestCase, testcases.TestCase):
         Sends an HTTP request to the view created from attrs with arguments
         and keyword arguments using the client's method.
         
-        If method_args or method_kwargs is specified, their values will
-        take precedence to allow for cooperative super() calls.
-        
         If the setup() callback is specified, its optional return value
         will be mixed into the view attributes.
         

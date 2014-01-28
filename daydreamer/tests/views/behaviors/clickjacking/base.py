@@ -2,10 +2,10 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 
-from daydreamer.tests.views.generic import base
+from daydreamer.tests.views import generic
 
 
-class TestCase(base.TestCase):
+class TestCase(generic.TestCase):
     """
     Common utilities for testing clickjacking view behaviors.
     
