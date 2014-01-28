@@ -5,6 +5,6 @@ from .http import HttpMethodAllow, HttpMethodDeny
 
 
 __all__ = (
-    "Core", "Null", "Allow", "Deny",
+    "Core", "Null", "Allow", "Deny"
     "Denial",
     "HttpMethodAllow", "HttpMethodDeny",)
