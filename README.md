@@ -20,6 +20,7 @@ from daydreamer.views import behaviors, generic
 class ProtectedResourceView(behaviors.LoginRequired, behaviors.ActiveRequired,
         behaviors.PermissionsRequired, behaviors.TestRequired,
         generic.TemplateView):
+    
     template_name = "resources/detail.html"
     
     login_required = True
@@ -53,8 +54,8 @@ by the order of the inherited `behaviors` base classes. In this case, the view:
 * checks if the user has one or more permissions, raising a
     `PermissionDenied` exception on failure
 * checks if the user satisfies a test predicate, redirecting to the
-    Spooky signup page and messaging the user about the
-    Spooky program upon failure
+    special signup page and messaging the user about the
+    special group when the predicate returns a fasly value
 
 Of course, you won't want to repeat all of these attributes on your view
 classes, so set up a few base classes that provide the common behaviors you
@@ -81,9 +82,9 @@ The top-level base class is `Core`, which inherits from
 other `daydreamer` views.
 
 Next in the hierarchy is `Null`, inheriting from `Core`. It always returns
-a 405 Method Not Allowed response. Two classes called `Deny` and `Allow`inherit
-from `Null`. Their purpose is to choose a request handler to deny or allow
-the request.
+a 405 method not allowed response. Next, two classes named `Deny` and `Allow`
+inherit from `Null`. Their purpose is to choose a request handler to deny or
+allow the request.
 
 Finally, `HttpMethodDeny` and `HttpMethodAllow` inherit from `Deny` and
 `Allow`, respectively. In turn, these are used to define the base generic view,
@@ -92,12 +93,12 @@ Finally, `HttpMethodDeny` and `HttpMethodAllow` inherit from `Deny` and
 #### `class daydreamer.views.core.Core(django.views.generic.View)`
 
 This is the base view class for all of `daydreamer`'s views. Generally,
-you will not not inherit from it directly. You will automatically inherit this
-functionality from other `daydreamer` views. `Core` provides several useful
-methods that should help you avoid some imports and documentation lookups:
+you will not not inherit from it directly. You will automatically inherit its
+functionality from other `daydreamer` views. `Core` provides several
+useful methods:
 
-* `reverse()` reverses a named URL pattern, taking the same arguments
-    as `django.core.urlresovlers.reverse()` with additional arguments:
+* `reverse()` reverses a named URL pattern, taking the arguments for
+    `django.core.urlresovlers.reverse()` plus additional arguments:
     * `qualified=False` if truthy, the reversed URL will be fully-qualified,
         using the request's host and URL scheme
     * `scheme=None` when `qualified` is truthy, set this to override the
@@ -130,7 +131,7 @@ def get_thing_for(self, owner):
 
 #### `class daydreamer.views.core.Null(daydreamer.views.core.Core)`
 
-This view class always returns a 405 Method Not Allowed response from
+This view class always returns a 405 method not allowed response from
 its `dispatch()` method. It exists to serve as a safety net at the top
 of the `super()` chain for the `dispatch()` method. You will probably
 have no need to inherit directly from `Null`.
@@ -179,7 +180,7 @@ The behavior of `deny()` is controlled by:
 
 For usage examples, see the source in `daydreamer.views.behaviors.auth`.
 
-### Behavior Views `daydreamer.views.behaviors`
+### `daydreamer.views.behaviors`
 
 The `behaviors` package provides a rich set of view classes for checking
 authentication information along with class-based replacements for all
@@ -194,7 +195,7 @@ followed by behaviors inheriting from `Allow`. We'll call these "deny" and
 
 The consequence of this design is that, even if you inherit from "dispatch,"
 "deny" and "allow" behaviors and mix them in the wrong order, the effect of
-the behaviors will still be ordered by the priority scheme.
+the behaviors will still be ordered correctly.
 
 For example, `CachePage` has "allow" priority and `LoginRequired` has deny
 priority. If we set up a view like so:
@@ -206,17 +207,15 @@ class View(behaviors.CachePage, behaviors.LoginRequired, generic.View):
     # ...
 ```
 
-Without the priority framework from `daydreamer.views.core`, the `CachePage`
-behavior would try to cache a page even if the `LoginRequired` behavior
-returned a 403 Permission Denied error. Thankfully, this priority framework
-applies the behaviors in the correct order so that no attempt will be made to
-cache the page when `LoginRequired` returns an error.
+Even though the `CachePage` behavior appears first in the base class list,
+the framework will order the effects of the behaviors correctly so that
+the page will not be cached when `LoginRequired` returns a redirect or error.
 
 Note that, while this inheritance structure can help you avoid some simple
-mistakes, it's possible to create a class with an indeterminate method
+mistakes, it's still possible to create a class with an indeterminate method
 resolution order. To avoid that problem, you should inherit from "dispatch"
 behaviors first, then "deny" behaviors, then "allow" behaviors and finally
-from the view base class you want to use, like
+from the view base class you want to use, such as
 `daydreamer.views.generic.TemplateView`.
 
 ##### Why "Behaviors?"
@@ -230,28 +229,28 @@ to modify the behavior of a view by hooking into the cooperative `super()`
 call chains provided by `daydreamer.views.core`, so "behaviors" seems an
 appropriate name.
 
-### Clickjacking Behavior Views `daydreamer.views.behaviors.clickjacking`
+### `daydreamer.views.behaviors.clickjacking`
 
-### CSRF Behavior Views `daydreamer.views.behaviors.csrf`
+### `daydreamer.views.behaviors.csrf`
 
-### Debug Behavior Views `daydreamer.views.behaviors.debug`
+### `daydreamer.views.behaviors.debug`
 
-### GZip Behavior Views `daydreamer.views.behaviors.gzip`
+### `daydreamer.views.behaviors.gzip`
 
-### Authentication Behavior Views `daydreamer.views.behaviors.auth`
+### `daydreamer.views.behaviors.auth`
 
 All of the authentication behavior views leverage the denial framework
 provided by `daydreamer.views.core.Denial`, so each behavior can be controlled
 with attributes such as `login_required_raise` for the `LoginRequired`
 behavior. See the `Denial` documentation above for details.
 
-### HTTP Behavior Views `daydreamer.views.behaviors.http`
+### `daydreamer.views.behaviors.http`
 
-### Cache Behavior Views `daydreamer.views.behaviors.cache`
+### `daydreamer.views.behaviors.cache`
 
-### Vary Behavior Views `daydreamer.views.behaviors.vary`
+### `daydreamer.views.behaviors.vary`
 
-### Miscellaneous
+## Miscellaneous
 
 You can also find some cool things in `daydreamer.test`, like
 `daydreamer.test.views.generic.TestCase`, which lets you test a view class
