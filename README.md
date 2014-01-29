@@ -71,7 +71,7 @@ easily made with view function decorators. See the documentation for details.
 Some features are described more thoroughly than others. For definitive
 documentation, please browse through the source code.
 
-### Core Views `daydreamer.views.core`
+#### `daydreamer.views.core`
 
 The `core` package provides view base classes that define an inheritance
 structure and a framework for denying or allowing a request. The framework
@@ -90,7 +90,7 @@ Finally, `HttpMethodDeny` and `HttpMethodAllow` inherit from `Deny` and
 `Allow`, respectively. In turn, these are used to define the base generic view,
 `daydreamer.views.generic.View`.
 
-#### `class daydreamer.views.core.Core(django.views.generic.View)`
+##### `class daydreamer.views.core.Core(django.views.generic.View)`
 
 This is the base view class for all of `daydreamer`'s views. Generally,
 you will not not inherit from it directly. You will automatically inherit its
@@ -129,15 +129,15 @@ def get_thing_for(self, owner):
         return self.not_found()
 ```
 
-#### `class daydreamer.views.core.Null(daydreamer.views.core.Core)`
+##### `class daydreamer.views.core.Null(daydreamer.views.core.Core)`
 
 This view class always returns a 405 method not allowed response from
 its `dispatch()` method. It exists to serve as a safety net at the top
 of the `super()` chain for the `dispatch()` method. You will probably
 have no need to inherit directly from `Null`.
 
-#### `class daydreamer.views.core.Allow(daydreamer.views.core.Null)`
-#### `class daydreamer.views.core.Deny(daydreamer.views.core.Null)`
+##### `class daydreamer.views.core.Allow(daydreamer.views.core.Null)`
+##### `class daydreamer.views.core.Deny(daydreamer.views.core.Null)`
 
 These view classes provide the `get_allow_handler()` and `get_deny_handler()`
 methods, respectively, which should either allow or deny the request.
@@ -146,14 +146,14 @@ Their `dispatch()` methods invoke the returned handler, deferring to
 inherit from `Deny` or `Allow` can cooperatively choose a handler for the
 request in a `super()` call chain.
 
-#### `class daydreamer.views.core.HttpMethodAllow(daydreamer.views.core.Allow)`
-#### `class daydreamer.views.core.HttpMethodDeny(daydreamer.views.core.Deny)`
+##### `class daydreamer.views.core.HttpMethodAllow(daydreamer.views.core.Allow)`
+##### `class daydreamer.views.core.HttpMethodDeny(daydreamer.views.core.Deny)`
 
 These view classes re-implements the basic behavior of
 `django.views.generic.View`, leveraging the framework provided by
 `Allow` and `Deny`.
 
-#### `class daydreamer.views.core.Denial(daydreamer.views.core.Deny)`
+##### `class daydreamer.views.core.Denial(daydreamer.views.core.Deny)`
 
 This view class implements a denial API that is used extensively by the
 behavior views in `daydreamer.views.behaviors.auth`. It provides the `deny()`
@@ -180,7 +180,7 @@ The behavior of `deny()` is controlled by:
 
 For usage examples, see the source in `daydreamer.views.behaviors.auth`.
 
-### `daydreamer.views.behaviors`
+#### `daydreamer.views.behaviors`
 
 The `behaviors` package provides a rich set of view classes for checking
 authentication information along with class-based replacements for all
@@ -229,28 +229,28 @@ to modify the behavior of a view by hooking into the cooperative `super()`
 call chains provided by `daydreamer.views.core`, so "behaviors" seems an
 appropriate name.
 
-### `daydreamer.views.behaviors.clickjacking`
+#### `daydreamer.views.behaviors.clickjacking`
 
-### `daydreamer.views.behaviors.csrf`
+#### `daydreamer.views.behaviors.csrf`
 
-### `daydreamer.views.behaviors.debug`
+#### `daydreamer.views.behaviors.debug`
 
-### `daydreamer.views.behaviors.gzip`
+#### `daydreamer.views.behaviors.gzip`
 
-### `daydreamer.views.behaviors.auth`
+#### `daydreamer.views.behaviors.auth`
 
 All of the authentication behavior views leverage the denial framework
 provided by `daydreamer.views.core.Denial`, so each behavior can be controlled
 with attributes such as `login_required_raise` for the `LoginRequired`
 behavior. See the `Denial` documentation above for details.
 
-### `daydreamer.views.behaviors.http`
+#### `daydreamer.views.behaviors.http`
 
-### `daydreamer.views.behaviors.cache`
+#### `daydreamer.views.behaviors.cache`
 
-### `daydreamer.views.behaviors.vary`
+#### `daydreamer.views.behaviors.vary`
 
-## Miscellaneous
+### Miscellaneous
 
 You can also find some cool things in `daydreamer.test`, like
 `daydreamer.test.views.generic.TestCase`, which lets you test a view class
