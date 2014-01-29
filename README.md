@@ -704,17 +704,31 @@ value (`None` by default).
 
 ##### `class VaryOnCookie(daydreamer.views.core.HttpMethodAllow)`
 
-Replaces the `django.views.decorators.vary.vary_on_headers()` view decorator.
+Replaces the `django.views.decorators.vary.vary_on_cookie()` view decorator.
 It is equivalent to using `VaryOnHeaders` with the `vary_on_headers` attribute
 set to `"Cookie"`. You can disable the view behavior's functionality by setting
 `vary_on_cookie` to a falsy value (`True` by default).
 
 ## Miscellaneous
 
-You can also find some cool things in `daydreamer.test`, like
+You can find some cool things in `daydreamer.test`, like
 `daydreamer.test.views.generic.TestCase`, which lets you test a view class
-using the full Django handler stack, without any need for a
-urls.py configuration.
+using the full Django handler stack, without any need to set up an urlconf.
+
+In `daydreamer.core.urlresolvers`, you can find extensions to Django's
+`resolve()` and `reverse()` functions, which add features for dealing with
+fully-qualified URLs when a request object is provided or when the
+`django.contrib.sites` framework is properly set up. It also includes handy
+utilities for safely adding query parameters to a URL with `update_query()`
+and for simplifying a redirect URL with respect to a source URL with
+`simplify_redirect()`.
+
+An object-oriented refactor of the `get_response()` mega-method from Django's
+base request handler, defined in `django.core.handlers.base.BaseHandler`, 
+can be found in `daydreamer.core.handlers.base.Handler`. It organizes the
+flow of code in `get_response()` so that it has useful object-oriented hooks.
+This is leveraged by the custom test client request handler in
+`daydreamer.test.views.handler.ClientHandler`.
 
 More stuff is on the way.
 
@@ -735,5 +749,45 @@ to use a specific version and read the changelog before attempting to upgrade.
 
 ##### 0.0.1a
 
-Initial release. Includes base view class enhancements and authentication view
-behaviors. View code has 100% test coverage.
+* Initial release
+* Includes base view class enhancements and authentication view
+    behaviors
+* View code has 100% test coverage
+
+##### 0.0.2a
+
+* Refactors the base view class implementation into an inheritance structure
+    which enforces the rule that all attempts to deny a request should occur before
+    all attempts to allow and process the request
+* Implements a view behavior class for every view function decorator provided
+    by Django
+* Includes a major refactor of the test code, designed for future testing
+    flexibility and potentially for use as a library
+* View code has 100% test coverage
+
+## Editorial
+
+Depending on your perspective, you may love or hate the object-oriented design
+for the views provided by `daydreamer`. The library encourages the use of a
+lot of multiple inheritance supported by `super()` chaining.
+
+If you want Python to be Java, where you have single inheritance and some
+"mixins" that work kind of like interfaces, you'll probably hate this code.
+
+If you want Python to be C++, where methods with the same name, inherited from
+multiple base classes need to be manually resolved, you'll probably find the
+code horribly confusing.
+
+If you're like me, and you want Python to be Common Lisp, where cooperative
+"next method" chaining is a common and powerful design pattern, you'll probably
+love this code.
+
+Python inherited its `super()` functionality and method resolution order
+algorithm from Dylan with the release of Python 2.3. Dylan got the idea from
+Common Lisp. I believe that all high-level languages have Common Lisp
+envy. By embracing the Lisp tools that have trickled into Python, a new world
+of code design patterns emerges. If you're interested in learning more about
+Python's method resolution order (MRO), check out
+<a href="http://python-history.blogspot.com/2010/06/method-resolution-order.html" target="_blank">
+    Guido's article on the history of MRO
+</a>.
