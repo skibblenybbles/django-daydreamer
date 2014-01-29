@@ -80,10 +80,10 @@ The top-level base class is `Core`, which inherits from
 `django.views.generic.View`. It adds some useful features to all
 `daydreamer` views.
 
-Next in the hierarchy is `Null`, inheriting from `Core`. It `dispatch()` method
-always returns a 405 method not allowed response. Next, two classes named
-`Deny` and `Allow` inherit from `Null`. Their purpose is to choose a request
-handler to deny or allow the request.
+Next in the hierarchy is `Null`, inheriting from `Core`. Its `dispatch()`
+method always returns a 405 method not allowed response. Next, two classes
+named `Deny` and `Allow` inherit from `Null`. Their purpose is to choose a
+request handler to deny or allow the request.
 
 Finally, `HttpMethodDeny` and `HttpMethodAllow` inherit from `Deny` and
 `Allow`, respectively. In turn, these are used to define the base generic view,
@@ -95,7 +95,7 @@ ordering of denial checks and the processing of allowed requests. To use it
 effectively, your view classes should not override `dispatch()`. Instead,
 they should use one of the object-oriented hooks described below.
 
-##### `class daydreamer.views.core.Core(django.views.generic.View)`
+##### `class Core(django.views.generic.View)`
 
 This is the base view class for all of `daydreamer`'s views. Generally,
 you will not not inherit from it directly, but you will automatically inherit
@@ -107,8 +107,8 @@ useful methods:
     * `qualified=False` if truthy, the reversed URL will be fully-qualified,
         using the request's host and URL scheme
     * `scheme=None` when `qualified` is truthy, set this to override the
-        URL scheme, i.e. to "http" or "https"
-* `attachment()` returns an attachment response:
+        URL scheme, i.e. "http" or "https"
+* `attachment()` returns an attachment response for the required arguments:
     * `data` the raw data to use for the attachment
     * `content_type` the attachment's content type (MIME type)
     * `filename` the attachment's filename
@@ -134,14 +134,14 @@ def get_thing_for(self, owner):
         return self.not_found()
 ```
 
-##### `class daydreamer.views.core.Null(daydreamer.views.core.Core)`
+##### `class Null(daydreamer.views.core.Core)`
 
 This view class always returns a 405 method not allowed response from
 its `dispatch()` method. It exists to serve as a safety net at the top
 of the `super()` chain for the `dispatch()` method. You will probably
 never need to inherit directly from `Null`.
 
-##### `class daydreamer.views.core.Allow(daydreamer.views.core.Null)`
+##### `class Allow(daydreamer.views.core.Null)`
 
 Provides a way to select a handler for a request that has been allowed,
 i.e. not denied. To hook into the selection process, override the
@@ -162,7 +162,7 @@ def get_allow_handler(self):
         return super(SomeView, self).get_allow_handler()
 ```
 
-##### `class daydreamer.views.core.Deny(daydreamer.views.core.Null)`
+##### `class Deny(daydreamer.views.core.Null)`
 
 Provides a way to select a handler to deny a request. To hook into the
 selection process, override the `get_deny_handler()` method.
@@ -171,7 +171,7 @@ selection process, override the `get_deny_handler()` method.
 
 This method should either return a callable that accepts the
 `(request, *args, **kwargs)` arguments, or it should defer to `super()`.
-This method will typically check for a certain condition and provide a
+This method will typically check for a certain condition and return a
 request handler that denies the request with a redirect, error, etc.
 
 ```python
@@ -182,8 +182,8 @@ def get_deny_handler(self):
         return super(SomeView, self).get_deny_handler()
 ```
 
-##### `class daydreamer.views.core.HttpMethodAllow(daydreamer.views.core.Allow)`
-##### `class daydreamer.views.core.HttpMethodDeny(daydreamer.views.core.Deny)`
+##### `class HttpMethodAllow(daydreamer.views.core.Allow)`
+##### `class HttpMethodDeny(daydreamer.views.core.Deny)`
 
 These view classes re-implement the basic behavior of
 `django.views.generic.View`, leveraging the framework provided by
@@ -191,12 +191,12 @@ These view classes re-implement the basic behavior of
 view has a matching method name, i.e. `get()`, the request is allowed.
 Otherwise, it is denied with a 405 method not allowed response.
 
-##### `class daydreamer.views.core.Denial(daydreamer.views.core.Deny)`
+##### `class Denial(daydreamer.views.core.Deny)`
 
-This view class implements a declarative API for controlling request denial
-behavior. It provides the `deny()` method, whose behavior is controlled by
-attributes set on the class. The `deny()` method should be called with a name
-prefix, which it will use to look up the controlling attributes. The
+This abstract view class implements a declarative API for controlling request
+denial behavior. It provides the `deny()` method, whose behavior is controlled
+by attributes set on the class. The `deny()` method should be called with a
+name prefix, which it will use to look up the controlling attributes. The
 controlling attributes are:
 
 * `<prefix>_raise` whether an exception should be raised
@@ -215,9 +215,9 @@ controlling attributes are:
     a falsy value, no return URL query parameter will be included in the
     redirect URL.
 
-If `<prefix_raise>` is truthy, an exception will be raised immediately and
+If `<prefix>_raise` is truthy, an exception will be raised immediately and
 the other attributes will be ignored. Otherwise, `deny()` will check if
-`<prefix_message>` has been set to determine whether to enqueue a message
+`<prefix>_message` has been set to decide whether to enqueue a message
 using the `django.core.contrib.messages` framework. Finally, it will return
 a redirect response based on the the `<prefix>_redirect_url` settings.
 
@@ -230,6 +230,8 @@ See the source code for usage examples. Denial behaviors based on login state,
 account status, a user's groups, a user's permissions and generic tests are
 all provided, so the chances are good that you won't have to subclass `Denial`.
 
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 #### `daydreamer.views.behaviors`
 
 The `behaviors` package provides a rich set of view classes for checking
@@ -241,11 +243,10 @@ whether and when they take effect when `dispatch()` is called. Behaviors
 inheriting from `View` have the highest priority, which we'll call *dispatch*
 priority. Behaviors inheriting from `Deny` have the next highest priority,
 which we'll call *deny* priority. Finally, behaviors inheriting from `Allow`
-have the lowest priority, which we'll call *allow* priority.
-
-The consequence of this design is that, even if you inherit from *dispatch*,
-*deny* and *allow*  behaviors and mix them in the wrong order, the effect of
-the behaviors will still be ordered correctly.
+have the lowest priority, which we'll call *allow* priority. The consequence of
+this design is that, even if you inherit from *dispatch*, *deny* and *allow*
+behaviors and mix them in the wrong order, the effect of the behaviors will
+still be ordered correctly.
 
 For example, `CachePage` has *allow* priority and `LoginRequired` has *deny*
 priority. If we were to set up a view like this:
@@ -282,6 +283,8 @@ to modify the behavior of a view by hooking into the cooperative `super()`
 call chains provided by `daydreamer.views.core`, so "behaviors" seems an
 appropriate name.
 
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 #### `daydreamer.views.behaviors.clickjacking`
 
 The view behaviors in the `clickjacking` package replace the view decorators
@@ -310,6 +313,8 @@ view decorator. It prevents the clickjacking middleware from adding an
 `X-Frame-Options` header to the response. You can disable its functionality
 by setting the `xframe_options_exempt` attribute to a falsy value (`True`
 by default).
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 #### `daydreamer.views.behaviors.csrf`
 
@@ -356,6 +361,8 @@ This disables the CSRF middleware so that a view will not be CSRF-protected.
 The view behavior's functionality can be disabled by setting the `csrf_exempt`
 attribute to a falsy value (`True` by default).
 
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 #### `daydreamer.views.behaviors.debug`
 
 The view behaviors in the `debug` package replace the view function decorators
@@ -387,6 +394,8 @@ value is `True` by default to protect all POST request parameters.
 This behavior affects logging when `settings.DEBUG` is turned off. The values
 of protected POST request parameters will be obfuscated in request error logs.
 
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 #### `daydreamer.views.behaviors.gzip`
 
 The view behaviors in the `gzip` package replace the view function decorators
@@ -401,15 +410,159 @@ the request's `User-Agent` headers, the behavior gzips the response. To disable
 the view behavior's functionality, set the `gzip_page` attribute to a
 falsy value.
 
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 #### `daydreamer.views.behaviors.auth`
 
-All of the authentication behavior views leverage the denial framework
+All of the authentication view behaviors leverage the denial framework
 provided by `daydreamer.views.core.Denial`, so each behavior can be controlled
 with attributes such as `login_required_raise` for the `LoginRequired`
 behavior. See the `Denial` documentation above for details.
 
+##### `class LoginRequired(daydreamer.views.core.Denial)`
 
+Replaces the `django.views.decorators.auth.login_required()` view decorator
+and provides additional functionality. This view behavior inherits from
+`Denial` and uses a prefix of `login_required`, so you can control the login
+requirement behavior with attributes like `login_required_raise`,
+`login_required_message`, etc.
 
+Like the `@login_required` decorator, this behavior does not check whether
+the user is active (`is_active == True`). See the `ActiveRequired` view
+behavior class for that capability.
+
+To change the behavior upon a failed login requirement test, you can override
+the `login_required_denied(self, request, *args, **kwargs)` method. The
+base implementation simply calls `self.deny("login_required")`.
+
+You can disable the view behavior's functionality by setting the
+`login_required` attribute to a falsy value (`True` by default).
+
+##### `class ActiveRequired(daydreamer.views.core.Denial)`
+
+Requires that `self.request.user.is_active` is `True`. This view behavior
+inherits from `Denial` and uses a prefix of `active_required`, so you can
+control the active requirement behavior with attributes like
+`active_required_raise`, `active_required_message`, etc.
+
+To change the behavior upon a failed active requirement test, you can override
+the `active_required_denied(self, request, *args, **kwargs)` method. The
+base implementation simply calls `self.deny("active_required")`.
+
+You can disable the view behavior's functionality by setting the
+`active_required` attribute to a falsy value (`True` by default).
+
+##### `class StaffRequired(daydreamer.views.core.Denial)`
+
+Requires that `self.request.user.is_staff` is `True`. This view behavior
+inherits from `Denial` and uses a prefix of `staff_required`, so you can
+control the staff requirement behavior with attributes like
+`staff_required_raise`, `staff_required_message`, etc.
+
+To change the behavior upon a failed staff requirement test, you can override
+the `staff_required_denied(self, request, *args, **kwargs)` method. The
+base implementation simply calls `self.deny("staff_required")`.
+
+You can disable the view behavior's functionality by setting the
+`staff_required` attribute to a falsy value (`True` by default).
+
+##### `class SuperuserRequired(daydreamer.views.core.Denial)`
+
+Requires that `self.request.user.is_superuser` is `True`. This view behavior
+inherits from `Denial` and uses a prefix of `superuser_required`, so you can
+control the superuser requirement behavior with attributes like
+`superuser_required_raise`, `superuser_required_message`, etc.
+
+To change the behavior upon a failed superuser requirement test, you can
+override the `superuser_required_denied(self, request, *args, **kwargs)`
+method. The base implementation simply calls `self.deny("superuser_required")`.
+
+You can disable the view behavior's functionality by setting the
+`superuser_required` attribute to a falsy value (`True` by default).
+
+##### `class GroupsRequired(daydreamer.views.core.Denial)`
+
+Requires that `self.request.user` is in all of the specified groups. This view
+behavior inherits from `Denial` and uses a prefix of `groups_required`, so you
+can control the groups requirement behavior with attributes like
+`groups_required_raise`, `groups_required_message`, etc.
+
+The required groups are specified with the `groups_required` attribute. It may
+be a group name, a `django.contrib.auth.models.Group` object or an iterable
+mixing group names and `Group` objects. Any group names must exist in the
+database or an `ImproperlyConfigured` exception will be raised.
+
+To change the behavior upon a failed groups requirement test, you can
+override the `groups_required_denied(self, request, *args, **kwargs)`
+method. The base implementation simply calls `self.deny("groups_required")`.
+
+You can disable the view behavior's functionality by setting the
+`groups_required` attribute to a falsy value (`None` by default).
+
+##### `class PermissionsRequired(daydreamer.views.core.Denial)`
+
+Requires that `self.request.user` has all of the specified permissions. This
+view behavior inherits from `Denial` and uses a prefix of
+`permissions_required`, so you can control the permissions requirement behavior
+with attributes like `permissions_required_raise`,
+`permissions_required_message`, etc.
+
+The required permissions are specified with the `permissions_required`
+attribute. It may be a permission name or an iterable of permission names. For
+efficiency, no value checks are performed to confirm that the permissions
+exist, so be mindful of typos.
+
+To change the behavior upon a failed permissions requirement test, you can
+override the `permissions_required_denied(self, request, *args, **kwargs)`
+method. The base implementation simply calls
+`self.deny("permissions_required")`.
+
+You can disable the view behavior's functionality by setting the
+`permissions_required` attribute to a falsy value (`None` by default).
+
+##### `class ObjectPermissionsRequired(daydreamer.views.core.Denial)`
+
+This view behavior works the same way as `PermissionsRequired`, but the
+permissions check is for a specific object, and the prefix is
+`object_permissions_required`. Additionally, you must specify an
+`object_permissions_required_object` attribute, most likely implemented
+as a `@property` method, to specify the object for the test. Of course,
+to change its behavior upon test failure, override the
+`object_permissions_required_denied(self, request, *args, **kwargs)` method.
+The base implementation simply calls
+`self.deny("object_permissions_required")`.
+
+You can disable the view behavior's functionality by setting either
+`object_permissions_required` or `object_permissions_required_object` to a
+falsy value.
+
+This view behavior will not work out-of-the-box and requires an authentication
+backend that implements object permissions, i.e. "row-level" permissions. This
+is the only view that has incomplete tests (`@unittest.expectedFailure`),
+so you should double-check the implementation before trying to use it.
+
+##### `class TestRequired(daydreamer.views.core.Denial)`
+
+Requires that a specified test predicate returns a truthy value. This
+view behavior inherits from `Denial` and uses a prefix of `test_required`,
+so you can control the test requirement behavior with attributes like
+`test_required_raise`, `test_required_message`, etc.
+
+To require a test, define a `test_required(self)` method, which returns
+a truthy value when `self.request` (or some other view properties) are
+satisfactory. When it returns a falsy value, the request will be denied.
+
+To change the behavior upon a failed test, you can override the
+`test_required_denied(self, request, *args, **kwargs)` method. The base
+implementation simply calls `self.deny("test_required")`.
+
+You can disable the view behavior's functionality by setting the
+`test_required` attribute to a falsy value (`None` by default).
+
+This view behavior can be used to fill in any custom request checks that
+aren't covered by the other `auth` view behaviors.
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 #### `daydreamer.views.behaviors.http`
 
@@ -456,6 +609,8 @@ Finally, note that the `etag()` and `last_modified()` view decorators from
 `django.views.decorators.http` are not provided as view behavior classes. You
 can achieve the same functionality as these decorators by defining only one
 of `condtion_etag()` or `condition_last_modified()` on a `Condition` subclass.
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 #### `daydreamer.views.behaviors.cache`
 
@@ -531,6 +686,8 @@ As a side note, if `CachePage` is also inherited from and it appears *before*
 the page will be cached before the `NeverCache` behavior is applied. Combining
 these behaviors is probably a bad idea.
 
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 #### `daydreamer.views.behaviors.vary`
 
 The view behaviors in the `vary` package replace the view function decorators
@@ -552,7 +709,7 @@ It is equivalent to using `VaryOnHeaders` with the `vary_on_headers` attribute
 set to `"Cookie"`. You can disable the view behavior's functionality by setting
 `vary_on_cookie` to a falsy value (`True` by default).
 
-### Miscellaneous
+## Miscellaneous
 
 You can also find some cool things in `daydreamer.test`, like
 `daydreamer.test.views.generic.TestCase`, which lets you test a view class
