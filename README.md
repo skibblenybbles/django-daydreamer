@@ -55,7 +55,7 @@ by the order of the inherited `behaviors` base classes. In this case, the view:
     `PermissionDenied` exception on failure
 * checks if the user satisfies a test predicate, redirecting to the
     special signup page and messaging the user about the
-    special group when the predicate returns a fasly value
+    special group when the predicate returns a falsy value
 
 Of course, you won't want to repeat all of these attributes on your view
 classes, so set up a few base classes that provide the common behaviors you
@@ -69,46 +69,51 @@ easily made with view function decorators. See the documentation for details.
 ## Documentation
 
 Some features are described more thoroughly than others. For definitive
-documentation, please browse through the source code.
+documentation, please browse the source code.
 
 #### `daydreamer.views.core`
 
 The `core` package provides view base classes that define an inheritance
-structure and a framework for denying or allowing a request. The framework
-enforces the rule that denial should always happen before approval.
+structure and a framework for denying or allowing a request.
 
 The top-level base class is `Core`, which inherits from
-`django.views.generic.View`. It adds some useful features to all the
-other `daydreamer` views.
+`django.views.generic.View`. It adds some useful features to all
+`daydreamer` views.
 
-Next in the hierarchy is `Null`, inheriting from `Core`. It always returns
-a 405 method not allowed response. Next, two classes named `Deny` and `Allow`
-inherit from `Null`. Their purpose is to choose a request handler to deny or
-allow the request.
+Next in the hierarchy is `Null`, inheriting from `Core`. It `dispatch()` method
+always returns a 405 method not allowed response. Next, two classes named
+`Deny` and `Allow` inherit from `Null`. Their purpose is to choose a request
+handler to deny or allow the request.
 
 Finally, `HttpMethodDeny` and `HttpMethodAllow` inherit from `Deny` and
 `Allow`, respectively. In turn, these are used to define the base generic view,
 `daydreamer.views.generic.View`.
 
+The `core` view framework enforces the semantics that denial should always
+happen before approval. It also provides fine-grained control over the
+ordering of denial checks and the processing of allowed requests. To use it
+effectively, your view classes should not override `dispatch()`. Instead,
+they should use one of the object-oriented hooks described below.
+
 ##### `class daydreamer.views.core.Core(django.views.generic.View)`
 
 This is the base view class for all of `daydreamer`'s views. Generally,
-you will not not inherit from it directly. You will automatically inherit its
-functionality from other `daydreamer` views. `Core` provides several
+you will not not inherit from it directly, but you will automatically inherit
+its functionality from other `daydreamer` views. `Core` provides several
 useful methods:
 
 * `reverse()` reverses a named URL pattern, taking the arguments for
-    `django.core.urlresovlers.reverse()` plus additional arguments:
+    `django.core.urlresovlers.reverse()` plus these additional arguments:
     * `qualified=False` if truthy, the reversed URL will be fully-qualified,
         using the request's host and URL scheme
     * `scheme=None` when `qualified` is truthy, set this to override the
-        URL scheme
+        URL scheme, i.e. to "http" or "https"
 * `attachment()` returns an attachment response:
     * `data` the raw data to use for the attachment
     * `content_type` the attachment's content type (MIME type)
     * `filename` the attachment's filename
 * `redirect()` redirects to a named URL pattern, deferring to the `reverse()`
-    method with an additional argument:
+    method with one additional argument:
     * `permanent=False` if truthy, the redirect will be a permanent 301
         redirect instead of the default temporary 302 redirect
 * `gone()` returns a 410 gone response
@@ -134,33 +139,65 @@ def get_thing_for(self, owner):
 This view class always returns a 405 method not allowed response from
 its `dispatch()` method. It exists to serve as a safety net at the top
 of the `super()` chain for the `dispatch()` method. You will probably
-have no need to inherit directly from `Null`.
+never need to inherit directly from `Null`.
 
 ##### `class daydreamer.views.core.Allow(daydreamer.views.core.Null)`
+
+Provides a way to select a handler for a request that has been allowed,
+i.e. not denied. To hook into the selection process, override the
+`get_allow_handler()` method.
+
+###### `def get_allow_handler(self)`
+
+This method should either return a callable that accepts the
+`(request, *args, **kwargs)` arguments, or it should defer to `super()`.
+For example, you may want to provide a request handler only when a certain
+condition is met:
+
+```python
+def get_allow_handler(self):
+    if self.some_condition():
+        return self.allow_some_condition_handler
+    else:
+        return super(SomeView, self).get_allow_handler()
+```
+
 ##### `class daydreamer.views.core.Deny(daydreamer.views.core.Null)`
 
-These view classes provide the `get_allow_handler()` and `get_deny_handler()`
-methods, respectively, which should either allow or deny the request.
-Their `dispatch()` methods invoke the returned handler, deferring to
-`super()` when a handler is not returned. This way, multiple views that
-inherit from `Deny` or `Allow` can cooperatively choose a handler for the
-request in a `super()` call chain.
+Provides a way to select a handler to deny a request. To hook into the
+selection process, override the `get_deny_handler()` method.
+
+###### `def get_deny_handler(self)`
+
+This method should either return a callable that accepts the
+`(request, *args, **kwargs)` arguments, or it should defer to `super()`.
+This method will typically check for a certain condition and provide a
+request handler that denies the request with a redirect, error, etc.
+
+```python
+def get_deny_handler(self):
+    if not self.some_condition():
+        return self.deny_some_condition_handler
+    else:
+        return super(SomeView, self).get_deny_handler()
+```
 
 ##### `class daydreamer.views.core.HttpMethodAllow(daydreamer.views.core.Allow)`
 ##### `class daydreamer.views.core.HttpMethodDeny(daydreamer.views.core.Deny)`
 
-These view classes re-implements the basic behavior of
+These view classes re-implement the basic behavior of
 `django.views.generic.View`, leveraging the framework provided by
-`Allow` and `Deny`.
+`Allow` and `Deny`. When the request's method is in `http_method_names` and the
+view has a matching method name, i.e. `get()`, the request is allowed.
+Otherwise, it is denied with a 405 method not allowed response.
 
 ##### `class daydreamer.views.core.Denial(daydreamer.views.core.Deny)`
 
-This view class implements a denial API that is used extensively by the
-behavior views in `daydreamer.views.behaviors.auth`. It provides the `deny()`
-method, which implements the API. It should be called with an attribute
-name prefix, which will be used to look up the attributes that control the API.
-Generally, subclasses should use a prefix that matches the class name.
-The behavior of `deny()` is controlled by:
+This view class implements a declarative API for controlling request denial
+behavior. It provides the `deny()` method, whose behavior is controlled by
+attributes set on the class. The `deny()` method should be called with a name
+prefix, which it will use to look up the controlling attributes. The
+controlling attributes are:
 
 * `<prefix>_raise` whether an exception should be raised
 * `<prefix>_exception` a custom exception to be raised, defaulting to
@@ -178,27 +215,40 @@ The behavior of `deny()` is controlled by:
     a falsy value, no return URL query parameter will be included in the
     redirect URL.
 
-For usage examples, see the source in `daydreamer.views.behaviors.auth`.
+If `<prefix_raise>` is truthy, an exception will be raised immediately and
+the other attributes will be ignored. Otherwise, `deny()` will check if
+`<prefix_message>` has been set to determine whether to enqueue a message
+using the `django.core.contrib.messages` framework. Finally, it will return
+a redirect response based on the the `<prefix>_redirect_url` settings.
+
+To calculate any of these attributes dynamically, you can write them as
+`@property` methods. For more advanced usage, study the object-oriented hooks
+in the source code and override any methods as necessary.
+
+The views in `daydreamer.views.behaviors.auth` make extensive use of this API.
+See the source code for usage examples. Denial behaviors based on login state,
+account status, a user's groups, a user's permissions and generic tests are
+all provided, so the chances are good that you won't have to subclass `Denial`.
 
 #### `daydreamer.views.behaviors`
 
 The `behaviors` package provides a rich set of view classes for checking
-authentication information along with class-based replacements for all
+authentication status along with class-based replacements for all
 of Django's view decorators.
 
 Behaviors may inherit from `Deny`, `Allow` or `View`, which will determine
 whether and when they take effect with a call to `dispatch()`. Behaviors
-inheriting from `View` have the highest priority, which we'll call "dispatch"
+inheriting from `View` have the highest priority, which we'll call *dispatch*
 priority. Behaviors inheriting from `Deny` have the next highest priority,
-followed by behaviors inheriting from `Allow`. We'll call these "deny" and
-"allow" priority, respectively.
+which we'll call *deny* priority. Finally, behaviors inheriting from `Allow`
+have the lowest priority, which we'll call *allow* priority.
 
-The consequence of this design is that, even if you inherit from "dispatch,"
-"deny" and "allow" behaviors and mix them in the wrong order, the effect of
+The consequence of this design is that, even if you inherit from *dispatch*,
+*deny* and *allow*  behaviors and mix them in the wrong order, the effect of
 the behaviors will still be ordered correctly.
 
-For example, `CachePage` has "allow" priority and `LoginRequired` has deny
-priority. If we set up a view like so:
+For example, `CachePage` has *allow* priority and `LoginRequired` has *deny*
+priority. If we were to set up a view like this:
 
 ```python
 from daydreamer.views import behaviors, generic
@@ -207,22 +257,25 @@ class View(behaviors.CachePage, behaviors.LoginRequired, generic.View):
     # ...
 ```
 
-Even though the `CachePage` behavior appears first in the base class list,
-the framework will order the effects of the behaviors correctly so that
-the page will not be cached when `LoginRequired` returns a redirect or error.
+Even though `CachePage` appears first in the base class list, the framework
+will order the effects of the behaviors correctly so that the response will not
+be cached when `LoginRequired` returns a redirect or error (note that
+`CachePage` will actually only cache 200 OK responses, but the framework will
+actually skip calling `CachePage`'s behavior when `LoginRequired` handles
+the request).
 
-Note that, while this inheritance structure can help you avoid some simple
-mistakes, it's still possible to create a class with an indeterminate method
-resolution order. To avoid that problem, you should inherit from "dispatch"
-behaviors first, then "deny" behaviors, then "allow" behaviors and finally
-from the view base class you want to use, such as
+While this inheritance structure can help you avoid some simple mistakes, when
+inheriting from multiple base classes, it's still possible to create an
+indeterminate method resolution order. To avoid that problem, you should
+inherit from *dispatch* behaviors first, then *deny* behaviors, then *allow*
+behaviors and finally from a basic view class like
 `daydreamer.views.generic.TemplateView`.
 
-##### Why "Behaviors?"
+##### Why Are They Called "Behaviors?"
 
 The view classes in `daydreamer.views.behaviors` are meant to be inherited
-as base classes, not to "wrap" a function or class with functionality, so
-calling them "decorators" is not correct. Also, they inherit from view
+as base classes, not to wrap a function or class with functionality, so
+calling them "decorators" is not really correct. Also, they inherit from view
 classes in `daydreamer.views.core`, so they aren't "mixins" in the sense
 of being independent classes that only inherit from `object`. They are meant
 to modify the behavior of a view by hooking into the cooperative `super()`
