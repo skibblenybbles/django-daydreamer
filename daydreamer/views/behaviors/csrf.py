@@ -12,8 +12,8 @@ __all__ = (
 
 class CsrfProtect(generic.View):
     """
-    A view behavior that adds CSRF protection to a view the same at the top
-    level of the dispatch.
+    A view behavior that adds CSRF protection to a view at the top level of
+    the dispatch.
     
     Disable the view decorator's functionality by setting the csrf_protect
     attribute to a falsy value. Note that this is not the same as making the

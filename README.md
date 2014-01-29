@@ -236,8 +236,8 @@ The `behaviors` package provides a rich set of view classes for checking
 authentication status along with class-based replacements for all
 of Django's view decorators.
 
-Behaviors may inherit from `Deny`, `Allow` or `View`, which will determine
-whether and when they take effect with a call to `dispatch()`. Behaviors
+Behaviors may inherit from `View`, `Deny` or `Allow`, which determines
+whether and when they take effect when `dispatch()` is called. Behaviors
 inheriting from `View` have the highest priority, which we'll call *dispatch*
 priority. Behaviors inheriting from `Deny` have the next highest priority,
 which we'll call *deny* priority. Finally, behaviors inheriting from `Allow`
@@ -284,11 +284,122 @@ appropriate name.
 
 #### `daydreamer.views.behaviors.clickjacking`
 
+The view behaviors in the `clickjacking` package replace the view decorators
+from `django.views.decorators.clickjacking`. They all have *dispatch* priority,
+so that they can add or remove clickjacking headers for every response.
+
+##### `class XFrameOptionsDeny(daydreamer.views.generic.View)`
+
+Replaces the `django.views.decorators.clickjacking.xframe_options_deny()`
+view decorator. It adds an `X-Frame-Options` header with a value of `DENY` to
+every response. You can disable its functionality by setting the
+`xframe_options_deny` attribute to a falsy value (`True` by default).
+
+##### `class XFrameOptionsSameOrigin(daydreamer.views.generic.View)`
+
+Replaces the
+`django.views.decorators.clickjacking.xframe_options_same_origin()` view
+decorator. It adds an `X-Frame-Options` header with a value of `SAMEORIGIN` to
+every response. You can disable its functionality by setting the
+`xframe_options_same_origin` attribute to a falsy value (`True` by default).
+
+##### `class XFrameOptionsExempt(daydreamer.views.generic.View)`
+
+Replaces the `django.views.decorators.clickjacking.xframe_options_exempt()`
+view decorator. It prevents the clickjacking middleware from adding an
+`X-Frame-Options` header to the response. You can disable its functionality
+by setting the `xframe_options_exempt` attribute to a falsy value (`True`
+by default).
+
 #### `daydreamer.views.behaviors.csrf`
+
+The view behaviors in the `csrf` package replace the view function decorators
+from `django.views.decorators.csrf`. They all have *dispatch* priority, so that
+the CSRF middleware can deny a request as early as possible.
+
+##### `class CsrfProtect(daydreamer.views.generic.View)`
+
+Replaces the `django.views.decorators.csrf.csrf_protect()` view decorator.
+This is generally only useful if the CSRF middleware is not installed.
+Otherwise, the middleware protects all of your views. When CSRF middleware is
+not installed, you can disable the view behavior's functionality by setting
+the `csrf_protect` attribute to a falsy value (`True` by default).
+
+##### `class RequiresCsrfToken(daydreamer.views.generic.View)`
+
+Replaces the `django.views.decorators.csrf.requires_csrf_token()` view
+decorator. This is generally only useful if the CSRF middleware is not
+installed. It ensures that `csrf_token` will be available in the context
+for template rendering, but only when a `RequestContext` is created. When
+CSRF middleware is installed, this functionality is automatic. When CSRF
+middleware is not installed, you can disabled the view behavior's functionality
+by setting the `requires_csrf_token` attribute to a falsy value (`True`
+by default).
+
+##### `class EnsureCsrfCookie(daydreamer.views.generic.View)`
+
+Replaces the `django.views.decorators.csrf.ensure_csrf_cookie()` view
+decorator. This ensures that the CSRF cookie will always be set on the
+response, regardless of whether a `csrf_token` was rendered in the template.
+The view behavior's functionality can be disabled by setting the
+`ensure_csrf_cookie` attribute to a falsy value (`True` by default). Note that
+this won't prevent the cookie from being written through the normal process.
+
+For sites that have CSRF-protected AJAX functionality, mix this view behavior
+into all of your normal page views to eliminate headaches where the CSRF cookie
+is randomly unavailable for AJAX requests.
+
+##### `class CsrfExempt(daydreamer.views.generic.View)`
+
+Replaces the `django.views.decorators.csrf.csrf_exempt()` view decorator.
+This disables the CSRF middleware so that a view will not be CSRF-protected.
+The view behavior's functionality can be disabled by setting the `csrf_exempt`
+attribute to a falsy value (`True` by default).
 
 #### `daydreamer.views.behaviors.debug`
 
+The view behaviors in the `debug` package replace the view function decorators
+from `django.views.decorators.debug`. They all have *dispatch* priority,
+because they need to add attributes to the view function returned by Django's
+URL resolution framework.
+
+##### `class SensitiveVariables(daydreamer.views.generic.View)`
+
+Replaces the `django.views.decorators.debug.sensitive_variables()` view
+decorator. Set the `sensitive_variables` attribute to a string or an iterable
+of strings to protect particular sensitive variable names. Set it to an
+otherwise truthy value to protect all variable names. Otherwise, set it to a
+falsy value to disable the view behavior's functionality. Its value is `True`
+by default to protect all variable names.
+
+This behavior affects logging when `settings.DEBUG` is turned off. The values
+of protected variable names will be obfuscated in error traceback logs.
+
+##### `class SensitivePostParameters(daydreamer.views.generic.View)`
+
+Replaces the `django.views.decorators.debug.sensitive_post_parameters()` view
+decorator. Set the `sensitive_post_paramters` attribute to a string or an
+iterable of strings to protect particular POST request parameters. Set it to
+an otherwise truthy value to protect all POST request parameters. Otherwise,
+set it to a falsy value to disable the view behavior's functionality. Its
+value is `True` by default to protect all POST request parameters.
+
+This behavior affects logging when `settings.DEBUG` is turned off. The values
+of protected POST request parameters will be obfuscated in request error logs.
+
 #### `daydreamer.views.behaviors.gzip`
+
+The view behaviors in the `gzip` package replace the view function decorators
+from `django.views.decorators.gzip`. They all have *dispatch* priority, because
+they modify any kind of response from the view.
+
+##### `class GZipPage(daydreamer.views.generic.View)`
+
+Replaces the `django.views.decorators.gzip.gzip_page()` view decorator. When
+the response meets certain criteria for content size, content type and
+the request's `User-Agent` headers, the behavior gzips the response. To disable
+the view behavior's functionality, set the `gzip_page` attribute to a
+falsy value.
 
 #### `daydreamer.views.behaviors.auth`
 
@@ -297,11 +408,149 @@ provided by `daydreamer.views.core.Denial`, so each behavior can be controlled
 with attributes such as `login_required_raise` for the `LoginRequired`
 behavior. See the `Denial` documentation above for details.
 
+
+
+
 #### `daydreamer.views.behaviors.http`
+
+The view behaviors in the `http` package replace the view function decorators
+from `django.views.decorators.http`. They all have *deny* priority, except
+for `Condtion`, which has the lowest *allow* priority.
+
+##### `class RequireGET(daydreamer.views.core.HttpMethodDeny)`
+
+Replaces the `django.views.decorators.http.require_GET()` view decorator. The
+implementation is trivial, as it simply sets the `http_method_names` attribute
+to `("get",)`. This behavior class is probably not very useful, but it is
+provided for completeness.
+
+##### `class RequirePOST(daydreamer.views.core.HttpMethodDeny)`
+
+Replaces the `django.views.decorators.http.require_POST()` view decorator. Like
+`RequireGET`, its implementation is trivial, setting the `http_method_names`
+attribute to `("post",)`.
+
+##### `class RequireSafe(daydreamer.views.core.HttpMethodDeny)`
+
+Replaces the `django.views.decorators.http.require_safe()` view decorator.
+Again, it is implemented trivially by setting the `http_method_names` attribute
+to `("get", "head",)`.
+
+##### `class Condition(daydreamer.views.core.HttpMethodAllow)`
+
+Replaces the `django.views.decorators.http.condition()` view decorator. You may
+define a `condition_etag()` method to compute the ETag string for the requested
+resource. You may also define a `condition_last_modified()` method to compute
+the last modified `datetime` for the requested resource. Both methods should
+take the request, arguments and keyword arguments from the URL resolver, i.e.
+`(request, *args, **kwargs)`. If neither method is defined, the behavior will
+be disabled.
+
+`ETag` and `Last-Modified` headers provide a way to short-circuit a view by
+immediately returning a 304 not modified response. When implemented with a bit
+of clever caching, you can arrange to avoid all database queries and processing
+time to render a response, significantly speeding up your application servers'
+response times.
+
+Finally, note that the `etag()` and `last_modified()` view decorators from
+`django.views.decorators.http` are not provided as view behavior classes. You
+can achieve the same functionality as these decorators by defining only one
+of `condtion_etag()` or `condition_last_modified()` on a `Condition` subclass.
 
 #### `daydreamer.views.behaviors.cache`
 
+The view behaviors in the `cache` package replace the view function decorators
+from `django.views.decorators.cache`. They all have the lowest *allow*
+priority, as caching should only be performed on requests that have not
+been denied.
+
+##### `class CachePage(daydreamer.views.core.HttpMethodAllow)`
+
+Replaces the `django.views.decorators.cache.cache_page()` view decorator.
+You can set any of the `cache_page_timeout`, `cache_page_cache` or
+`cache_page_key_prefix` attributes to override Django's defaults for the
+timeout, cache name or key prefix used for caching. You can disable the view
+behavior's functionality by setting the `cache_page` attribute to a
+falsy value.
+
+This view behavior is tempting to use, just like the decorator. But, caching
+is affected by the `Vary` and `Cache-Control` response headers, which may not
+get set to their final values until the response middleware runs, which will
+happen after this behavior has been applied.
+
+Take extra care when using this behavior to make sure that it caches the
+response at the correct time. It's probably safer to use the two-part caching
+middleware, which you can find in Django's caching docs. For relatively safe
+usage of this behavior, set `settings.CACHE_MIDDLEWARE_ANONYMOUS_ONLY` to
+`True`, which will prevent accidental caching of resources that may only be
+accessible to authenticated users.
+
+For experienced developers, this behavior could be used in concert with
+`daydreamer.views.behaviors.CacheControl` and `daydreamer.views.behaviors.Vary`
+to implement safe, page-level caching even for authenticated users. However,
+please read and understand Django's implementation of the `cache_page()`
+view decorator and the underlying `CacheMiddleware` before making such
+an attempt.
+
+##### `class CacheControl(daydreamer.views.core.HttpMethodAllow)`
+
+Replaces the `django.views.decorators.cache.cache_control()` view decorator.
+This view behavior adds a `Cache-Control` header to the response setting one
+or more values. The behavior is configured by these attributes:
+
+* `cache_control_public` if `None`, doesn't affect the header. If truthy, adds
+    `public` to the header. If falsy (and not `None`), adds `private` to
+    the header
+* `cache_control_no_cache` if truthy, adds `no-cache` to the header
+* `cache_control_no_transform` if truthy, adds `no-transform` to the header
+* `cache_control_must_revalidate` if truthy, adds `must-revalidate` to
+    the header
+* `cache_control_proxy_revalidate` if truthy, adds `proxy-revalidate` to
+    the header
+* `cache_control_max_age` if not falsy, it must be a number specifying the
+    `max-age` value to add to the header
+* `cache_control_s_maxage` if not falsy, it must be a number specifying the
+    `s-maxage` value to add to the header
+
+This low-level view behavior manages upstream caching of responses, so be sure
+you know what you're doing if you choose to use it. Otherwise, Django's
+middleware will handle these details in a minimal and correct way by default.
+You can disable the view behavior's functionality by setting the
+`cache_control` attribute to a falsy value (`True` by default) or by setting
+all of the `cache_control_*` attributes to `None`.
+
+##### `class NeverCache(daydreamer.views.core.HttpMethodAllow)`
+
+Replaces the `django.views.decorators.cache.never_cache()` view decorator.
+This view behavior adds a `Cache-Control` header with the value `max-age=0`
+to the response. You can disable the view behavior's functionality by setting
+the `never_cache` attribute to a falsy value (`True` by default).
+
+As a side note, if `CachePage` is also inherited from and it appears *before*
+`NeverCache` in the inheritance order, caching will be disabled. Otherwise,
+the page will be cached before the `NeverCache` behavior is applied. Combining
+these behaviors is probably a bad idea.
+
 #### `daydreamer.views.behaviors.vary`
+
+The view behaviors in the `vary` package replace the view function decorators
+from `django.views.decorators.vary`. They all have the lowest *allow* priority,
+as these headers probably don't make sense for error or redirect responses.
+
+##### `class VaryOnHeaders(daydreamer.views.core.HttpMethodAllow)`
+
+Replaces the `django.views.decorators.vary.vary_on_headers()` view decorator.
+This view behavior adds the string or iterable of strings specified in the
+`vary_on_headers` attribute to the response's `Vary` header. You can disable
+the view behavior's functionality by setting `vary_on_headers` to a falsy
+value (`None` by default).
+
+##### `class VaryOnCookie(daydreamer.views.core.HttpMethodAllow)`
+
+Replaces the `django.views.decorators.vary.vary_on_headers()` view decorator.
+It is equivalent to using `VaryOnHeaders` with the `vary_on_headers` attribute
+set to `"Cookie"`. You can disable the view behavior's functionality by setting
+`vary_on_cookie` to a falsy value (`True` by default).
 
 ### Miscellaneous
 

@@ -44,7 +44,7 @@ class Condition(core.http.HttpMethodAllow):
     last modified datetime for the requestd resource. Both methods should
     take the request, arguments and keyword arguments from the URL dispatcher,
     i.e. (self, request, *args, **kwargs). If neither method is defined,
-    the decorator will be disabled.
+    the behavior will be disabled.
     
     See the django.views.decorators.http.condition() view decorator
     for details.
