@@ -870,6 +870,11 @@ to use a specific version and read the changelog before attempting to upgrade.
     flexibility and potentially for use as a library
 * View code has 100% test coverage
 
+##### 0.0.3a
+
+* Fixes a bug in `daydreamer.core.urlresolvers.reverse()` where the `qualified`
+    argument was not properly honored because of a typo (still needs tests)
+
 ## Why?
 
 First of all, I find using the `@method_decorator` syntax to be ugly and
