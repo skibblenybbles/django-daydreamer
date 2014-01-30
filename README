@@ -1,1 +1,2 @@
-A Django class-based view utility library
+A class-based view library for Django, implementing all of Django's view 
+decorators as view behavior classes.

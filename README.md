@@ -1,7 +1,8 @@
 django-daydreamer
 =================
 
-A Django class-based view utility library.
+A class-based view library for Django, implementing all of Django's view
+decorators as view behavior classes.
 
 ## Quickstart
 
@@ -23,9 +24,6 @@ class ProtectedResourceView(behaviors.LoginRequired, behaviors.ActiveRequired,
     
     template_name = "resources/detail.html"
     
-    login_required = True
-    
-    active_required = True
     active_required_message = "Your account has been deactivated."
     active_required_redirect_url = urlresolvers.reverse_lazy("users:deactivated")
     
@@ -44,29 +42,140 @@ class ProtectedResourceView(behaviors.LoginRequired, behaviors.ActiveRequired,
 
 The resulting view will perform a sequence of authentication checks before its
 `get()` method is called. The order of the authentication checks is controlled
-by the order of the inherited `behaviors` base classes. In this case, the view:
+by the order of the inherited `behaviors` classes. In this case, the view will:
 
-* checks if the user is logged in, redirecting to the login page upon
-    failure, just like Django's `@login_required` decorator
-* checks if the user's account is active, redirecting to the deactivated
-    user information page and messaging the user about the account status
-    upon failure
-* checks if the user has one or more permissions, raising a
-    `PermissionDenied` exception on failure
-* checks if the user satisfies a test predicate, redirecting to the
-    special signup page and messaging the user about the
-    special group when the predicate returns a falsy value
+* check if the user is logged in, redirecting to the login page upon failure,
+    just like Django's `@login_required` decorator (implemented by
+    `daydreamer.views.behaviors.LoginRequired`)
+* check if the user's account is active, redirecting to the deactivated user
+    page and messaging the user about the the account status upon failure
+    (implemented by `daydreamer.views.behaviors.ActiveRequired`)
+* check if the user has the `"resources.resource_read"` permission, raising
+    a `PermissionDenied` exception upon failure (implemented by
+    `daydreamer.views.behaviors.PermissionsRequired`)
+* run the custom test predicate, `test_required()`, redirecting to the special
+    signup page and messaging the user about the special group when the
+    predicate test fails (implemented by
+    `daydreamer.views.behaviors.TestRequired`)
+* if all of the inherited `behaviors` checks pass, the normal view dispatch
+    will proceed, and the `get()` method will be called to generate a response.
 
-Of course, you won't want to repeat all of these attributes on your view
-classes, so set up a few base classes that provide the common behaviors you
-need and inherit from them throughout your view codebase.
+Of course, you won't want to repeat all of this work for all of your view
+classes. You should set up a few base classes that provide the common behaviors
+you need, inherit from them throughout your view codebase and make
+customizations where necessary.
 
-A rich suite of authentication view behaviors are provided as base classes.
-Additionally, all of Django's view decorators are implemented as base classes,
-whose inheritance structure is designed to help you avoid mistakes that can be
-easily made with view function decorators. See the documentation for details.
+`daydreamer` provides a rich suite of authentication view behaviors as base
+classes. It also implements all of Django's view decorators as base classes,
+using an inheritance structure that is designed to help you avoid mistakes
+that can be easily made with view decorators. See the documentation
+for details.
 
 ## Documentation
+
+The documentation is organized by package name. Use the index to skip to
+a package's or class' documentation.
+
+* [**`daydreamer.views.core`**](#daydreamerviewscore) `daydreamer`'s core view
+    dispatch system
+    * [**`Core`**](#class-coredjangoviewsgenericview) the common base class for
+        all `daydreamer` views, providing helpful view utility methods
+    * [**`Null`**](#class-nulldaydreamerviewscorecore) the safety net class at
+        the end of the `dispatch()` chain
+    * [**`Allow`**](#class-allowdaydreamerviewscorenull) provides a framework
+        for selecting a handler to allow the request
+    * [**`Deny`**](#class-denydaydreamerviewscorenull) provides a framework
+        for selecting a handler to deny the request
+    * [**`HttpMethodAllow`**](#class-httpmethodallowdaydreamerviewscoreallow)
+        selects a handler to allow the request, like `get()`, `post()`, etc.
+    * [**`HttpMethodDeny`**](#class-httpmethoddenydaydreamerviewscoredeny)
+        selects a handler to deny the request with a 405 method not
+        allowed response
+    * [**`Denial`**](#class-denialdaydreamerviewscoredeny) provides a framework
+        for denying requests with a convenient, declarative API
+* [**`daydreamer.views.behaviors`**](#daydreamerviewsbehaviors) an overview of
+    `daydreamer`'s view behavior class architecture
+* [**`daydreamer.views.behaviors.clickjacking`**](#daydreamerviewsbehaviorsclickjacking)
+    view behaviors that replace the view decorators from
+    `django.views.decorators.clickjacking`
+    * [**`XFrameOptionsDeny`**](class-xframeoptionsdenydaydreamerviewsgenericview)
+        replaces `django.views.decorators.clickjacking.xframe_options_deny`
+    * [**`XFrameOptionsSameOrigin`**](#class-xframeoptionssameorigindaydreamerviewsgenericview)
+        replaces `django.views.decorators.clickjacking.xframe_options_same_origin`
+    * [**`XFrameOptionsExempt`**](#class-xframeoptionsexemptdaydreamerviewsgenericview)
+        replaces `django.views.decorators.clickjacking.xframe_options_exempt`
+* [**`daydreamer.views.behaviors.csrf`**](#daydreamerviewsbehaviorscsrf)
+    view behaviors that replace the view decorators from
+    `django.views.decorators.csrf`
+    * [**`CsrfProtect`**](#class-csrfprotectdaydreamerviewsgenericview)
+        replaces `django.views.decorators.csrf.csrf_protect`
+    * [**`RequiresCsrfToken`**](#class-requirescsrftokendaydreamerviewsgenericview)
+        replaces `django.views.decorators.csrf.requires_csrf_token`
+    * [**`EnsureCsrfCookie`**](#class-ensurecsrfcookiedaydreamerviewsgenericview)
+        replaces `django.views.decorators.csrf.ensure_csrf_cookie`
+    * [**`CsrfExempt`**](#class-csrfexemptdaydreamerviewsgenericview)
+        replaces `django.views.decorators.csrf.csrf_exempt`
+* [**`daydreamer.views.behaviors.debug`**](#daydreamerviewsbehaviorsdebug)
+    view behaviors that replace the view decorators from
+    `django.views.decorators.debug`
+    * [**`SensitiveVariables`**](#class-sensitivevariablesdaydreamerviewsgenericview)
+        replaces `django.views.decorators.debug.sensitive_variables`
+    * [**`SensitivePostParameters`**](#class-sensitivepostparametersdaydreamerviewsgenericview)
+        replaces `django.views.decorators.debug.sensitive_post_parameters`
+* [**`daydreamer.views.behaviors.gzip`**](#daydreamerviewsbehaviorsgzip)
+    view behaviors that replace the view decorators from
+    `django.views.decorators.gzip`
+    * [**`GZipPage`**](#class-gzippagedaydreamerviewsgenericview)
+        replaces `django.views.decorators.gzip.gzip_page`
+* [**`daydreamer.views.behaviors.auth`**](#daydreamerviewsbehaviorsauth)
+    view behaviors that replace and enhance the view decorators from
+    `django.contrib.auth.decorators` using the framework provided by the
+    `Denial` view behavior class
+    * [**`LoginRequired`**](#class-loginrequireddaydreamerviewscoredenial)
+        requires a logged-in user
+    * [**`ActiveRequired`**](#class-activerequireddaydreamerviewscoredenial)
+        requires an active user
+    * [**`StaffRequired`**](#class-staffrequireddaydreamerviewscoredenial)
+        requires a staff user
+    * [**`SuperuserRequired`**](#class-superuserrequireddaydreamerviewscoredenial)
+        requires a superuser
+    * [**`GroupsRequired`**](#class-groupsrequireddaydreamerviewscoredenial)
+        requires the user to be in a set of groups
+    * [**`PermissionsRequired`**](#class-permissionsrequireddaydreamerviewscoredenial)
+        requires the user to have a set of permissions
+    * [**`ObjectPermissionsRequired`**](#class-objectpermissionsrequireddaydreamerviewscoredenial)
+        requires the user to have a set of permissions for a particular object
+        (not functional for vanilla Django)
+    * [**`TestRequired`**](#class-testrequireddaydreamerviewscoredenial)
+        requires the request to pass a test predicate
+* [**`daydreamer.views.behaviors.http`**](#daydreamerviewsbehaviorshttp)
+    view behaviors that replace the view decorators from
+    `django.views.decorators.http`
+    * [**`RequireGET`**](#class-requiregetdaydreamerviewscorehttpmethoddeny)
+        replaces `django.views.decorators.http.require_GET`
+    * [**`RequirePOST`**](#class-requirepostdaydreamerviewscorehttpmethoddeny)
+        replaces `django.views.decorators.http.require_POST`
+    * [**`RequireSafe`**](#class-requiresafedaydreamerviewscorehttpmethoddeny)
+        replaces `django.views.decorators.http.require_safe`
+    * [**`Condition`**](#class-conditiondaydreamerviewscorehttpmethodallow)
+        replaces the `condition`, `etag` and `last_modified` view decorators
+        from `django.views.decorators.http`
+* [**`daydreamer.views.behaviors.cache`**](#daydreamerviewsbehaviorscache)
+    view behaviors that replace the view decorators from
+    `django.views.decorators.cache`
+    * [**`CachePage`**](#class-cachepagedaydreamerviewscorehttpmethodallow)
+        replaces `django.views.decorators.cache.cache_page`
+    * [**`CacheControl`**](#class-cachecontroldaydreamerviewscorehttpmethodallow)
+        replaces `django.views.decorators.cache.cache_control`
+    * [**`NeverCache`**](#class-nevercachedaydreamerviewscorehttpmethodallow)
+        replaces `django.views.decorators.cache.never_cache`
+* [**`daydreamer.views.behaviors.vary`**](#daydreamerviewsbehaviorsvary)
+    view behaviors that replace the view decorators from
+    `django.views.decorators.vary`
+    * [**`VaryOnHeaders`**](#class-varyonheadersdaydreamerviewscorehttpmethodallow)
+        replaces `django.views.decorators.vary.vary_on_headers`
+    * [**`VaryOnCookie`**](#class-varyoncookiedaydreamerviewscorehttpmethodallow)
+        replaces `django.views.decorators.vary.vary_on_cookie`
 
 Some features are described more thoroughly than others. For definitive
 documentation, please browse the source code.
@@ -145,12 +254,10 @@ never need to inherit directly from `Null`.
 
 Provides a way to select a handler for a request that has been allowed,
 i.e. not denied. To hook into the selection process, override the
-`get_allow_handler()` method.
+`get_allow_handler()` method. The method should either return a callable that
+accepts the `(request, *args, **kwargs)` arguments, or it should defer
+to `super()`.
 
-###### `def get_allow_handler(self)`
-
-This method should either return a callable that accepts the
-`(request, *args, **kwargs)` arguments, or it should defer to `super()`.
 For example, you may want to provide a request handler only when a certain
 condition is met:
 
@@ -165,14 +272,12 @@ def get_allow_handler(self):
 ##### `class Deny(daydreamer.views.core.Null)`
 
 Provides a way to select a handler to deny a request. To hook into the
-selection process, override the `get_deny_handler()` method.
+selection process, override the `get_deny_handler()` method. The method should
+either return a callable that accepts the `(request, *args, **kwargs)`
+arguments, or it should defer to `super()`.
 
-###### `def get_deny_handler(self)`
-
-This method should either return a callable that accepts the
-`(request, *args, **kwargs)` arguments, or it should defer to `super()`.
 This method will typically check for a certain condition and return a
-request handler that denies the request with a redirect, error, etc.
+handler that denies the request with a redirect, error, etc.:
 
 ```python
 def get_deny_handler(self):
@@ -833,12 +938,12 @@ technique, and it shows that a view class library like this needs to be
 written and tested very carefully, with a thorough understanding of the
 underlying Django code.
 
-Finally, I found the lack of completeness in libraries like django-braces
-to be disappointing. The `daydreamer` library remedies this problem by
-implementing the full suite of Django's view decorators as view behavior
-classes that can be mixed and matched with a higher degree of confidence.
-It also provides a ton of object-oriented hooks that you can use to make
-minor or major adjustments to the decisions implemented by the library.
+Finally, I found the lack of completeness in other view libraries to be
+disappointing. The `daydreamer` library remedies this problem by implementing
+the full suite of Django's view decorators as view behavior classes that can
+be mixed and matched with a high degree of confidence. It also provides many
+object-oriented hooks that you can use to make adjustments to the decisions
+implemented by the library.
 
 ## Editorial
 
