@@ -77,7 +77,7 @@ def reverse(viewname, qualified=False, scheme=None, request=None, **kwargs):
     """
     url = urlresolvers.reverse(viewname, **kwargs)
     if qualified:
-        path = "{scheme:s}://{host:s}{url:s}".format(
+        return "{scheme:s}://{host:s}{url:s}".format(
             scheme=(
                 scheme
                     if scheme is not None
