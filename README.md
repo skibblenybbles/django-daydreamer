@@ -765,22 +765,97 @@ to use a specific version and read the changelog before attempting to upgrade.
     flexibility and potentially for use as a library
 * View code has 100% test coverage
 
+## Why?
+
+First of all, I find using the `@method_decorator` syntax to be ugly and
+awkward, especially when multiple decorators are required. Once you get over
+the learning curve, class-based views save so much work, and for me, they've
+breathed new life into the Django coding experience. I think they really
+deserve more love than an ugly adapter for function views. Additionally, view
+decorators need to be applied in a relatively obscure and undocumented order,
+which I believe discourages their use.
+
+Beyond that, libraries like 
+<a href="https://github.com/brack3t/django-braces" target="_blank">django-braces</a>
+are quickly growing in popularity. The django-braces project is very helpful,
+but looking closely at its implementation, you can see that some subtle bugs
+can be accidentally written.
+
+Consider these two view classes:
+
+```python
+from braces import views as braces
+from django.views import generic
+
+class GoodView(braces.CsrfExempt, generic.TemplateView):
+    template_name = "some_template.html"
+    
+    def post(self, request, *args, **kwargs):
+        # This will be exempt from CSRF checks.
+        # ...
+
+class BadView(braces.CsrfExempt, generic.TemplateView)
+    template_name = "some_template.html"
+    
+    def post(self, request, *args, **kwargs):
+        # This will NOT be exempt from CSRF checks.
+        # ...
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Do something novel.
+        # ...
+        return super(BadView, self).dispatch(request, *args, **kwargs)
+```
+
+When we create a view from `GoodView` with `GoodView.as_view()`, the returned
+view function will have a `csrf_exempt` attribute set on it with a value of
+`True`. This is the effect of the `@csrf_exempt` decorator. It's how the
+CSRF middleware is informed that the view does not need CSRF protection.
+
+When we create a view from `BadView` with `BadView.as_view()`, the returned
+view function will be missing the `csrf_exempt` attribute, and the CSRF
+middleware will apply CSRF protection to the view, despite inheritance
+from `braces.CsrfExempt`.
+
+The reason why, is that `braces.CsrfExempt` is implemented by adding a
+`@method_decorator(csrf_exempt)` decorator to a `dispatch()` method that it
+defines. When we override `dispatch()` in `BadView`, the effect of the
+decorator is lost, because method attributes are not inherited.
+
+The `daydreamer` library works around this problem by overriding the
+`as_view()` class method and decorating the view function returned by its
+`super()`. The Django view decorators use the `@functools.wraps` decorator
+properly, so view attributes are passed through, even when multiple decorators
+are applied with this technique.
+
+This points out one of the inherent weaknesses in the `@method_decorator`
+technique, and it shows that a view class library like this needs to be
+written and tested very carefully, with a thorough understanding of the
+underlying Django code.
+
+Finally, I found the lack of completeness in libraries like django-braces
+to be disappointing. The `daydreamer` library remedies this problem by
+implementing the full suite of Django's view decorators as view behavior
+classes that can be mixed and matched with a higher degree of confidence.
+It also provides a ton of object-oriented hooks that you can use to make
+minor or major adjustments to the decisions implemented by the library.
+
 ## Editorial
 
 Depending on your perspective, you may love or hate the object-oriented design
-for the views provided by `daydreamer`. The library encourages the use of a
-lot of multiple inheritance supported by `super()` chaining.
+for the view classes provided by `daydreamer`. The library encourages the use
+of a lot of multiple inheritance supported by `super()` chaining.
 
 If you want Python to be Java, where you have single inheritance and some
-"mixins" that work kind of like interfaces, you'll probably hate this code.
+"mixins" that work kind of like interfaces, you'll probably hate this design.
 
 If you want Python to be C++, where methods with the same name, inherited from
 multiple base classes need to be manually resolved, you'll probably find the
-code horribly confusing.
+design horribly confusing.
 
 If you're like me, and you want Python to be Common Lisp, where cooperative
 "next method" chaining is a common and powerful design pattern, you'll probably
-love this code.
+love this design.
 
 Python inherited its `super()` functionality and method resolution order
 algorithm from Dylan with the release of Python 2.3. Dylan got the idea from
@@ -790,4 +865,13 @@ of code design patterns emerges. If you're interested in learning more about
 Python's method resolution order (MRO), check out
 <a href="http://python-history.blogspot.com/2010/06/method-resolution-order.html" target="_blank">
     Guido's article on the history of MRO
+</a>.
+If you are interested in learning where these ideas came from, pick up a copy of
+<a href="http://www.amazon.com/ANSI-Common-LISP-Paul-Graham/dp/0133708756/" target="_blank">
+    Paul Graham's *ANSI Common Lisp*
+</a>,
+or if you're feeling more adventurous and want to see how to actually build
+these things, try tackling
+<a href="http://www.paulgraham.com/onlisptext.html" target="_blank">
+    Paul Graham's incredible *On Lisp*
 </a>.
